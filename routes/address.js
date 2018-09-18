@@ -1,9 +1,20 @@
+/*
+
+*/
+
 "use strict";
 
 const express = require("express");
 const router = express.Router();
 const axios = require("axios");
 const RateLimit = require("express-rate-limit");
+
+const util = require("util");
+util.inspect.defaultOptions = {
+  showHidden: true,
+  colors: true,
+  depth: 1,
+};
 
 const BITBOXCli = require("bitbox-cli/lib/bitbox-cli").default;
 const BITBOX = new BITBOXCli();
@@ -32,15 +43,25 @@ while (i < 6) {
   i++;
 }
 
-router.get("/", config.addressRateLimit1, (req, res, next) => {
-  res.json({ status: "address" });
-});
+// Connect the route endpoints to their handler functions.
+router.get("/", config.addressRateLimit1, root);
+router.get("/details/:address", config.addressRateLimit2, details2);
+router.get("/utxo/:address", config.addressRateLimit3, utxo);
 
-router.get("/details/:address", config.addressRateLimit2, (req, res, next) => {
+// Root API endpoint. Simply acknowledges that it exists.
+function root(req, res, next) {
+  return res.json({ status: "address" });
+}
+
+// Retrieve details on an address.
+function details(req, res, next) {
+  console.log(`executing details. req.params: ${JSON.stringify(req.params)}`);
   try {
+    // --> This code path never executes. Can you give me a CURL statement that would execute it?
     let addresses = JSON.parse(req.params.address);
+    //console.log(`addresses: ${JSON.stringify(addresses,null,2)}`)
 
-    // Enforce no more than 20 addresses.
+    // Enforce: no more than 20 addresses.
     if (addresses.length > 20) {
       res.json({
         error: "Array too large. Max 20 addresses",
@@ -49,11 +70,16 @@ router.get("/details/:address", config.addressRateLimit2, (req, res, next) => {
 
     const result = [];
     addresses = addresses.map(address => {
+      console.log(`executing addresses.map...`);
       const path = `${process.env.BITCOINCOM_BASEURL}addr/${BITBOX.Address.toLegacyAddress(
         address
       )}`;
-      return axios.get(path); // Returns a promise.
+      //console.log(`URL path: ${path}`);
+      const temp = axios.get(path); // Returns a promise.
+      console.log(`axios returned: ${util.inspect(temp)}`);
+      return temp;
     });
+    console.log(`addresses: ${JSON.stringify(addresses)}`);
 
     axios.all(addresses).then(
       axios.spread((...args) => {
@@ -67,11 +93,15 @@ router.get("/details/:address", config.addressRateLimit2, (req, res, next) => {
         res.json(result);
       })
     );
+
+    // Typically executes because JSON.parse() errors out.
   } catch (error) {
+    //console.log(`Caught error in details: `, error);
     let path = `${process.env.BITCOINCOM_BASEURL}addr/${BITBOX.Address.toLegacyAddress(
       req.params.address
     )}`;
     if (req.query.from && req.query.to) path = `${path}?from=${req.query.from}&to=${req.query.to}`;
+    console.log(`path: ${path}`);
 
     axios
       .get(path)
@@ -83,12 +113,137 @@ router.get("/details/:address", config.addressRateLimit2, (req, res, next) => {
         res.json(parsed);
       })
       .catch(error => {
+        //console.error(`details caught: `, error);
+        console.error(`details errored out.`, error);
         res.send(error.response.data.error.message);
       });
   }
-});
+}
 
-router.get("/utxo/:address", config.addressRateLimit3, (req, res, next) => {
+// A new implementation of details.
+async function details2(req, res, next) {
+  try {
+    //console.log(`address param: ${JSON.stringify(req.params.address, null, 2)}`); // Used for debugging.
+    let addresses = req.params.address;
+
+    // Force the input to be an array if it isn't.
+    if (!Array.isArray(addresses)) addresses = [addresses];
+
+    // Parse the array.
+    try {
+      addresses = JSON.parse(addresses);
+      // console.log(`addreses: ${JSON.stringify(addresses, null, 2)}`); // Used for debugging.
+    } catch (err) {
+      // Dev Note: This block triggered by non-array input, such as a curl
+      // statement. It should silently exit this catch statement.
+    }
+
+    // Enforce: no more than 20 addresses.
+    if (addresses.length > 20) {
+      res.status(400);
+      return res.json({
+        error: "Array too large. Max 20 addresses",
+      });
+    }
+
+    // Loop through each address.
+    const retArray = [];
+    for (var i = 0; i < addresses.length; i++) {
+      const thisAddress = addresses[i]; // Current address.
+
+      // Ensure the input is a valid BCH address.
+      try {
+        var legacyAddr = BITBOX.Address.toLegacyAddress(thisAddress);
+      } catch (err) {
+        res.status(400);
+        return res.send(`Invalid BCH address. Double check your address is valid: ${thisAddress}`);
+      }
+      //console.log(`legacyAddr: ${legacyAddr}`);  // Used for debugging.
+
+      let path = `${process.env.BITCOINCOM_BASEURL}/addr/${legacyAddr}`;
+
+      // Not sure what this is doing?
+      if (req.query.from && req.query.to)
+        path = `${path}?from=${req.query.from}&to=${req.query.to}`;
+      //console.log(`path: ${path}`); // Used for debugging.
+
+      // Query the Insight server.
+      const response = await axios.get(path);
+
+      // Parse the returned data.
+      const parsed = response.data;
+      parsed.legacyAddress = BITBOX.Address.toLegacyAddress(thisAddress);
+      parsed.cashAddress = BITBOX.Address.toCashAddress(thisAddress);
+
+      retArray.push(parsed);
+
+      //await _sleep(1000); // Wait 1 second before the next query?
+    }
+
+    // Return the array of retrieved address information.
+    res.status(200);
+    return res.json(retArray);
+  } catch (err) {
+    // Write out error to console or debug log.
+    //console.log(`Error in address.js/details(): `, err);
+
+    // Return an error message to the caller.
+    res.status(500);
+    return res.json(`Error in address.js/details(): ${err.message}`);
+  }
+}
+
+async function utxo2(req, res, next) {
+  try {
+    const addresses = req.params.address;
+
+    // Enforce: no more than 20 addresses.
+    if (addresses.length > 20) {
+      res.status(400);
+      return res.json({
+        error: "Array too large. Max 20 addresses",
+      });
+    }
+
+    // Loop through each address.
+    const retArray = [];
+    for (var i = 0; i < addresses.length; i++) {
+      const thisAddress = addresses[i]; // Current address.
+
+      // Ensure the input is a valid BCH address.
+      try {
+        var legacyAddr = BITBOX.Address.toLegacyAddress(thisAddress);
+      } catch (err) {
+        res.status(400);
+        return res.send(`Invalid BCH address. Double check your address is valid: ${thisAddress}`);
+      }
+
+      const path = `${process.env.BITCOINCOM_BASEURL}/addr/${legacyAddr}/utxo`;
+
+      // Query the Insight server.
+      const response = await axios.get(path);
+
+      // Parse the returned data.
+      const parsed = response.data;
+      parsed.legacyAddress = BITBOX.Address.toLegacyAddress(thisAddress);
+      parsed.cashAddress = BITBOX.Address.toCashAddress(thisAddress);
+
+      retArray.push(parsed);
+
+      //await _sleep(1000); // Wait 1 second before the next query?
+    }
+
+    // Return the array of retrieved address information.
+    res.status(200);
+    return res.json(retArray);
+  } catch (err) {
+    // Return an error message to the caller.
+    res.status(500);
+    return res.json(`Error in address.js/details(): ${err.message}`);
+  }
+}
+
+async function utxo(req, res, next) {
   try {
     let addresses = JSON.parse(req.params.address);
     if (addresses.length > 20) {
@@ -140,7 +295,7 @@ router.get("/utxo/:address", config.addressRateLimit3, (req, res, next) => {
         res.send(error.response.data.error.message);
       });
   }
-});
+}
 
 router.get("/unconfirmed/:address", config.addressRateLimit4, (req, res, next) => {
   try {
@@ -227,7 +382,7 @@ router.get("/transactions/:address", config.addressRateLimit5, (req, res, next) 
         )}`
       )
       .then(response => {
-        console.log(response.data);
+        //console.log(response.data);
         res.json(response.data);
       })
       .catch(error => {
@@ -236,4 +391,16 @@ router.get("/transactions/:address", config.addressRateLimit5, (req, res, next) 
   }
 });
 
-module.exports = router;
+// Promise-based sleep.
+function _sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+module.exports = {
+  router,
+  testableComponents: {
+    root,
+    details,
+    details2,
+  },
+};

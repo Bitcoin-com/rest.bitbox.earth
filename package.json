@@ -7,7 +7,7 @@
   "scripts": {
     "start": "node app.js",
     "dev": "nodemon app.js",
-    "test": "nyc --reporter=text mocha --require babel-core/register --timeout 5000",
+    "test": "nyc mocha --require babel-core/register --timeout 5000",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
     "coverage:report": "nyc --reporter=html mocha --require babel-core/register --timeout 5000"
   },
@@ -49,9 +49,11 @@
     "eslint-config-standard": "^12.0.0",
     "eslint-plugin-prettier": "^2.6.2",
     "eslint-plugin-standard": "^4.0.0",
+    "nock": "^10.0.0",
     "node-mocks-http": "^1.7.0",
     "nodemon": "^1.18.1",
     "nyc": "^11.6.0",
-    "prettier": "^1.14.2"
+    "prettier": "^1.14.2",
+    "sinon": "^6.3.3"
   }
 }
