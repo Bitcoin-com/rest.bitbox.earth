@@ -48,17 +48,6 @@ while (i < 12) {
   i++
 }
 
-//const requestConfig = {
-//  method: "post",
-//  auth: {
-//    username: username,
-//    password: password,
-//  },
-//  data: {
-//    jsonrpc: "1.0",
-//  },
-//};
-
 const requestConfig = {
   method: "post",
   auth: {
@@ -300,6 +289,82 @@ router.get(
 )
 
 router.post(
+  "/sendRawTransaction",
+  config.rawTransactionsRateLimit5,
+  (req, res, next) => {
+    try {
+      let transactions = req.body.hex
+      //Probably not necessary anymore?
+      // if (transactions.length > 20) {
+      //   res.json({
+      //     error: "Array too large. Max 20 transactions"
+      //   })
+      // }
+
+      const result = []
+      transactions = transactions.map(transaction =>
+        BitboxHTTP({
+          method: "post",
+          auth: {
+            username: username,
+            password: password
+          },
+          data: {
+            jsonrpc: "1.0",
+            id: "sendrawtransaction",
+            method: "sendrawtransaction",
+            params: [transaction]
+          }
+        }).catch(error => {
+          try {
+            return {
+              data: {
+                result: error.response.data.error.message
+              }
+            }
+          } catch (ex) {
+            return {
+              data: {
+                result: "unknown error"
+              }
+            }
+          }
+        })
+      )
+      axios.all(transactions).then(
+        axios.spread((...args) => {
+          for (let i = 0; i < args.length; i++) {
+            const parsed = args[i].data.result
+            result.push(parsed)
+          }
+          res.json(result)
+        })
+      )
+    } catch (error) {
+      BitboxHTTP({
+        method: "post",
+        auth: {
+          username: username,
+          password: password
+        },
+        data: {
+          jsonrpc: "1.0",
+          id: "sendrawtransaction",
+          method: "sendrawtransaction",
+          params: [req.body.hex]
+        }
+      })
+        .then(response => {
+          res.json(response.data.result)
+        })
+        .catch(error => {
+          res.send(error.response.data.error.message)
+        })
+    }
+  }
+)
+
+router.post(
   "/sendRawTransaction/:hex",
   config.rawTransactionsRateLimit5,
   (req, res, next) => {
@@ -375,6 +440,37 @@ router.post(
 )
 
 router.post(
+  "/change",
+  config.rawTransactionsRateLimit6,
+  async (req, res, next) => {
+    try {
+      const params = [
+        req.body.rawtx,
+        req.body.prevTxs,
+        req.body.destination,
+        parseFloat(req.body.fee)
+      ]
+      if (req.query.position) params.push(parseInt(req.query.position))
+
+      requestConfig.data.id = "whc_createrawtx_change"
+      requestConfig.data.method = "whc_createrawtx_change"
+      requestConfig.data.params = params
+
+      try {
+        const response = await BitboxHTTP(requestConfig)
+        res.json(response.data.result)
+      } catch (error) {
+        res.status(500).send(error.response.data.error)
+      }
+    } catch (err) {
+      console.log(`Error in /change: `)
+      res.status(500)
+      res.send(`Error in /change: ${err.message}`)
+    }
+  }
+)
+
+router.post(
   "/change/:rawtx/:prevTxs/:destination/:fee",
   config.rawTransactionsRateLimit6,
   async (req, res, next) => {
@@ -406,6 +502,27 @@ router.post(
 )
 
 router.post(
+  "/input",
+  config.rawTransactionsRateLimit7,
+  async (req, res, next) => {
+    requestConfig.data.id = "whc_createrawtx_input"
+    requestConfig.data.method = "whc_createrawtx_input"
+    requestConfig.data.params = [
+      req.body.rawtx,
+      req.body.txid,
+      parseInt(req.body.n)
+    ]
+
+    try {
+      const response = await BitboxHTTP(requestConfig)
+      res.json(response.data.result)
+    } catch (error) {
+      res.status(500).send(error.response.data.error)
+    }
+  }
+)
+
+router.post(
   "/input/:rawTx/:txid/:n",
   config.rawTransactionsRateLimit7,
   async (req, res, next) => {
@@ -427,12 +544,49 @@ router.post(
 )
 
 router.post(
+  "/opReturn",
+  config.rawTransactionsRateLimit8,
+  async (req, res, next) => {
+    requestConfig.data.id = "whc_createrawtx_opreturn"
+    requestConfig.data.method = "whc_createrawtx_opreturn"
+    requestConfig.data.params = [req.body.rawtx, req.body.payload]
+
+    try {
+      const response = await BitboxHTTP(requestConfig)
+      res.json(response.data.result)
+    } catch (error) {
+      res.status(500).send(error.response.data.error)
+    }
+  }
+)
+
+router.post(
   "/opReturn/:rawTx/:payload",
   config.rawTransactionsRateLimit8,
   async (req, res, next) => {
     requestConfig.data.id = "whc_createrawtx_opreturn"
     requestConfig.data.method = "whc_createrawtx_opreturn"
     requestConfig.data.params = [req.params.rawTx, req.params.payload]
+
+    try {
+      const response = await BitboxHTTP(requestConfig)
+      res.json(response.data.result)
+    } catch (error) {
+      res.status(500).send(error.response.data.error)
+    }
+  }
+)
+
+router.post(
+  "/reference",
+  config.rawTransactionsRateLimit9,
+  async (req, res, next) => {
+    const params = [req.body.rawtx, req.body.destination]
+    if (req.query.amount) params.push(req.query.amount)
+
+    requestConfig.data.id = "whc_createrawtx_reference"
+    requestConfig.data.method = "whc_createrawtx_reference"
+    requestConfig.data.params = params
 
     try {
       const response = await BitboxHTTP(requestConfig)
@@ -480,6 +634,30 @@ router.post(
       const response = await BitboxHTTP(requestConfig)
       res.json(response.data.result)
     } catch (error) {
+      res.status(500).send(error.response.data.error.message)
+    }
+  }
+)
+
+router.post(
+  "/create",
+  config.rawTransactionsRateLimit11,
+  async (req, res, next) => {
+    const params = [
+      req.body.inputs,
+      req.body.outputs
+    ]
+    if (req.query.locktime) params.push(req.query.locktime)
+
+    requestConfig.data.id = "createrawtransaction"
+    requestConfig.data.method = "createrawtransaction"
+    requestConfig.data.params = params
+
+    try {
+      const response = await BitboxHTTP(requestConfig)
+      res.json(response.data.result)
+    } catch (error) {
+      console.log(error);
       res.status(500).send(error.response.data.error.message)
     }
   }
