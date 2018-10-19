@@ -1,6 +1,6 @@
 {
   "name": "rest.bitcoin.com",
-  "version": "1.8.0",
+  "version": "1.9.1",
   "description": "REST API for Bitcoin.com's Cloud",
   "author": "Gabriel Cardona @ Bitcoin.com",
   "license": "MIT",

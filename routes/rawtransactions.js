@@ -226,8 +226,8 @@ router.get(
   "/getRawTransaction/:txid",
   config.rawTransactionsRateLimit4,
   (req, res, next) => {
-    let verbose = false
-    if (req.query.verbose && req.query.verbose === "true") verbose = true
+    let verbose = 0
+    if (req.query.verbose && req.query.verbose === "true") verbose = 1
 
     try {
       let txids = JSON.parse(req.params.txid)
