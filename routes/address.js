@@ -42,10 +42,10 @@ while (i < 6) {
 
 // Connect the route endpoints to their handler functions.
 router.get("/", config.addressRateLimit1, root)
-router.get("/details/:address", config.addressRateLimit2, details)
-router.get("/utxo/:address", config.addressRateLimit3, utxo)
-router.get("/unconfirmed/:address", config.addressRateLimit4, unconfirmed)
-router.get("/transactions/:address", config.addressRateLimit5, transactions)
+router.get("/details/:address", config.addressRateLimit2, _old_details)
+router.get("/utxo/:address", config.addressRateLimit3, _old_utxo)
+router.get("/unconfirmed/:address", config.addressRateLimit4, _old_unconfirmed)
+router.get("/transactions/:address", config.addressRateLimit5, _old_transactions)
 
 // Root API endpoint. Simply acknowledges that it exists.
 function root(req, res, next) {
