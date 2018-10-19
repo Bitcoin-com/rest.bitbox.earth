@@ -10,7 +10,7 @@ Testnet available at [trest.bitcoin.com](https://trest.bitcoin.com)
 
 ## Usage
 
-You can also run an instance of REST for your own full node
+You can also run an instance of REST for your own full node.
 
 ### Prerequesites
 
