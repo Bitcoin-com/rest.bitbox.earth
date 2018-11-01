@@ -1,27 +1,15 @@
 "use strict"
 
 import * as express from "express"
-const router = express.Router()
+import * as requestUtils from "./services/requestUtils";
+import * as bitbox from "./services/bitbox";
+
 import axios from "axios"
-import { IRequestConfig } from "./interfaces/IRequestConfig"
+
+const router: express.Router = express.Router();
+const BitboxHTTP = bitbox.getInstance();
+
 const RateLimit = require("express-rate-limit")
-
-const BitboxHTTP = axios.create({
-  baseURL: process.env.RPC_BASEURL
-})
-const username = process.env.RPC_USERNAME
-const password = process.env.RPC_PASSWORD
-
-const requestConfig: IRequestConfig = {
-  method: "post",
-  auth: {
-    username: username,
-    password: password
-  },
-  data: {
-    jsonrpc: "1.0"
-  }
-}
 
 interface IRLConfig {
   [blockRateLimit1: string]: any
@@ -58,9 +46,9 @@ router.get(
   "/",
   config.blockRateLimit1,
   async (
-    req: express.Request,
-    res: express.Response,
-    next: express.NextFunction
+    req,
+    res,
+    next
   ) => {
     res.json({ status: "block" })
   }
@@ -70,9 +58,9 @@ router.get(
   "/detailsByHash/:hash",
   config.blockRateLimit2,
   async (
-    req: express.Request,
-    res: express.Response,
-    next: express.NextFunction
+    req,
+    res,
+    next
   ) => {
     try {
       const response = await axios.get(
@@ -91,13 +79,12 @@ router.get(
   "/detailsByHeight/:height",
   config.blockRateLimit2,
   async (
-    req: express.Request,
-    res: express.Response,
-    next: express.NextFunction
+    req,
+    res,
+    next
   ) => {
-    requestConfig.data.id = "getblockhash"
-    requestConfig.data.method = "getblockhash"
-    requestConfig.data.params = [parseInt(req.params.height)]
+    const requestConfig = requestUtils.getRequestConfig("getblockhash", [ parseInt(req.params.height) ]);
+
     BitboxHTTP(requestConfig)
       .then(async response => {
         try {
