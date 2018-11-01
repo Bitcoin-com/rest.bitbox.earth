@@ -1,4 +1,4 @@
-import { IRequestConfig } from "./interfaces/IRequestConfig"
+import { IRequestConfig } from "../interfaces/IRequestConfig"
 
 const username = process.env.RPC_USERNAME
 const password = process.env.RPC_PASSWORD

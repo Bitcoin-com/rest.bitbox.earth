@@ -37,24 +37,12 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 var _this = this;
 Object.defineProperty(exports, "__esModule", { value: true });
 var express = require("express");
-var router = express.Router();
+var requestUtils = require("./services/requestUtils");
+var bitbox = require("./services/bitbox");
 var axios_1 = require("axios");
+var router = express.Router();
+var BitboxHTTP = bitbox.getInstance();
 var RateLimit = require("express-rate-limit");
-var BitboxHTTP = axios_1.default.create({
-    baseURL: process.env.RPC_BASEURL
-});
-var username = process.env.RPC_USERNAME;
-var password = process.env.RPC_PASSWORD;
-var requestConfig = {
-    method: "post",
-    auth: {
-        username: username,
-        password: password
-    },
-    data: {
-        jsonrpc: "1.0"
-    }
-};
 var config = {
     blockRateLimit1: undefined,
     blockRateLimit2: undefined,
@@ -105,11 +93,10 @@ router.get("/detailsByHash/:hash", config.blockRateLimit2, function (req, res, n
     });
 }); });
 router.get("/detailsByHeight/:height", config.blockRateLimit2, function (req, res, next) { return __awaiter(_this, void 0, void 0, function () {
+    var requestConfig;
     var _this = this;
     return __generator(this, function (_a) {
-        requestConfig.data.id = "getblockhash";
-        requestConfig.data.method = "getblockhash";
-        requestConfig.data.params = [parseInt(req.params.height)];
+        requestConfig = requestUtils.getRequestConfig("getblockhash", [parseInt(req.params.height)]);
         BitboxHTTP(requestConfig)
             .then(function (response) { return __awaiter(_this, void 0, void 0, function () {
             var rsp, parsed, error_2;
