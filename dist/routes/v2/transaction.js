@@ -119,8 +119,7 @@ router.get("/details/:txid", config.transactionRateLimit1, function (req, res, n
             axios_1.default
                 .get(process.env.BITCOINCOM_BASEURL + "tx/" + req.params.txid)
                 .then(function (response) {
-                var tmp = {};
-                var parsed = tmp.data.result;
+                var parsed = response.data;
                 if (parsed)
                     processInputs(parsed);
                 res.json(parsed);

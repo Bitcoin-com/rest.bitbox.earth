@@ -103,8 +103,7 @@ router.get(
       axios
         .get(`${process.env.BITCOINCOM_BASEURL}tx/${req.params.txid}`)
         .then(response => {
-          let tmp = {} as any
-          const parsed = tmp.data.result
+          const parsed = response.data
           if (parsed) processInputs(parsed)
 
           res.json(parsed)
