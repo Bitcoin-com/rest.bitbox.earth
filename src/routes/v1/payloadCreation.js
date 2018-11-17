@@ -434,18 +434,13 @@ router.post(
 )
 
 router.post(
-  "/transferERC721Token/:owner/:receiver/:propertyId",
+  "/transferERC721Token/:propertyId/:tokenId",
   config.payloadCreationRateLimit18,
   async (req, res, next) => {
-    const params = [
-      req.params.owner,
-      req.params.receiver,
-      req.params.propertyId
-    ]
-    if (req.query.tokenId) params.push(req.query.tokenId)
+    const params = [req.params.propertyId, req.params.tokenId]
 
-    requestConfig.data.id = "whc_transferERC721Token"
-    requestConfig.data.method = "whc_transferERC721Token"
+    requestConfig.data.id = "whc_createpayload_transferERC721token"
+    requestConfig.data.method = "whc_createpayload_transferERC721token"
     requestConfig.data.params = params
 
     try {
@@ -458,10 +453,10 @@ router.post(
 )
 
 router.post(
-  "/destroyERC721Token/:propertyId",
+  "/destroyERC721Token/:propertyId/:tokenId",
   config.payloadCreationRateLimit19,
   async (req, res, next) => {
-    const params = [req.params.propertyId]
+    const params = [req.params.propertyId, req.params.tokenId]
     if (req.query.tokenId) params.push(req.query.tokenId)
 
     requestConfig.data.id = "whc_createpayload_destroyERC721token"

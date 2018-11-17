@@ -2918,6 +2918,216 @@
         }
       }
     },
+    "/payloadCreation/issueERC721Property/{name}/{symbol}/{data}/{url}/{totalNumber}": {
+      "post": {
+        "tags": ["payloadCreation"],
+        "summary": "issueERC721Property",
+        "description": "Creates the payload to issue ERC721 property",
+        "operationId": "payloadIssueERC721Property",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "description": "The name of created property",
+            "required": true,
+            "example": "CryptoBadgers",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "symbol",
+            "in": "path",
+            "description": "The symbol of created property",
+            "required": true,
+            "example": "CRYPTOBADGER",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "data",
+            "in": "path",
+            "description": "The Data of created property",
+            "required": true,
+            "example": "Collect and breed digital Honey Badgers!",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "url",
+            "in": "path",
+            "description": "The URL of created property",
+            "required": true,
+            "example": "example.com",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "totalNumber",
+            "in": "path",
+            "description": "The number of token that created property will issued in the future",
+            "required": true,
+            "example": "10000",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful response"
+          }
+        }
+      }
+    },
+    "/payloadCreation/issueERC721Token/{propertyId}/{tokenId}/{attributes}/{url}": {
+      "post": {
+        "tags": ["payloadCreation"],
+        "summary": "issueERC721Token",
+        "description": "Creates the payload to issue ERC721 token",
+        "operationId": "payloadIssueERC721Token",
+        "parameters": [
+          {
+            "name": "propertyId",
+            "in": "path",
+            "description": "The ID of the special property that will be issued token",
+            "required": true,
+            "example": "CryptoBadgers",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "tokenId",
+            "in": "path",
+            "description": "The tokenID that will be issued, if you don't want to skip this parament, wormhole system will automatic tokenID",
+            "required": true,
+            "example": "CRYPTOBADGER",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "attributes",
+            "in": "path",
+            "description": "The Attributes of the new created token",
+            "required": true,
+            "example": "Collect and breed digital Honey Badgers!",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "url",
+            "in": "path",
+            "description": "The URL of the new created token",
+            "required": true,
+            "example": "example.com",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful response"
+          }
+        }
+      }
+    },
+    "/payloadCreation/transferERC721Token/{owner}/{receiver}/{propertyId}/{tokenId}": {
+      "post": {
+        "tags": ["payloadCreation"],
+        "summary": "transferERC721Token",
+        "description": "Creates the payload to transfer ERC721 token",
+        "operationId": "payloadTransferERC721Token",
+        "parameters": [
+          {
+            "name": "owner",
+            "in": "path",
+            "description": "The ID of the special property that will be issued token",
+            "required": true,
+            "example": "CryptoBadgers",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "receiver",
+            "in": "path",
+            "description": "The tokenID that will be issued, if you don't want to skip this parament, wormhole system will automatic tokenID",
+            "required": true,
+            "example": "CRYPTOBADGER",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "propertyId",
+            "in": "path",
+            "description": "The Attributes of the new created token",
+            "required": true,
+            "example": "Collect and breed digital Honey Badgers!",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "tokenId",
+            "in": "path",
+            "description": "The URL of the new created token",
+            "required": true,
+            "example": "example.com",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful response"
+          }
+        }
+      }
+    },
+    "/payloadCreation/destroyERC721Token/{propertyId}/{tokenId}": {
+      "post": {
+        "tags": ["payloadCreation"],
+        "summary": "destroyERC721Token",
+        "description": "Creates all ERC721 tokens",
+        "operationId": "payloadDestroyERC721Token",
+        "parameters": [
+          {
+            "name": "propertyId",
+            "in": "path",
+            "description": "The propertyId of the token that will be destroy",
+            "required": true,
+            "example": "0x02",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "tokenId",
+            "in": "path",
+            "description": "The tokenid that will be destroyed",
+            "required": true,
+            "example": "0x01",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful response"
+          }
+        }
+      }
+    },
     "/slp/list": {
       "get": {
         "tags": ["slp"],
