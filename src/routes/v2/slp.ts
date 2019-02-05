@@ -29,8 +29,8 @@ const password = process.env.RPC_PASSWORD
 const BITBOXCli = require("bitbox-sdk/lib/bitbox-sdk").default
 const BITBOX = new BITBOXCli()
 
-const SLPsdk = require("@spendbch/slp-sdk/lib/SLP").default // TODO: Change to slp-sdk
-//const SLPsdk = require("slp-sdk/lib/SLP").default
+//const SLPsdk = require("@spendbch/slp-sdk/lib/SLP").default // TODO: Change to slp-sdk
+const SLPsdk = require("slp-sdk/lib/SLP").default
 const SLP = new SLPsdk()
 //console.log(`SLP.Util: ${util.inspect(SLP.Util)}`)
 
@@ -489,16 +489,14 @@ async function validateBulk(
 
     // Validate each txid
     const validatePromises = txids.map(async txid => {
-      const isValid = await isValidSlpTxid(txid)
-      return isValid ? txid : false
+      return await isValidSlpTxid(txid)
     })
 
-    // Filter array to only valid txid results
-    const validateResults = await axios.all(validatePromises)
-    const validTxids = validateResults.filter(result => result)
+    // Wait for all promises to resolve.
+    const validateResults = await Promise.all(validatePromises)
 
     res.status(200)
-    return res.json(validTxids)
+    return res.json(validateResults)
   } catch (err) {
     // Attempt to decode the error message.
     const { msg, status } = routeUtils.decodeError(err)
@@ -515,7 +513,13 @@ async function validateBulk(
 async function isValidSlpTxid(txid: string): Promise<boolean> {
   const isValid = await slpValidator.isValidSlpTxid(txid)
   console.log(txid, isValid)
-  return isValid
+
+  const retObj: any = {
+    txid: txid,
+    isValid: isValid
+  }
+
+  return retObj
 }
 
 module.exports = {
