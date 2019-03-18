@@ -25,6 +25,7 @@ let _this
 const PRO_PASS = process.env.PRO_PASS
   ? parseInt(process.env.PRO_PASS)
   : "BITBOX"
+console.log(`Current pro-tier password: ${PRO_PASS}`)
 
 // Auth Middleware
 class AuthMW {

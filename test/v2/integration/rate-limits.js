@@ -3,6 +3,12 @@
 
 "use strict"
 
+// CUSTOMIZE THESE VARIABLES
+const SERVER = `https://rest.btctest.net/v2/`
+//const SERVER = `http://localhost:3000/v2/`
+//const PRO_TIER_PASS = ""
+const PRO_TIER_PASS = "BITBOX"
+
 const chai = require("chai")
 const assert = chai.assert
 const axios = require("axios")
@@ -10,9 +16,6 @@ const axios = require("axios")
 // Used for debugging.
 const util = require("util")
 util.inspect.defaultOptions = { depth: 1 }
-
-const SERVER = `https://rest.btctest.net/v2/`
-//const SERVER = `http://localhost:3000/v2/`
 
 describe("#rate limits", () => {
   it("should get control/getInfo() with no auth", async () => {
@@ -58,11 +61,7 @@ describe("#rate limits", () => {
     try {
       const username = "BITBOX"
 
-      // Pro-tier is accessed by using the right password.
-      const password = "BITBOX"
-      //const password = "something"
-
-      const combined = `${username}:${password}`
+      const combined = `${username}:${PRO_TIER_PASS}`
       const base64Credential = Buffer.from(combined).toString("base64")
       const readyCredential = `Basic ${base64Credential}`
 

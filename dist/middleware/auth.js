@@ -20,6 +20,7 @@ var _this;
 var PRO_PASS = process.env.PRO_PASS
     ? parseInt(process.env.PRO_PASS)
     : "BITBOX";
+console.log("Current pro-tier password: " + PRO_PASS);
 // Auth Middleware
 var AuthMW = /** @class */ (function () {
     function AuthMW() {
