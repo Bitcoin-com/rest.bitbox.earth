@@ -108,6 +108,7 @@ Now you need to start REST and pass in the following environment variables
 - ZEROMQ_URL - The IP address of your full BCH node
 - NETWORK - mainnet or testnet depending on which network you're using
 - BITDB_URL - mainnet or testnet BITDB URL
+- SLPDB_URL - mainnet or testnet SLPDB URL
 - RATE_LIMIT_MAX_REQUESTS (optional) - Rate limit per route per minute. Defaults to 60. Set to 0 to disable rate limit.
 - NON_JS_FRAMEWORK (optional) - enables endpoints to create, mint, send, burn and burnAll SLP tokens
 
