@@ -9,33 +9,35 @@
   -See listSingleToken() tests.
 */
 
-"use strict"
+"use strict";
 
-const chai = require("chai")
-const assert = chai.assert
-const nock = require("nock") // HTTP mocking
-const sinon = require("sinon")
-const proxyquire = require("proxyquire").noPreserveCache()
+const chai = require("chai");
+const assert = chai.assert;
+const nock = require("nock"); // HTTP mocking
+const sinon = require("sinon");
+const proxyquire = require("proxyquire").noPreserveCache();
 
 // Prepare the slpRoute for stubbing dependcies on slpjs.
-const slpRoute = require("../../dist/routes/v2/slp")
-const pathStub = {} // Used to stub methods within slpjs.
-const slpRouteStub = proxyquire("../../dist/routes/v2/slp", { slpjs: pathStub })
+const slpRoute = require("../../dist/routes/v2/slp");
+const pathStub = {}; // Used to stub methods within slpjs.
+const slpRouteStub = proxyquire("../../dist/routes/v2/slp", {
+  slpjs: pathStub
+});
 
-let originalEnvVars // Used during transition from integration to unit tests.
+let originalEnvVars; // Used during transition from integration to unit tests.
 
 // Mocking data.
-const { mockReq, mockRes } = require("./mocks/express-mocks")
-const mockData = require("./mocks/slp-mocks")
-const slpjsMock = require("./mocks/slpjs-mocks")
+const { mockReq, mockRes } = require("./mocks/express-mocks");
+const mockData = require("./mocks/slp-mocks");
+const slpjsMock = require("./mocks/slpjs-mocks");
 
 // Used for debugging.
-const util = require("util")
-util.inspect.defaultOptions = { depth: 1 }
+const util = require("util");
+util.inspect.defaultOptions = { depth: 1 };
 
 describe("#SLP", () => {
-  let req, res, mockServerUrl
-  let sandbox
+  let req, res, mockServerUrl;
+  let sandbox;
 
   before(() => {
     // Save existing environment variables.
@@ -43,104 +45,104 @@ describe("#SLP", () => {
       BITDB_URL: process.env.BITDB_URL,
       BITCOINCOM_BASEURL: process.env.BITCOINCOM_BASEURL,
       SLPDB_URL: process.env.SLPDB_URL
-    }
+    };
 
     // Set default environment variables for unit tests.
-    if (!process.env.TEST) process.env.TEST = "unit"
+    if (!process.env.TEST) process.env.TEST = "unit";
 
     // Block network connections for unit tests.
     if (process.env.TEST === "unit") {
-      process.env.BITDB_URL = "http://fakeurl/"
-      process.env.BITCOINCOM_BASEURL = "http://fakeurl/"
-      process.env.SLPDB_URL = "http://fakeurl/"
-      mockServerUrl = `http://fakeurl`
+      process.env.BITDB_URL = "http://fakeurl/";
+      process.env.BITCOINCOM_BASEURL = "http://fakeurl/";
+      process.env.SLPDB_URL = "http://fakeurl/";
+      mockServerUrl = `http://fakeurl`;
     }
-  })
+  });
 
   // Setup the mocks before each test.
   beforeEach(() => {
     // Mock the req and res objects used by Express routes.
-    req = mockReq
-    res = mockRes
+    req = mockReq;
+    res = mockRes;
 
     // Explicitly reset the parmas and body.
     //req.params = {}
-    req.body = {}
-    req.query = {}
-    req.locals = {}
+    req.body = {};
+    req.query = {};
+    req.locals = {};
 
     // Activate nock if it's inactive.
-    if (!nock.isActive()) nock.activate()
+    if (!nock.isActive()) nock.activate();
 
-    sandbox = sinon.createSandbox()
-  })
+    sandbox = sinon.createSandbox();
+  });
 
   afterEach(() => {
     // Clean up HTTP mocks.
-    nock.cleanAll() // clear interceptor list.
-    nock.restore()
+    nock.cleanAll(); // clear interceptor list.
+    nock.restore();
 
-    sandbox.restore()
-  })
+    sandbox.restore();
+  });
 
   after(() => {
     // Restore any pre-existing environment variables.
-    process.env.BITDB_URL = originalEnvVars.BITDB_URL
-    process.env.BITCOINCOM_BASEURL = originalEnvVars.BITCOINCOM_BASEURL
-    process.env.SLPDB_URL = originalEnvVars.SLPDB_URL
-  })
+    process.env.BITDB_URL = originalEnvVars.BITDB_URL;
+    process.env.BITCOINCOM_BASEURL = originalEnvVars.BITCOINCOM_BASEURL;
+    process.env.SLPDB_URL = originalEnvVars.SLPDB_URL;
+  });
 
   describe("#root", async () => {
     // root route handler.
-    const root = slpRoute.testableComponents.root
+    const root = slpRoute.testableComponents.root;
 
     it("should respond to GET for base route", async () => {
-      const result = root(req, res)
+      const result = root(req, res);
       //console.log(`result: ${util.inspect(result)}`)
 
-      assert.equal(result.status, "slp", "Returns static string")
-    })
-  })
+      assert.equal(result.status, "slp", "Returns static string");
+    });
+  });
 
   describe("list()", () => {
     // list route handler
-    const list = slpRoute.testableComponents.list
+    const list = slpRoute.testableComponents.list;
 
     it("should throw 500 when network issues", async () => {
       // Save the existing SLPDB_URL.
-      const savedUrl2 = process.env.SLPDB_URL
+      const savedUrl2 = process.env.SLPDB_URL;
 
       // Manipulate the URL to cause a 500 network error.
-      process.env.SLPDB_URL = "http://fakeurl/api/"
+      process.env.SLPDB_URL = "http://fakeurl/api/";
 
-      const result = await list(req, res)
+      const result = await list(req, res);
       // console.log(`result: ${util.inspect(result)}`)
 
       // Restore the saved URL.
-      process.env.SLPDB_URL = savedUrl2
+      process.env.SLPDB_URL = savedUrl2;
 
       assert.isAbove(
         res.statusCode,
         499,
         "HTTP status code 500 or greater expected."
-      )
+      );
       //assert.include(result.error,"Network error: Could not communicate with full node","Error message expected")
-    })
+    });
 
     it("should GET list", async () => {
       // Mock the RPC call for unit tests.
       if (process.env.TEST === "unit") {
-        const b64 = `eyJ2IjozLCJxIjp7ImRiIjpbInQiXSwiZmluZCI6eyIkcXVlcnkiOnt9fSwicHJvamVjdCI6eyJ0b2tlbkRldGFpbHMiOjEsInRva2VuU3RhdHMiOjEsIl9pZCI6MH0sImxpbWl0IjoxMDB9fQ==`
+        const b64 = `eyJ2IjozLCJxIjp7ImRiIjpbInQiXSwiZmluZCI6eyIkcXVlcnkiOnt9fSwicHJvamVjdCI6eyJ0b2tlbkRldGFpbHMiOjEsInRva2VuU3RhdHMiOjEsIl9pZCI6MH0sImxpbWl0IjoxMDB9fQ==`;
 
         nock(process.env.SLPDB_URL)
           .get(uri => uri.includes("/"))
-          .reply(200, mockData.mockList)
+          .reply(200, mockData.mockList);
       }
 
-      const result = await list(req, res)
+      const result = await list(req, res);
       // console.log(`test result: ${util.inspect(result)}`)
 
-      assert.isArray(result)
+      assert.isArray(result);
       assert.hasAnyKeys(result[0], [
         "id",
         "timestamp",
@@ -150,81 +152,81 @@ describe("#SLP", () => {
         "documentHash",
         "decimals",
         "initialTokenQty"
-      ])
-    })
-  })
+      ]);
+    });
+  });
 
   describe("listSingleToken()", () => {
-    const listSingleToken = slpRoute.testableComponents.listSingleToken
+    const listSingleToken = slpRoute.testableComponents.listSingleToken;
 
     it("should throw 400 if tokenId is empty", async () => {
-      const result = await listSingleToken(req, res)
+      const result = await listSingleToken(req, res);
       //console.log(`result: ${util.inspect(result)}`)
 
-      assert.hasAllKeys(result, ["error"])
-      assert.include(result.error, "tokenId can not be empty")
-    })
+      assert.hasAllKeys(result, ["error"]);
+      assert.include(result.error, "tokenId can not be empty");
+    });
 
     it("should throw 503 when network issues", async () => {
       // Save the existing BITDB_URL.
-      const savedUrl2 = process.env.SLPDB_URL
+      const savedUrl2 = process.env.SLPDB_URL;
 
       // Manipulate the URL to cause a 500 network error.
-      process.env.SLPDB_URL = "http://fakeurl/api/"
+      process.env.SLPDB_URL = "http://fakeurl/api/";
 
       req.params.tokenId =
-        "650dea14c77f4d749608e36e375450c9ac91deb8b1b53e50cb0de2059a52d19a"
+        "650dea14c77f4d749608e36e375450c9ac91deb8b1b53e50cb0de2059a52d19a";
 
-      const result = await listSingleToken(req, res)
+      const result = await listSingleToken(req, res);
       // console.log(`result: ${util.inspect(result)}`)
 
       // Restore the saved URL.
-      process.env.SLPDB_URL = savedUrl2
+      process.env.SLPDB_URL = savedUrl2;
 
       assert.isAbove(
         res.statusCode,
         499,
         "HTTP status code 500 or greater expected."
-      )
+      );
       //assert.include(result.error,"Network error: Could not communicate with full node","Error message expected")
-    })
+    });
 
     it("should return 'not found' for mainnet txid on testnet", async () => {
       // Mock the RPC call for unit tests.
       if (process.env.TEST === "unit") {
         nock(mockServerUrl)
           .get(uri => uri.includes("/"))
-          .reply(200, mockData.mockSingleToken)
+          .reply(200, mockData.mockSingleToken);
       }
 
       req.params.tokenId =
         // testnet
         //"650dea14c77f4d749608e36e375450c9ac91deb8b1b53e50cb0de2059a52d19a"
         // mainnet
-        "259908ae44f46ef585edef4bcc1e50dc06e4c391ac4be929fae27235b8158cf1"
+        "259908ae44f46ef585edef4bcc1e50dc06e4c391ac4be929fae27235b8158cf1";
 
-      const result = await listSingleToken(req, res)
+      const result = await listSingleToken(req, res);
       // console.log(`result: ${util.inspect(result)}`)
 
-      assert.hasAllKeys(result, ["id"])
-      assert.include(result.id, "not found")
-    })
+      assert.hasAllKeys(result, ["id"]);
+      assert.include(result.id, "not found");
+    });
 
     it("should get token information", async () => {
       // testnet
       const tokenIdToTest =
-        "650dea14c77f4d749608e36e375450c9ac91deb8b1b53e50cb0de2059a52d19a"
+        "650dea14c77f4d749608e36e375450c9ac91deb8b1b53e50cb0de2059a52d19a";
 
       // Mock the RPC call for unit tests.
       if (process.env.TEST === "unit") {
         nock(mockServerUrl)
           .get(uri => uri.includes("/"))
-          .reply(200, mockData.mockSingleToken)
+          .reply(200, mockData.mockSingleToken);
       }
 
-      req.params.tokenId = tokenIdToTest
+      req.params.tokenId = tokenIdToTest;
 
-      const result = await listSingleToken(req, res)
+      const result = await listSingleToken(req, res);
       //console.log(`result: ${util.inspect(result)}`)
 
       assert.hasAllKeys(result, [
@@ -247,117 +249,117 @@ describe("#SLP", () => {
         "totalBurned",
         "totalMinted",
         "validAddresses"
-      ])
-    })
-  })
+      ]);
+    });
+  });
 
   describe("listBulkToken()", () => {
-    const listBulkToken = slpRoute.testableComponents.listBulkToken
+    const listBulkToken = slpRoute.testableComponents.listBulkToken;
 
     it("should throw 400 if tokenIds array is empty", async () => {
-      const result = await listBulkToken(req, res)
+      const result = await listBulkToken(req, res);
       // console.log(`result: ${util.inspect(result)}`)
 
-      assert.hasAllKeys(result, ["error"])
-      assert.include(result.error, "tokenIds needs to be an array")
-      assert.equal(res.statusCode, 400)
-    })
+      assert.hasAllKeys(result, ["error"]);
+      assert.include(result.error, "tokenIds needs to be an array");
+      assert.equal(res.statusCode, 400);
+    });
 
     it("should throw 400 error if array is too large", async () => {
-      const testArray = []
-      for (var i = 0; i < 25; i++) testArray.push("")
+      const testArray = [];
+      for (var i = 0; i < 25; i++) testArray.push("");
 
-      req.body.tokenIds = testArray
+      req.body.tokenIds = testArray;
 
-      const result = await listBulkToken(req, res)
+      const result = await listBulkToken(req, res);
       //console.log(`result: ${util.inspect(result)}`)
 
-      assert.hasAllKeys(result, ["error"])
-      assert.include(result.error, "Array too large")
-    })
+      assert.hasAllKeys(result, ["error"]);
+      assert.include(result.error, "Array too large");
+    });
 
     it("should throw 400 if tokenId is empty", async () => {
       // Mock the RPC call for unit tests.
       if (process.env.TEST === "unit") {
         nock(mockServerUrl)
           .get(uri => uri.includes("/"))
-          .reply(200, mockData.mockEmptyTokenId)
+          .reply(200, mockData.mockEmptyTokenId);
       }
-      req.body.tokenIds = ""
+      req.body.tokenIds = "";
 
-      const result = await listBulkToken(req, res)
+      const result = await listBulkToken(req, res);
       // console.log(`result: ${util.inspect(result)}`)
 
-      assert.hasAllKeys(result, ["error"])
+      assert.hasAllKeys(result, ["error"]);
       assert.include(
         result.error,
         "tokenIds needs to be an array. Use GET for single tokenId."
-      )
-    })
+      );
+    });
 
     it("should throw 503 when network issues", async () => {
       // Save the existing BITDB_URL.
-      const savedUrl2 = process.env.SLPDB_URL
+      const savedUrl2 = process.env.SLPDB_URL;
 
       // Manipulate the URL to cause a 500 network error.
-      process.env.SLPDB_URL = "http://fakeurl/api/"
+      process.env.SLPDB_URL = "http://fakeurl/api/";
 
       req.body.tokenIds = [
         "650dea14c77f4d749608e36e375450c9ac91deb8b1b53e50cb0de2059a52d19a"
-      ]
+      ];
 
-      const result = await listBulkToken(req, res)
+      const result = await listBulkToken(req, res);
       // console.log(`result: ${util.inspect(result)}`)
 
       // Restore the saved URL.
-      process.env.SLPDB_URL = savedUrl2
+      process.env.SLPDB_URL = savedUrl2;
 
       assert.isAbove(
         res.statusCode,
         499,
         "HTTP status code 500 or greater expected."
-      )
+      );
       //assert.include(result.error,"Network error: Could not communicate with full node","Error message expected")
-    })
+    });
 
     it("should return 'not found' for mainnet txid on testnet", async () => {
       // Mock the RPC call for unit tests.
       if (process.env.TEST === "unit") {
         nock(mockServerUrl)
           .get(uri => uri.includes("/"))
-          .reply(200, mockData.mockSingleTokenError)
+          .reply(200, mockData.mockSingleTokenError);
       }
 
       req.body.tokenIds =
         // testnet
         //"650dea14c77f4d749608e36e375450c9ac91deb8b1b53e50cb0de2059a52d19a"
         // mainnet
-        ["0b314bc2b2905b8844222871c6b665ae3494117c83b11302824561bb904efb6b"]
+        ["0b314bc2b2905b8844222871c6b665ae3494117c83b11302824561bb904efb6b"];
 
-      const result = await listBulkToken(req, res)
+      const result = await listBulkToken(req, res);
       // console.log(`result: ${util.inspect(result)}`)
 
-      assert.isArray(result)
-      assert.hasAllKeys(result[0], ["id", "valid"])
-      assert.strictEqual(result[0].valid, false)
-    })
+      assert.isArray(result);
+      assert.hasAllKeys(result[0], ["id", "valid"]);
+      assert.strictEqual(result[0].valid, false);
+    });
 
     it("should get token information for single token ID", async () => {
       // Mock the RPC call for unit tests.
       if (process.env.TEST === "unit") {
         nock(mockServerUrl)
           .get(uri => uri.includes("/"))
-          .reply(200, mockData.mockSingleToken)
+          .reply(200, mockData.mockSingleToken);
       }
 
       req.body.tokenIds =
         // testnet
-        ["650dea14c77f4d749608e36e375450c9ac91deb8b1b53e50cb0de2059a52d19a"]
+        ["650dea14c77f4d749608e36e375450c9ac91deb8b1b53e50cb0de2059a52d19a"];
 
-      const result = await listBulkToken(req, res)
+      const result = await listBulkToken(req, res);
       //console.log(`result: ${util.inspect(result)}`)
 
-      assert.isArray(result)
+      assert.isArray(result);
       assert.hasAllKeys(result[0], [
         "blockCreated",
         "blockLastActiveMint",
@@ -378,8 +380,8 @@ describe("#SLP", () => {
         "totalBurned",
         "totalMinted",
         "validAddresses"
-      ])
-    })
+      ]);
+    });
 
     it("should get token information for multiple token IDs", async () => {
       // Mock the RPC call for unit tests.
@@ -387,7 +389,7 @@ describe("#SLP", () => {
         nock(mockServerUrl)
           .get(uri => uri.includes("/"))
           .times(2)
-          .reply(200, mockData.mockSingleToken)
+          .reply(200, mockData.mockSingleToken);
       }
 
       req.body.tokenIds =
@@ -395,12 +397,12 @@ describe("#SLP", () => {
         [
           "650dea14c77f4d749608e36e375450c9ac91deb8b1b53e50cb0de2059a52d19a",
           "c35a87afad11c8d086c1449ffd8b0a84324e72b15b1bcfdf166a493551b4eea6"
-        ]
+        ];
 
-      const result = await listBulkToken(req, res)
+      const result = await listBulkToken(req, res);
       //console.log(`result: ${util.inspect(result)}`)
 
-      assert.isArray(result)
+      assert.isArray(result);
       assert.hasAllKeys(result[0], [
         "blockCreated",
         "blockLastActiveMint",
@@ -421,68 +423,68 @@ describe("#SLP", () => {
         "totalBurned",
         "totalMinted",
         "validAddresses"
-      ])
-    })
-  })
+      ]);
+    });
+  });
 
   describe("balancesForAddress()", () => {
-    const balancesForAddress = slpRoute.testableComponents.balancesForAddress
+    const balancesForAddress = slpRoute.testableComponents.balancesForAddress;
 
     it("should throw 400 if address is empty", async () => {
-      const result = await balancesForAddress(req, res)
+      const result = await balancesForAddress(req, res);
       //console.log(`result: ${util.inspect(result)}`)
 
-      assert.hasAllKeys(result, ["error"])
-      assert.include(result.error, "address can not be empty")
-    })
+      assert.hasAllKeys(result, ["error"]);
+      assert.include(result.error, "address can not be empty");
+    });
 
     it("should throw 400 if address is invalid", async () => {
-      req.params.address = "badAddress"
+      req.params.address = "badAddress";
 
-      const result = await balancesForAddress(req, res)
+      const result = await balancesForAddress(req, res);
       //console.log(`result: ${util.inspect(result)}`)
 
-      assert.hasAllKeys(result, ["error"])
-      assert.include(result.error, "Invalid BCH address.")
-    })
+      assert.hasAllKeys(result, ["error"]);
+      assert.include(result.error, "Invalid BCH address.");
+    });
 
     it("should throw 400 if address network mismatch", async () => {
       req.params.address =
-        "simpleledger:qr5agtachyxvrwxu76vzszan5pnvuzy8duhv4lxrsk"
+        "simpleledger:qr5agtachyxvrwxu76vzszan5pnvuzy8duhv4lxrsk";
 
-      const result = await balancesForAddress(req, res)
+      const result = await balancesForAddress(req, res);
       // console.log(`result: ${util.inspect(result)}`)
 
-      assert.hasAllKeys(result, ["error"])
-      assert.include(result.error, "Invalid")
-    })
+      assert.hasAllKeys(result, ["error"]);
+      assert.include(result.error, "Invalid");
+    });
 
     it("should throw 5XX error when network issues", async () => {
       // Save the existing SLPDB_URL.
-      const savedUrl2 = process.env.SLPDB_URL
+      const savedUrl2 = process.env.SLPDB_URL;
 
       // Manipulate the URL to cause a 500 network error.
-      process.env.SLPDB_URL = "http://fakeurl/api/"
+      process.env.SLPDB_URL = "http://fakeurl/api/";
 
-      req.params.address = "slptest:qz35h5mfa8w2pqma2jq06lp7dnv5fxkp2shlcycvd5"
+      req.params.address = "slptest:qz35h5mfa8w2pqma2jq06lp7dnv5fxkp2shlcycvd5";
 
-      const result = await balancesForAddress(req, res)
+      const result = await balancesForAddress(req, res);
       // console.log(`result: ${util.inspect(result)}`)
 
       // Restore the saved URL.
-      process.env.SLPDB_URL = savedUrl2
+      process.env.SLPDB_URL = savedUrl2;
 
       assert.isAbove(
         res.statusCode,
         499,
         "HTTP status code 500 or greater expected."
-      )
+      );
       assert.include(
         result.error,
         "Network error: Could not communicate",
         "Error message expected"
-      )
-    })
+      );
+    });
 
     it("should get token balance for an address", async () => {
       // Mock the RPC call for unit tests.
@@ -490,303 +492,303 @@ describe("#SLP", () => {
         nock(mockServerUrl)
           .get(uri => uri.includes("/"))
           .times(2)
-          .reply(200, mockData.mockSingleAddress)
+          .reply(200, mockData.mockSingleAddress);
       }
 
-      req.params.address = "slptest:pz0qcslrqn7hr44hsszwl4lw5r6udkg6zqv7sq3kk7"
+      req.params.address = "slptest:pz0qcslrqn7hr44hsszwl4lw5r6udkg6zqv7sq3kk7";
 
-      const result = await balancesForAddress(req, res)
+      const result = await balancesForAddress(req, res);
       // console.log(`result: ${util.inspect(result)}`)
 
-      assert.isArray(result)
+      assert.isArray(result);
       assert.hasAllKeys(result[0], [
         "tokenId",
         "balance",
         "slpAddress",
         "decimalCount"
-      ])
-    })
-  })
+      ]);
+    });
+  });
 
   describe("balancesForAddressByTokenID()", () => {
     const balancesForAddressByTokenID =
-      slpRoute.testableComponents.balancesForAddressByTokenID
+      slpRoute.testableComponents.balancesForAddressByTokenID;
 
     it("should throw 400 if address is empty", async () => {
-      req.params.address = ""
+      req.params.address = "";
       req.params.tokenId =
-        "650dea14c77f4d749608e36e375450c9ac91deb8b1b53e50cb0de2059a52d19a"
-      const result = await balancesForAddressByTokenID(req, res)
+        "650dea14c77f4d749608e36e375450c9ac91deb8b1b53e50cb0de2059a52d19a";
+      const result = await balancesForAddressByTokenID(req, res);
       // console.log(`result: ${util.inspect(result)}`)
 
-      assert.hasAllKeys(result, ["error"])
-      assert.include(result.error, "address can not be empty")
-    })
+      assert.hasAllKeys(result, ["error"]);
+      assert.include(result.error, "address can not be empty");
+    });
 
     it("should throw 400 if tokenId is empty", async () => {
       req.params.address =
-        "simpleledger:qr5agtachyxvrwxu76vzszan5pnvuzy8duhv4lxrsk"
-      req.params.tokenId = ""
-      const result = await balancesForAddressByTokenID(req, res)
+        "simpleledger:qr5agtachyxvrwxu76vzszan5pnvuzy8duhv4lxrsk";
+      req.params.tokenId = "";
+      const result = await balancesForAddressByTokenID(req, res);
       // console.log(`result: ${util.inspect(result)}`)
 
-      assert.hasAllKeys(result, ["error"])
-      assert.include(result.error, "tokenId can not be empty")
-    })
+      assert.hasAllKeys(result, ["error"]);
+      assert.include(result.error, "tokenId can not be empty");
+    });
 
     it("should throw 400 if address is invalid", async () => {
-      req.params.address = "badAddress"
+      req.params.address = "badAddress";
       req.params.tokenId =
-        "650dea14c77f4d749608e36e375450c9ac91deb8b1b53e50cb0de2059a52d19a"
+        "650dea14c77f4d749608e36e375450c9ac91deb8b1b53e50cb0de2059a52d19a";
 
-      const result = await balancesForAddressByTokenID(req, res)
+      const result = await balancesForAddressByTokenID(req, res);
       //console.log(`result: ${util.inspect(result)}`)
 
-      assert.hasAllKeys(result, ["error"])
-      assert.include(result.error, "Invalid BCH address.")
-    })
+      assert.hasAllKeys(result, ["error"]);
+      assert.include(result.error, "Invalid BCH address.");
+    });
 
     it("should throw 400 if address network mismatch", async () => {
       req.params.address =
-        "simpleledger:qr5agtachyxvrwxu76vzszan5pnvuzy8duhv4lxrsk"
+        "simpleledger:qr5agtachyxvrwxu76vzszan5pnvuzy8duhv4lxrsk";
 
-      const result = await balancesForAddressByTokenID(req, res)
+      const result = await balancesForAddressByTokenID(req, res);
       //console.log(`result: ${util.inspect(result)}`)
 
-      assert.hasAllKeys(result, ["error"])
-      assert.include(result.error, "Invalid")
-    })
+      assert.hasAllKeys(result, ["error"]);
+      assert.include(result.error, "Invalid");
+    });
 
     it("should throw 5XX error when network issues", async () => {
       // Save the existing SLPDB_URL.
-      const savedUrl2 = process.env.SLPDB_URL
+      const savedUrl2 = process.env.SLPDB_URL;
 
       // Manipulate the URL to cause a 500 network error.
-      process.env.SLPDB_URL = "http://fakeurl/api/"
+      process.env.SLPDB_URL = "http://fakeurl/api/";
 
-      req.params.address = "slptest:qz4qnxcxwvmacgye8wlakhz0835x0w3vtvxu67w0ac"
+      req.params.address = "slptest:qz4qnxcxwvmacgye8wlakhz0835x0w3vtvxu67w0ac";
       req.params.tokenId =
-        "7ac7f4bb50b019fe0f5c81e3fc13fc0720e130282ea460768cafb49785eb2796"
+        "7ac7f4bb50b019fe0f5c81e3fc13fc0720e130282ea460768cafb49785eb2796";
 
-      const result = await balancesForAddressByTokenID(req, res)
+      const result = await balancesForAddressByTokenID(req, res);
       // console.log(`result: ${util.inspect(result)}`)
 
       // Restore the saved URL.
-      process.env.SLPDB_URL = savedUrl2
+      process.env.SLPDB_URL = savedUrl2;
 
       assert.isAbove(
         res.statusCode,
         499,
         "HTTP status code 500 or greater expected."
-      )
+      );
       assert.include(
         result.error,
         "Network error: Could not communicate",
         "Error message expected"
-      )
-    })
+      );
+    });
 
     it("should get token information", async () => {
       if (process.env.TEST === "unit") {
         nock(mockServerUrl)
           .get(uri => uri.includes("/"))
           .times(2)
-          .reply(200, mockData.mockSingleAddress)
+          .reply(200, mockData.mockSingleAddress);
       }
 
-      req.params.address = "slptest:pz0qcslrqn7hr44hsszwl4lw5r6udkg6zqv7sq3kk7"
+      req.params.address = "slptest:pz0qcslrqn7hr44hsszwl4lw5r6udkg6zqv7sq3kk7";
       req.params.tokenId =
-        "6b081fcd1f78b187be1464313dac8ff257251b727a42b613552a4040870aeb29"
+        "6b081fcd1f78b187be1464313dac8ff257251b727a42b613552a4040870aeb29";
 
-      const result = await balancesForAddressByTokenID(req, res)
+      const result = await balancesForAddressByTokenID(req, res);
       // console.log(`result: ${util.inspect(result)}`)
 
       // TODO - add decimalCount
       // assert.hasAllKeys(result, ["tokenId", "balance", "decimalCount"])
-      assert.hasAllKeys(result, ["tokenId", "balance"])
-    })
-  })
+      assert.hasAllKeys(result, ["tokenId", "balance"]);
+    });
+  });
 
   describe("convertAddressSingle()", () => {
     const convertAddressSingle =
-      slpRoute.testableComponents.convertAddressSingle
+      slpRoute.testableComponents.convertAddressSingle;
 
     it("should throw 400 if address is empty", async () => {
-      req.params.address = ""
-      const result = await convertAddressSingle(req, res)
+      req.params.address = "";
+      const result = await convertAddressSingle(req, res);
       //console.log(`result: ${util.inspect(result)}`)
 
-      assert.hasAllKeys(result, ["error"])
-      assert.include(result.error, "address can not be empty")
-    })
+      assert.hasAllKeys(result, ["error"]);
+      assert.include(result.error, "address can not be empty");
+    });
     //
     it("should convert address", async () => {
       // Mock the RPC call for unit tests.
       if (process.env.TEST === "unit") {
         nock(`${process.env.SLPDB_URL}`)
           .post(``)
-          .reply(200, { result: mockData.mockConvert })
+          .reply(200, { result: mockData.mockConvert });
       }
 
-      req.params.address = "slptest:qz35h5mfa8w2pqma2jq06lp7dnv5fxkp2shlcycvd5"
+      req.params.address = "slptest:qz35h5mfa8w2pqma2jq06lp7dnv5fxkp2shlcycvd5";
 
-      const result = await convertAddressSingle(req, res)
+      const result = await convertAddressSingle(req, res);
       // console.log(`result: ${util.inspect(result)}`)
 
-      assert.hasAllKeys(result, ["cashAddress", "legacyAddress", "slpAddress"])
-    })
-  })
+      assert.hasAllKeys(result, ["cashAddress", "legacyAddress", "slpAddress"]);
+    });
+  });
 
   describe("convertAddressBulk()", () => {
-    const convertAddressBulk = slpRoute.testableComponents.convertAddressBulk
+    const convertAddressBulk = slpRoute.testableComponents.convertAddressBulk;
 
     it("should throw 400 if addresses array is empty", async () => {
-      const result = await convertAddressBulk(req, res)
+      const result = await convertAddressBulk(req, res);
       // console.log(`result: ${util.inspect(result)}`)
 
-      assert.hasAllKeys(result, ["error"])
-      assert.include(result.error, "addresses needs to be an array")
-      assert.equal(res.statusCode, 400)
-    })
+      assert.hasAllKeys(result, ["error"]);
+      assert.include(result.error, "addresses needs to be an array");
+      assert.equal(res.statusCode, 400);
+    });
 
     it("should throw 400 error if array is too large", async () => {
-      const testArray = []
-      for (var i = 0; i < 25; i++) testArray.push("")
+      const testArray = [];
+      for (var i = 0; i < 25; i++) testArray.push("");
 
-      req.body.addresses = testArray
+      req.body.addresses = testArray;
 
-      const result = await convertAddressBulk(req, res)
+      const result = await convertAddressBulk(req, res);
       //console.log(`result: ${util.inspect(result)}`)
 
-      assert.hasAllKeys(result, ["error"])
-      assert.include(result.error, "Array too large")
-    })
+      assert.hasAllKeys(result, ["error"]);
+      assert.include(result.error, "Array too large");
+    });
 
     it("should error on malformed address", async () => {
       try {
-        req.body.addresses = ["bitcoincash:qzs02v05l7qs5s5dwuj0cx5ehjm2c"]
+        req.body.addresses = ["bitcoincash:qzs02v05l7qs5s5dwuj0cx5ehjm2c"];
 
-        await convertAddressBulk(req, res)
+        await convertAddressBulk(req, res);
 
-        assert.equal(true, false, "Unsupported address format")
+        assert.equal(true, false, "Unsupported address format");
       } catch (err) {
         // console.log(`err.message: ${util.inspect(err.message)}`)
 
-        assert.include(err.message, `Unsupported address format`)
+        assert.include(err.message, `Unsupported address format`);
       }
-    })
+    });
 
     it("should validate array with single element", async () => {
       req.body.addresses = [
         "bitcoincash:qzs02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c"
-      ]
+      ];
 
-      const result = await convertAddressBulk(req, res)
+      const result = await convertAddressBulk(req, res);
       //console.log(`result: ${util.inspect(result)}`)
 
-      assert.isArray(result)
+      assert.isArray(result);
       assert.hasAllKeys(result[0], [
         "slpAddress",
         "cashAddress",
         "legacyAddress"
-      ])
-    })
+      ]);
+    });
 
     it("should validate array with multiple elements", async () => {
       req.body.addresses = [
         "bitcoincash:qzs02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c",
         "bitcoincash:qrehqueqhw629p6e57994436w730t4rzasnly00ht0"
-      ]
+      ];
 
-      const result = await convertAddressBulk(req, res)
+      const result = await convertAddressBulk(req, res);
       //console.log(`result: ${util.inspect(result)}`)
 
-      assert.isArray(result)
+      assert.isArray(result);
       assert.hasAllKeys(result[0], [
         "slpAddress",
         "cashAddress",
         "legacyAddress"
-      ])
-    })
-  })
+      ]);
+    });
+  });
 
   describe("validateBulk()", () => {
-    const validateBulk = slpRoute.testableComponents.validateBulk
+    const validateBulk = slpRoute.testableComponents.validateBulk;
 
     it("should throw 400 if txid array is empty", async () => {
-      const result = await validateBulk(req, res)
+      const result = await validateBulk(req, res);
       // console.log(`result: ${util.inspect(result)}`)
 
-      assert.hasAllKeys(result, ["error"])
-      assert.include(result.error, "txids needs to be an array")
-      assert.equal(res.statusCode, 400)
-    })
+      assert.hasAllKeys(result, ["error"]);
+      assert.include(result.error, "txids needs to be an array");
+      assert.equal(res.statusCode, 400);
+    });
 
     it("should throw 400 error if array is too large", async () => {
-      const testArray = []
-      for (var i = 0; i < 25; i++) testArray.push("")
+      const testArray = [];
+      for (var i = 0; i < 25; i++) testArray.push("");
 
-      req.body.txids = testArray
+      req.body.txids = testArray;
 
-      const result = await validateBulk(req, res)
+      const result = await validateBulk(req, res);
       //console.log(`result: ${util.inspect(result)}`)
 
-      assert.hasAllKeys(result, ["error"])
-      assert.include(result.error, "Array too large")
-    })
+      assert.hasAllKeys(result, ["error"]);
+      assert.include(result.error, "Array too large");
+    });
 
     it("should validate array with single element", async () => {
       // Mock the RPC call for unit tests.
       if (process.env.TEST === "unit") {
         sandbox
           .stub(slpRoute.testableComponents, "isValidSlpTxid")
-          .resolves(true)
+          .resolves(true);
       }
 
       req.body.txids = [
         "78d57a82a0dd9930cc17843d9d06677f267777dd6b25055bad0ae43f1b884091"
-      ]
+      ];
 
-      const result = await validateBulk(req, res)
+      const result = await validateBulk(req, res);
       // console.log(`result: ${util.inspect(result)}`)
 
-      assert.isArray(result)
-      assert.hasAllKeys(result[0], ["txid", "valid"])
-    })
+      assert.isArray(result);
+      assert.hasAllKeys(result[0], ["txid", "valid"]);
+    });
 
     it("should validate array with two elements", async () => {
       // Mock the RPC call for unit tests.
       if (process.env.TEST === "unit") {
         sandbox
           .stub(slpRoute.testableComponents, "isValidSlpTxid")
-          .resolves(true)
+          .resolves(true);
       }
 
       req.body.txids = [
         "78d57a82a0dd9930cc17843d9d06677f267777dd6b25055bad0ae43f1b884091",
         "82d996847a861b08b1601284ef7d40a1777d019154a6c4ed11571609dd3555ac"
-      ]
+      ];
 
-      const result = await validateBulk(req, res)
+      const result = await validateBulk(req, res);
       // console.log(`result: ${util.inspect(result)}`)
 
-      assert.isArray(result)
-      assert.hasAllKeys(result[0], ["txid", "valid"])
-      assert.equal(result.length, 2)
-    })
-  })
+      assert.isArray(result);
+      assert.hasAllKeys(result[0], ["txid", "valid"]);
+      assert.equal(result.length, 2);
+    });
+  });
 
   describe("tokenStatsSingle()", () => {
-    const tokenStatsSingle = slpRoute.testableComponents.tokenStats
+    const tokenStatsSingle = slpRoute.testableComponents.tokenStats;
 
     it("should throw 400 if tokenID is empty", async () => {
-      req.params.tokenId = ""
-      const result = await tokenStatsSingle(req, res)
+      req.params.tokenId = "";
+      const result = await tokenStatsSingle(req, res);
       // console.log(`result: ${util.inspect(result)}`)
 
-      assert.hasAllKeys(result, ["error"])
-      assert.include(result.error, "tokenId can not be empty")
-    })
+      assert.hasAllKeys(result, ["error"]);
+      assert.include(result.error, "tokenId can not be empty");
+    });
     //
     it("should get token stats for tokenId", async () => {
       // Mock the RPC call for unit tests.
@@ -800,13 +802,13 @@ describe("#SLP", () => {
                 tokenStats: mockData.mockTokenStats
               }
             ]
-          })
+          });
       }
 
       req.params.tokenId =
-        "37279c7dc81ceb34d12f03344b601c582e931e05d0e552c29c428bfa39d39af3"
+        "37279c7dc81ceb34d12f03344b601c582e931e05d0e552c29c428bfa39d39af3";
 
-      const result = await tokenStatsSingle(req, res)
+      const result = await tokenStatsSingle(req, res);
       // console.log(`result: ${util.inspect(result)}`)
 
       assert.hasAllKeys(result, [
@@ -829,22 +831,22 @@ describe("#SLP", () => {
         "totalMinted",
         "txnsSinceGenesis",
         "validAddresses"
-      ])
-    })
-  })
+      ]);
+    });
+  });
 
   describe("balancesForTokenSingle()", () => {
     const balancesForTokenSingle =
-      slpRoute.testableComponents.balancesForTokenSingle
+      slpRoute.testableComponents.balancesForTokenSingle;
 
     it("should throw 400 if tokenID is empty", async () => {
-      req.params.tokenId = ""
-      const result = await balancesForTokenSingle(req, res)
+      req.params.tokenId = "";
+      const result = await balancesForTokenSingle(req, res);
       //console.log(`result: ${util.inspect(result)}`)
 
-      assert.hasAllKeys(result, ["error"])
-      assert.include(result.error, "tokenId can not be empty")
-    })
+      assert.hasAllKeys(result, ["error"]);
+      assert.include(result.error, "tokenId can not be empty");
+    });
     //
     it("should get balances for tokenId", async () => {
       // Mock the RPC call for unit tests.
@@ -853,95 +855,95 @@ describe("#SLP", () => {
           .get(uri => uri.includes("/"))
           .reply(200, {
             a: [mockData.mockBalance]
-          })
+          });
       }
 
       req.params.tokenId =
-        "37279c7dc81ceb34d12f03344b601c582e931e05d0e552c29c428bfa39d39af3"
+        "37279c7dc81ceb34d12f03344b601c582e931e05d0e552c29c428bfa39d39af3";
 
-      const result = await balancesForTokenSingle(req, res)
+      const result = await balancesForTokenSingle(req, res);
       // console.log(`result: ${util.inspect(result)}`)
 
-      assert.hasAllKeys(result[0], ["tokenId", "slpAddress", "tokenBalance"])
-    })
-  })
+      assert.hasAllKeys(result[0], ["tokenId", "slpAddress", "tokenBalance"]);
+    });
+  });
 
   describe("#txDetails()", () => {
-    let txDetails = slpRoute.testableComponents.txDetails
+    let txDetails = slpRoute.testableComponents.txDetails;
 
     it("should throw 400 if txid is empty", async () => {
-      const result = await txDetails(req, res)
+      const result = await txDetails(req, res);
       //console.log(`result: ${util.inspect(result)}`)
 
-      assert.hasAllKeys(result, ["error"])
-      assert.include(result.error, "txid can not be empty")
-    })
+      assert.hasAllKeys(result, ["error"]);
+      assert.include(result.error, "txid can not be empty");
+    });
 
     it("should throw 400 for malformed txid", async () => {
       req.params.txid =
-        "57b3082a2bf269b3d6f40fee7fb9c664e8256a88ca5ee2697c05b9457"
+        "57b3082a2bf269b3d6f40fee7fb9c664e8256a88ca5ee2697c05b9457";
 
-      const result = await txDetails(req, res)
+      const result = await txDetails(req, res);
       //console.log(`result: ${util.inspect(result)}`)
 
-      assert.hasAllKeys(result, ["error"])
-      assert.include(result.error, "This is not a txid")
-    })
+      assert.hasAllKeys(result, ["error"]);
+      assert.include(result.error, "This is not a txid");
+    });
 
     it("should throw 400 for non-existant txid", async () => {
       // Integration test
       if (process.env.TEST !== "unit") {
         req.params.txid =
-          "57b3082a2bf269b3d6f40fee7fb9c664e8256a88ca5ee2697c05b94578223333"
+          "57b3082a2bf269b3d6f40fee7fb9c664e8256a88ca5ee2697c05b94578223333";
 
-        const result = await txDetails(req, res)
+        const result = await txDetails(req, res);
         //console.log(`result: ${util.inspect(result)}`)
 
-        assert.hasAllKeys(result, ["error"])
-        assert.include(result.error, "TXID not found")
+        assert.hasAllKeys(result, ["error"]);
+        assert.include(result.error, "TXID not found");
       }
-    })
+    });
 
-    // it("should get tx details with token info", async () => {
-    //   // if (process.env.TEST === "unit") {
-    //   //   // Mock the slpjs library for unit tests.
-    //   //   pathStub.BitboxNetwork = slpjsMock.BitboxNetwork
-    //   //   txDetails = slpRouteStub.testableComponents.txDetails
-    //   // }
+    it("should get tx details with token info", async () => {
+      // if (process.env.TEST === "unit") {
+      //   // Mock the slpjs library for unit tests.
+      //   pathStub.BitboxNetwork = slpjsMock.BitboxNetwork
+      //   txDetails = slpRouteStub.testableComponents.txDetails
+      // }
 
-    //   req.params.txid =
-    //     "57b3082a2bf269b3d6f40fee7fb9c664e8256a88ca5ee2697c05b9457822d446"
+      req.params.txid =
+        "57b3082a2bf269b3d6f40fee7fb9c664e8256a88ca5ee2697c05b9457822d446";
 
-    //   const result = await txDetails(req, res)
-    //   // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+      const result = await txDetails(req, res);
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
-    //   assert.hasAnyKeys(result, ["tokenIsValid", "tokenInfo"])
-    // })
-  })
+      assert.hasAnyKeys(result, ["tokenIsValid", "tokenInfo"]);
+    });
+  });
 
   describe("txsTokenIdAddressSingle()", () => {
     const txsTokenIdAddressSingle =
-      slpRoute.testableComponents.txsTokenIdAddressSingle
+      slpRoute.testableComponents.txsTokenIdAddressSingle;
 
     it("should throw 400 if tokenId is empty", async () => {
-      req.params.tokenId = ""
-      const result = await txsTokenIdAddressSingle(req, res)
+      req.params.tokenId = "";
+      const result = await txsTokenIdAddressSingle(req, res);
       //console.log(`result: ${util.inspect(result)}`)
 
-      assert.hasAllKeys(result, ["error"])
-      assert.include(result.error, "tokenId can not be empty")
-    })
+      assert.hasAllKeys(result, ["error"]);
+      assert.include(result.error, "tokenId can not be empty");
+    });
 
     it("should throw 400 if address is empty", async () => {
       req.params.tokenId =
-        "495322b37d6b2eae81f045eda612b95870a0c2b6069c58f70cf8ef4e6a9fd43a"
-      req.params.address = ""
-      const result = await txsTokenIdAddressSingle(req, res)
+        "495322b37d6b2eae81f045eda612b95870a0c2b6069c58f70cf8ef4e6a9fd43a";
+      req.params.address = "";
+      const result = await txsTokenIdAddressSingle(req, res);
       //console.log(`result: ${util.inspect(result)}`)
 
-      assert.hasAllKeys(result, ["error"])
-      assert.include(result.error, "address can not be empty")
-    })
+      assert.hasAllKeys(result, ["error"]);
+      assert.include(result.error, "address can not be empty");
+    });
     /*
     it("should get tx details with tokenId and address", async () => {
       if (process.env.TEST === "unit") {
@@ -967,5 +969,5 @@ describe("#SLP", () => {
       assert.hasAnyKeys(result[0], ["txid", "tokenDetails"])
     })
 */
-  })
-})
+  });
+});
