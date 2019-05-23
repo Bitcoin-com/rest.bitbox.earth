@@ -14,7 +14,7 @@
     "test": "npm run test-v2",
     "test-v1": "npm run build && nyc --reporter=text mocha --require babel-core/register --timeout 15000 test/v1/",
     "test-v2": "export NETWORK=testnet && npm run build && nyc --reporter=text mocha --require babel-core/register --timeout 25000 test/v2/ --exit",
-    "test-v2-no-build": "export NETWORK=testnet && nyc --reporter=text mocha --require babel-core/register --timeout 25000 test/v2/",
+    "test-v2-no-build": "export NETWORK=testnet && nyc --reporter=text mocha --require babel-core/register --timeout 25000 test/v2/ --exit",
     "test-all": "TEST=integration nyc --reporter=text mocha --require babel-core/register --timeout 15000 test/v1/ test/v2/",
     "test:integration": "mocha test/v2/integration --exit",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
