@@ -10,7 +10,12 @@ import wlogger = require("../../util/winston-logging")
 // consts
 const router: any = express.Router()
 const SLPSDK: any = require("slp-sdk")
-const SLP: any = new SLPSDK()
+
+let SLP: any = new SLPSDK()
+if(process.env.NETWORK==='testnet') {
+  SLP = new SLPSDK({restURL: 'https://trest.bitcoin.com/v2/'})
+}
+
 const slp: any = SLP.slpjs
 const utils: any = slp.Utils
 const level: any = require("level")
