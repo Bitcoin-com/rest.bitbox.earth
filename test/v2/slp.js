@@ -9,23 +9,15 @@
 
 const chai = require("chai");
 const assert = chai.assert;
-const nock = require("nock"); // HTTP mocking
 const sinon = require("sinon");
-//const proxyquire = require("proxyquire").noPreserveCache();
 
 // Prepare the slpRoute for stubbing dependcies on slpjs.
 const slpRoute = require("../../dist/routes/v2/slp");
-//const pathStub = {}; // Used to stub methods within slpjs.
-//const slpRouteStub = proxyquire("../../dist/routes/v2/slp", {
-//  slpjs: pathStub
-//});
 
 let originalEnvVars; // Used during transition from integration to unit tests.
 
 // Mocking data.
 const { mockReq, mockRes } = require("./mocks/express-mocks");
-//const mockData = require("./mocks/slp-mocks");
-//const slpjsMock = require("./mocks/slpjs-mocks");
 
 // Used for debugging.
 const util = require("util");
@@ -47,17 +39,6 @@ describe("#SLP", () => {
     if (!process.env.BITCOINCOM_BASEURL)
       process.env.BITCOINCOM_BASEURL = "http://142.93.19.153:3001/api/";
 
-    // Set default environment variables for unit tests.
-    //if (!process.env.TEST) process.env.TEST = "unit";
-    /*
-    // Block network connections for unit tests.
-    if (process.env.TEST === "unit") {
-      process.env.BITDB_URL = "http://fakeurl/";
-      process.env.BITCOINCOM_BASEURL = "http://fakeurl/";
-      process.env.SLPDB_URL = "http://fakeurl/";
-      mockServerUrl = `http://fakeurl`;
-    }
-*/
   });
 
   // Setup the mocks before each test.
@@ -72,16 +53,10 @@ describe("#SLP", () => {
     req.query = {};
     req.locals = {};
 
-    // Activate nock if it's inactive.
-    //if (!nock.isActive()) nock.activate();
-
     sandbox = sinon.createSandbox();
   });
 
   afterEach(() => {
-    // Clean up HTTP mocks.
-    //nock.cleanAll(); // clear interceptor list.
-    //nock.restore();
 
     sandbox.restore();
   });
@@ -126,16 +101,6 @@ describe("#SLP", () => {
     });
 
     it("should GET list", async () => {
-      // Mock the RPC call for unit tests.
-      /*
-      if (process.env.TEST === "unit") {
-        const b64 = `eyJ2IjozLCJxIjp7ImRiIjpbInQiXSwiZmluZCI6eyIkcXVlcnkiOnt9fSwicHJvamVjdCI6eyJ0b2tlbkRldGFpbHMiOjEsInRva2VuU3RhdHMiOjEsIl9pZCI6MH0sImxpbWl0IjoxMDB9fQ==`;
-
-        nock(process.env.SLPDB_URL)
-          .get(uri => uri.includes("/"))
-          .reply(200, mockData.mockList);
-      }
-      */
 
       const result = await list(req, res);
       //console.log(`test result: ${util.inspect(result)}`)
@@ -190,14 +155,6 @@ describe("#SLP", () => {
     });
 
     it("should return 'not found' for mainnet txid on testnet", async () => {
-      /*
-      // Mock the RPC call for unit tests.
-      if (process.env.TEST === "unit") {
-        nock(mockServerUrl)
-          .get(uri => uri.includes("/"))
-          .reply(200, mockData.mockSingleToken);
-      }
-      */
 
       req.params.tokenId =
         // testnet
@@ -216,14 +173,7 @@ describe("#SLP", () => {
       // testnet
       const tokenIdToTest =
         "650dea14c77f4d749608e36e375450c9ac91deb8b1b53e50cb0de2059a52d19a";
-/*
-      // Mock the RPC call for unit tests.
-      if (process.env.TEST === "unit") {
-        nock(mockServerUrl)
-          .get(uri => uri.includes("/"))
-          .reply(200, mockData.mockSingleToken);
-      }
-*/
+
       req.params.tokenId = tokenIdToTest;
 
       const result = await listSingleToken(req, res);
@@ -280,14 +230,7 @@ describe("#SLP", () => {
     });
 
     it("should throw 400 if tokenId is empty", async () => {
-      /*
-      // Mock the RPC call for unit tests.
-      if (process.env.TEST === "unit") {
-        nock(mockServerUrl)
-          .get(uri => uri.includes("/"))
-          .reply(200, mockData.mockEmptyTokenId);
-      }
-      */
+
       req.body.tokenIds = "";
 
       const result = await listBulkToken(req, res);
@@ -326,12 +269,6 @@ describe("#SLP", () => {
     });
 
     it("should return 'not found' for mainnet txid on testnet", async () => {
-      // Mock the RPC call for unit tests.
-      if (process.env.TEST === "unit") {
-        nock(mockServerUrl)
-          .get(uri => uri.includes("/"))
-          .reply(200, mockData.mockSingleTokenError);
-      }
 
       req.body.tokenIds =
         // testnet
@@ -348,14 +285,6 @@ describe("#SLP", () => {
     });
 
     it("should get token information for single token ID", async () => {
-      /*
-      // Mock the RPC call for unit tests.
-      if (process.env.TEST === "unit") {
-        nock(mockServerUrl)
-          .get(uri => uri.includes("/"))
-          .reply(200, mockData.mockSingleToken);
-      }
-      */
 
       req.body.tokenIds =
         // testnet
@@ -390,15 +319,6 @@ describe("#SLP", () => {
     });
 
     it("should get token information for multiple token IDs", async () => {
-      /*
-      // Mock the RPC call for unit tests.
-      if (process.env.TEST === "unit") {
-        nock(mockServerUrl)
-          .get(uri => uri.includes("/"))
-          .times(2)
-          .reply(200, mockData.mockSingleToken);
-      }
-      */
 
       req.body.tokenIds =
         // testnet
@@ -496,15 +416,6 @@ describe("#SLP", () => {
     });
 
     it("should get token balance for an address", async () => {
-      /*
-      // Mock the RPC call for unit tests.
-      if (process.env.TEST === "unit") {
-        nock(mockServerUrl)
-          .get(uri => uri.includes("/"))
-          .times(2)
-          .reply(200, mockData.mockSingleAddress);
-      }
-      */
 
       req.params.address = "slptest:pz0qcslrqn7hr44hsszwl4lw5r6udkg6zqv7sq3kk7";
 
@@ -603,14 +514,6 @@ describe("#SLP", () => {
     });
 
     it("should get token information", async () => {
-      /*
-      if (process.env.TEST === "unit") {
-        nock(mockServerUrl)
-          .get(uri => uri.includes("/"))
-          .times(2)
-          .reply(200, mockData.mockSingleAddress);
-      }
-      */
 
       req.params.address = "slptest:pz0qcslrqn7hr44hsszwl4lw5r6udkg6zqv7sq3kk7";
       req.params.tokenId =
@@ -637,16 +540,8 @@ describe("#SLP", () => {
       assert.hasAllKeys(result, ["error"]);
       assert.include(result.error, "address can not be empty");
     });
-    //
+
     it("should convert address", async () => {
-      /*
-      // Mock the RPC call for unit tests.
-      if (process.env.TEST === "unit") {
-        nock(`${process.env.SLPDB_URL}`)
-          .post(``)
-          .reply(200, { result: mockData.mockConvert });
-      }
-      */
 
       req.params.address = "slptest:qz35h5mfa8w2pqma2jq06lp7dnv5fxkp2shlcycvd5";
 
@@ -729,7 +624,7 @@ describe("#SLP", () => {
       ]);
     });
   });
-/*
+
   describe("validateBulk()", () => {
     const validateBulk = slpRoute.testableComponents.validateBulk;
 
@@ -756,12 +651,6 @@ describe("#SLP", () => {
     });
 
     it("should validate array with single element", async () => {
-      // Mock the RPC call for unit tests.
-      if (process.env.TEST === "unit") {
-        sandbox
-          .stub(slpRoute.testableComponents, "isValidSlpTxid")
-          .resolves(true);
-      }
 
       req.body.txids = [
         "78d57a82a0dd9930cc17843d9d06677f267777dd6b25055bad0ae43f1b884091"
@@ -775,12 +664,6 @@ describe("#SLP", () => {
     });
 
     it("should validate array with two elements", async () => {
-      // Mock the RPC call for unit tests.
-      if (process.env.TEST === "unit") {
-        sandbox
-          .stub(slpRoute.testableComponents, "isValidSlpTxid")
-          .resolves(true);
-      }
 
       req.body.txids = [
         "78d57a82a0dd9930cc17843d9d06677f267777dd6b25055bad0ae43f1b884091",
@@ -807,21 +690,8 @@ describe("#SLP", () => {
       assert.hasAllKeys(result, ["error"]);
       assert.include(result.error, "tokenId can not be empty");
     });
-    //
+
     it("should get token stats for tokenId", async () => {
-      // Mock the RPC call for unit tests.
-      if (process.env.TEST === "unit") {
-        nock(`${process.env.SLPDB_URL}`)
-          .get(uri => uri.includes("/"))
-          .reply(200, {
-            t: [
-              {
-                tokenDetails: mockData.mockTokenDetails,
-                tokenStats: mockData.mockTokenStats
-              }
-            ]
-          });
-      }
 
       req.params.tokenId =
         "37279c7dc81ceb34d12f03344b601c582e931e05d0e552c29c428bfa39d39af3";
@@ -848,7 +718,8 @@ describe("#SLP", () => {
         "totalBurned",
         "totalMinted",
         "txnsSinceGenesis",
-        "validAddresses"
+        "validAddresses",
+        "timestamp_unix"
       ]);
     });
   });
@@ -865,16 +736,8 @@ describe("#SLP", () => {
       assert.hasAllKeys(result, ["error"]);
       assert.include(result.error, "tokenId can not be empty");
     });
-    //
+
     it("should get balances for tokenId", async () => {
-      // Mock the RPC call for unit tests.
-      if (process.env.TEST === "unit") {
-        nock(`${process.env.SLPDB_URL}`)
-          .get(uri => uri.includes("/"))
-          .reply(200, {
-            a: [mockData.mockBalance]
-          });
-      }
 
       req.params.tokenId =
         "37279c7dc81ceb34d12f03344b601c582e931e05d0e552c29c428bfa39d39af3";
@@ -908,6 +771,8 @@ describe("#SLP", () => {
       assert.include(result.error, "This is not a txid");
     });
 
+    // TODO: Can this be converted into an integration test?
+/*
     it("should throw 400 for non-existant txid", async () => {
       // Integration test
       if (process.env.TEST !== "unit") {
@@ -921,15 +786,9 @@ describe("#SLP", () => {
         assert.include(result.error, "TXID not found");
       }
     });
+*/
 
     it("should get tx details with token info", async () => {
-      console.log(`process.env.TEST: ${process.env.TEST}`)
-
-      //if (process.env.TEST === "unit") {
-         // Mock the slpjs library for unit tests.
-      //   pathStub.BitboxNetwork = slpjsMock.BitboxNetwork
-      //   txDetails = slpRouteStub.testableComponents.txDetails
-      //}
 
       req.params.txid =
         "57b3082a2bf269b3d6f40fee7fb9c664e8256a88ca5ee2697c05b9457822d446";
@@ -966,17 +825,6 @@ describe("#SLP", () => {
     });
 
     it("should get tx details with tokenId and address", async () => {
-      if (process.env.TEST === "unit") {
-        nock(`${process.env.SLPDB_URL}`)
-          .get(uri => uri.includes("/"))
-          .reply(200, {
-            c: mockData.mockTransactions
-          })
-      }
-
-      //req.params.tokenId =
-      //  "37279c7dc81ceb34d12f03344b601c582e931e05d0e552c29c428bfa39d39af3"
-      //req.params.address = "slptest:qr83cu3p7yg9yac7qthwm0nul2ev2kukvsqmes3vl0"
 
       req.params.tokenId =
         "7ac7f4bb50b019fe0f5c81e3fc13fc0720e130282ea460768cafb49785eb2796"
@@ -984,11 +832,11 @@ describe("#SLP", () => {
 
 
       const result = await txsTokenIdAddressSingle(req, res)
-      console.log(`result: ${JSON.stringify(result, null, 2)}`)
+      //console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
       assert.hasAnyKeys(result[0], ["txid", "tokenDetails"])
     })
 
   });
-  */
+
 });
