@@ -30,14 +30,14 @@ declare global {
   }
 }
 
-const routeRateLimit = function(
+export const routeRateLimit = function(
   req: express.Request,
   res: express.Response,
   next: express.NextFunction
 ) {
   // Create a res.locals object if not passed in.
-  if(!req.locals) req.locals = {}
-  
+  if (!req.locals) req.locals = {}
+
   // Disable rate limiting if 0 passed from RATE_LIMIT_MAX_REQUESTS
   if (maxRequests === 0) return next()
 
@@ -109,5 +109,3 @@ const routeRateLimit = function(
   // Call rate limit for this route
   uniqueRateLimits[route](req, res, next)
 }
-
-export { routeRateLimit }

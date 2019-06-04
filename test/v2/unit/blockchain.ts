@@ -21,7 +21,7 @@ if (!process.env.TEST) process.env.TEST = "unit"
 
 // Mocking data.
 const { mockReq, mockRes } = require("./../mocks/express-mocks")
-const mockData = require("./../mocks/address-mock")
+const mockData = require("./../mocks/blockchain-mocks")
 
 let originalEnvVars: any // Used during transition from integration to unit tests.
 

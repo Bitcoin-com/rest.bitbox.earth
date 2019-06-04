@@ -22,7 +22,7 @@ let originalEnvVars: any // Used during transition from integration to unit test
 // Mocking data.
 //delete require.cache[require.resolve("./mocks/express-mocks")] // Fixes bug
 const { mockReq, mockRes, mockNext } = require("./../mocks/express-mocks")
-const mockData = require("./../mocks/address-mock")
+const mockData = require("./../mocks/raw-transactions-mocks")
 
 // Used for debugging.
 const util = require("util")
