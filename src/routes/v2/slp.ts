@@ -12,13 +12,13 @@ import {
   TokenInterface,
   ValidateTxidResult
 } from "./interfaces/RESTInterfaces"
+import { debug } from "./logging"
 import {
   decodeError,
   setEnvVars,
   validateArraySize,
   validateNetwork
 } from "./route-utils"
-import logger = require("./logging.js")
 
 // consts
 const router: any = express.Router()
@@ -914,7 +914,7 @@ async function validateBulk(
       })
     }
 
-    logger.debug(`Executing slp/validate with these txids: `, txids)
+    debug(`Executing slp/validate with these txids: `, txids)
 
     // Validate each txid
     const validatePromises: Promise<any>[] = txids.map(async txid => {
@@ -978,7 +978,7 @@ async function validateSingle(
       return res.json({ error: "txid can not be empty" })
     }
 
-    logger.debug(`Executing slp/validate/:txid with this txid: `, txid)
+    debug(`Executing slp/validate/:txid with this txid: `, txid)
 
     // Validate txid
     // Dev note: must call module.exports to allow stubs in unit tests.

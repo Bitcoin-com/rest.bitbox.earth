@@ -3,10 +3,10 @@ import axios, { AxiosPromise, AxiosResponse } from "axios"
 import * as express from "express"
 import { wlogger } from "../../util/winston-logging"
 import { BlockInterface } from "./interfaces/RESTInterfaces"
+import { debug } from "./logging"
 import { decodeError, setEnvVars, validateArraySize } from "./route-utils"
 
 // consts
-const logger: any = require("./logging.js")
 
 // Used for processing error messages before sending them to the user.
 const util: any = require("util")
@@ -224,7 +224,7 @@ async function detailsByHeightBulk(
       })
     }
 
-    logger.debug(`Executing detailsByHeight with these heights: `, heights)
+    debug(`Executing detailsByHeight with these heights: `, heights)
 
     // Validate each element in the address array.
     for (let i: number = 0; i < heights.length; i++) {

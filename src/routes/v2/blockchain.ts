@@ -17,8 +17,8 @@ import {
   TXOutInterface,
   VerboseBlockHeaderInterface
 } from "./interfaces/RESTInterfaces"
+import { debug } from "./logging"
 import { decodeError, setEnvVars, validateArraySize } from "./route-utils"
-import logger = require("./logging.js")
 
 // consts
 const router: express.Router = express.Router()
@@ -80,7 +80,7 @@ async function getBestBlockHash(
     }
 
     // Write out error to error log.
-    //logger.error(`Error in rawtransactions/decodeRawTransaction: `, err)
+    //error(`Error in rawtransactions/decodeRawTransaction: `, err)
     wlogger.error(`Error in blockchain.ts/getBestBlockHash().`, err)
 
     res.status(500)
@@ -113,7 +113,7 @@ async function getBlockchainInfo(
     }
 
     // Write out error to error log.
-    //logger.error(`Error in rawtransactions/decodeRawTransaction: `, err)
+    //error(`Error in rawtransactions/decodeRawTransaction: `, err)
     wlogger.error(`Error in blockchain.ts/getBlockchainInfo().`, err)
 
     res.status(500)
@@ -145,7 +145,7 @@ async function getBlockCount(
     }
 
     // Write out error to error log.
-    //logger.error(`Error in rawtransactions/decodeRawTransaction: `, err)
+    //error(`Error in rawtransactions/decodeRawTransaction: `, err)
     wlogger.error(`Error in blockchain.ts/getBlockCount().`, err)
 
     res.status(500)
@@ -189,7 +189,7 @@ async function getBlockHeaderSingle(
     }
 
     // Write out error to error log.
-    //logger.error(`Error in rawtransactions/decodeRawTransaction: `, err)
+    //error(`Error in rawtransactions/decodeRawTransaction: `, err)
     wlogger.error(`Error in blockchain.ts/getBlockHeaderSingle().`, err)
 
     res.status(500)
@@ -221,10 +221,7 @@ async function getBlockHeaderBulk(
       })
     }
 
-    logger.debug(
-      `Executing blockchain/getBlockHeaderBulk with these hashes: `,
-      hashes
-    )
+    debug(`Executing blockchain/getBlockHeaderBulk with these hashes: `, hashes)
 
     // Validate each hash in the array.
     for (let i: number = 0; i < hashes.length; i++) {
@@ -270,7 +267,7 @@ async function getBlockHeaderBulk(
     }
 
     // Write out error to error log.
-    //logger.error(`Error in rawtransactions/decodeRawTransaction: `, err)
+    //error(`Error in rawtransactions/decodeRawTransaction: `, err)
     wlogger.error(`Error in blockchain.ts/getBlockHeaderBulk().`, err)
 
     res.status(500)
@@ -302,7 +299,7 @@ async function getChainTips(
     }
 
     // Write out error to error log.
-    //logger.error(`Error in rawtransactions/decodeRawTransaction: `, err)
+    //error(`Error in rawtransactions/decodeRawTransaction: `, err)
     wlogger.error(`Error in blockchain.ts/getChainTips().`, err)
 
     res.status(500)
@@ -336,7 +333,7 @@ async function getDifficulty(
     }
 
     // Write out error to error log.
-    //logger.error(`Error in rawtransactions/decodeRawTransaction: `, err)
+    //error(`Error in rawtransactions/decodeRawTransaction: `, err)
     wlogger.error(`Error in blockchain.ts/getDifficulty().`, err)
 
     res.status(500)
@@ -377,7 +374,7 @@ async function getMempoolEntrySingle(
     }
 
     // Write out error to error log.
-    //logger.error(`Error in rawtransactions/decodeRawTransaction: `, err)
+    //error(`Error in rawtransactions/decodeRawTransaction: `, err)
     wlogger.error(`Error in blockchain.ts/getMempoolEntrySingle().`, err)
 
     res.status(500)
@@ -408,10 +405,7 @@ async function getMempoolEntryBulk(
       })
     }
 
-    logger.debug(
-      `Executing blockchain/getMempoolEntry with these txids: `,
-      txids
-    )
+    debug(`Executing blockchain/getMempoolEntry with these txids: `, txids)
 
     // Validate each element in the array
     for (let i: number = 0; i < txids.length; i++) {
@@ -454,7 +448,7 @@ async function getMempoolEntryBulk(
     }
 
     // Write out error to error log.
-    //logger.error(`Error in rawtransactions/decodeRawTransaction: `, err)
+    //error(`Error in rawtransactions/decodeRawTransaction: `, err)
     wlogger.error(`Error in blockchain.ts/getMempoolEntryBulk().`, err)
 
     res.status(500)
@@ -486,7 +480,7 @@ async function getMempoolInfo(
     }
 
     // Write out error to error log.
-    //logger.error(`Error in rawtransactions/decodeRawTransaction: `, err)
+    //error(`Error in rawtransactions/decodeRawTransaction: `, err)
     wlogger.error(`Error in blockchain.ts/getMempoolInfo().`, err)
 
     res.status(500)
@@ -523,7 +517,7 @@ async function getRawMempool(
     }
 
     // Write out error to error log.
-    //logger.error(`Error in rawtransactions/decodeRawTransaction: `, err)
+    //error(`Error in rawtransactions/decodeRawTransaction: `, err)
     wlogger.error(`Error in blockchain.ts/getRawMempool().`, err)
 
     res.status(500)
@@ -575,7 +569,7 @@ async function getTxOut(
     }
 
     // Write out error to error log.
-    //logger.error(`Error in rawtransactions/decodeRawTransaction: `, err)
+    //error(`Error in rawtransactions/decodeRawTransaction: `, err)
     wlogger.error(`Error in blockchain.ts/getTxOut().`, err)
 
     res.status(500)
@@ -616,7 +610,7 @@ async function getTxOutProofSingle(
     }
 
     // Write out error to error log.
-    //logger.error(`Error in rawtransactions/decodeRawTransaction: `, err)
+    //error(`Error in rawtransactions/decodeRawTransaction: `, err)
     wlogger.error(`Error in blockchain.ts/getTxOutProofSingle().`, err)
 
     res.status(500)
@@ -661,7 +655,7 @@ async function getTxOutProofBulk(
       }
     }
 
-    logger.debug(`Executing blockchain/getTxOutProof with these txids: `, txids)
+    debug(`Executing blockchain/getTxOutProof with these txids: `, txids)
 
     // Loop through each txid and creates an array of requests to call in parallel
     const promises: Promise<string>[] = txids.map(
@@ -695,7 +689,7 @@ async function getTxOutProofBulk(
     }
 
     // Write out error to error log.
-    //logger.error(`Error in rawtransactions/decodeRawTransaction: `, err)
+    //error(`Error in rawtransactions/decodeRawTransaction: `, err)
     wlogger.error(`Error in blockchain.ts/getTxOutProofBulk().`, err)
 
     res.status(500)
@@ -807,7 +801,7 @@ async function verifyTxOutProofSingle(
     }
 
     // Write out error to error log.
-    //logger.error(`Error in rawtransactions/decodeRawTransaction: `, err)
+    //error(`Error in rawtransactions/decodeRawTransaction: `, err)
     wlogger.error(`Error in blockchain.ts/verifyTxOutProofSingle().`, err)
 
     res.status(500)
@@ -849,10 +843,7 @@ async function verifyTxOutProofBulk(
       }
     }
 
-    logger.debug(
-      `Executing blockchain/verifyTxOutProof with these proofs: `,
-      proofs
-    )
+    debug(`Executing blockchain/verifyTxOutProof with these proofs: `, proofs)
 
     // Loop through each proof and creates an array of requests to call in parallel
     const promises: Promise<string>[] = proofs.map(
@@ -883,7 +874,7 @@ async function verifyTxOutProofBulk(
     }
 
     // Write out error to error log.
-    //logger.error(`Error in rawtransactions/decodeRawTransaction: `, err)
+    //error(`Error in rawtransactions/decodeRawTransaction: `, err)
     wlogger.error(`Error in blockchain.ts/verifyTxOutProofBulk().`, err)
 
     res.status(500)

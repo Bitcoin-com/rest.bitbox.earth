@@ -4,13 +4,13 @@ import { BITBOX } from "bitbox-sdk"
 import * as express from "express"
 import { wlogger } from "../../util/winston-logging"
 import { ValidateAddressInterface } from "./interfaces/RESTInterfaces"
+import { debug } from "./logging"
 import {
   decodeError,
   setEnvVars,
   validateArraySize,
   validateNetwork
 } from "./route-utils"
-import logger = require("./logging.js")
 
 // consts
 const router: any = express.Router()
@@ -117,7 +117,7 @@ async function validateAddressBulk(
       }
     }
 
-    logger.debug(`Executing util/validate with these addresses: `, addresses)
+    debug(`Executing util/validate with these addresses: `, addresses)
 
     // Loop through each address and creates an array of requests to call in parallel
     const promises: Promise<ValidateAddressInterface>[] = addresses.map(

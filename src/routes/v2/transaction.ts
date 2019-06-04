@@ -5,8 +5,8 @@ import * as express from "express"
 import * as util from "util"
 import { wlogger } from "../../util/winston-logging"
 import { TransactionInterface } from "./interfaces/RESTInterfaces"
+import { debug } from "./logging"
 import { decodeError, validateArraySize } from "./route-utils"
-import logger = require("./logging.js")
 
 // consts
 const router: any = express.Router()
@@ -113,7 +113,7 @@ async function detailsBulk(
       })
     }
 
-    logger.debug(`Executing transaction/details with these txids: `, txids)
+    debug(`Executing transaction/details with these txids: `, txids)
 
     // Collect an array of promises
     const promises: Promise<any>[] = txids.map(async (txid: any) => {
@@ -163,10 +163,7 @@ async function detailsSingle(
       })
     }
 
-    logger.debug(
-      `Executing transaction.ts/detailsSingle with this txid: `,
-      txid
-    )
+    debug(`Executing transaction.ts/detailsSingle with this txid: `, txid)
 
     // Query the Insight API.
     const retData: Promise<any> = await transactionsFromInsight(txid)
@@ -184,7 +181,7 @@ async function detailsSingle(
     }
 
     // Write out error to error log.
-    //logger.error(`Error in rawtransactions/decodeRawTransaction: `, err)
+    //error(`Error in rawtransactions/decodeRawTransaction: `, err)
     wlogger.error(`Error in transactions.ts/detailsSingle().`, err)
 
     res.status(500)

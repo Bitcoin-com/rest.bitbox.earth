@@ -2,7 +2,7 @@
 import * as express from "express"
 
 // consts
-const router = express.Router()
+const router: express.Router = express.Router()
 router.get("/", root)
 
 function root(

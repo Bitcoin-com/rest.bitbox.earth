@@ -10,7 +10,7 @@ import {
 import { decodeError, setEnvVars, validateArraySize } from "./route-utils"
 
 // consts
-const router: any = express.Router()
+const router: express.Router = express.Router()
 
 // Used to convert error messages to strings, to safely pass to users.
 util.inspect.defaultOptions = { depth: 1 }

@@ -6,16 +6,16 @@ import axios, { AxiosInstance } from "axios"
 import { BITBOX } from "bitbox-sdk"
 import * as express from "express"
 import * as util from "util"
+import { wlogger } from "../../util/winston-logging"
 import {
   iDecodeError,
   iSetEnvVars,
   RequestConfig
 } from "./interfaces/RESTInterfaces"
+import { error } from "./logging"
 
 // consts
 const bitbox: BITBOX = new BITBOX()
-const logger: any = require("./logging.js")
-const wlogger: any = require("../../util/winston-logging")
 
 util.inspect.defaultOptions = { depth: 1 }
 
@@ -68,7 +68,7 @@ export const validateNetwork = (address: string): boolean => {
 
     return false
   } catch (err) {
-    logger.error(`Error in validateNetwork()`)
+    error(`Error in validateNetwork()`)
     return false
   }
 }

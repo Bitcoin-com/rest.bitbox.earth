@@ -2,8 +2,6 @@
   A utility library for setting up greylog2 logging.
 */
 
-"use strict"
-
 // This will be uncommented and correct once we have our logging server functioning.
 /*
 var graylog2 = require("graylog2");
@@ -27,25 +25,19 @@ logger.on('error', function (error) {
 
 // This is just a placeholder function that will be replaced once we get the
 // greylog server working.
-function log(msg, obj) {
+export function log(msg: string, obj: any): void {
   //console.log(msg, obj)
 }
 
 // This is just a placeholder function that will be replaced once we get the
 // greylog server working.
-function error(msg, obj) {
+export function error(msg: string, obj?: any): void {
   if (!obj) console.error(msg)
   else console.error(msg, obj)
 }
 
 // This is just a placeholder function that will be replaced once we get the
 // greylog server working.
-function debug(msg, obj) {
+export function debug(msg: string, obj: any): void {
   //console.log(msg, obj)
-}
-
-module.exports = {
-  log,
-  error,
-  debug
 }

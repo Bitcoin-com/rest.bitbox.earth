@@ -10,8 +10,8 @@ import {
   TransactionsInterface,
   UTXOsInterface
 } from "./interfaces/RESTInterfaces"
+import { debug } from "./logging"
 import { decodeError, validateArraySize, validateNetwork } from "./route-utils"
-import logger = require("./logging.js")
 
 // consts
 const router: express.Router = express.Router()
@@ -122,7 +122,7 @@ async function detailsSingle(
       })
     }
 
-    logger.debug(`Executing address/detailsSingle with this address: `, address)
+    debug(`Executing address/detailsSingle with this address: `, address)
     wlogger.debug(
       `Executing address/detailsSingle with this address: `,
       address
@@ -165,7 +165,7 @@ async function detailsSingle(
     }
 
     // Write out error to error log.
-    //logger.error(`Error in address.ts/detailsSingle: `, err)
+    //error(`Error in address.ts/detailsSingle: `, err)
     wlogger.error(`Error in address.ts/detailsSingle().`, err)
 
     res.status(500)
@@ -199,7 +199,7 @@ async function detailsBulk(
       })
     }
 
-    logger.debug(`Executing address/details with these addresses: `, addresses)
+    debug(`Executing address/details with these addresses: `, addresses)
     wlogger.debug(`Executing address/details with these addresses: `, addresses)
 
     // Validate each element in the address array.
@@ -248,7 +248,7 @@ async function detailsBulk(
       return res.json({ error: msg })
     }
 
-    //logger.error(`Error in detailsBulk(): `, err)
+    //error(`Error in detailsBulk(): `, err)
     wlogger.error(`Error in address.ts/detailsBulk().`, err)
 
     res.status(500)
@@ -328,7 +328,7 @@ async function utxoSingle(
       })
     }
 
-    logger.debug(`Executing address/utxoSingle with this address: `, address)
+    debug(`Executing address/utxoSingle with this address: `, address)
     wlogger.debug(`Executing address/utxoSingle with this address: `, address)
 
     // Ensure the input is a valid BCH address.
@@ -365,7 +365,7 @@ async function utxoSingle(
     }
 
     // Write out error to error log.
-    //logger.error(`Error in rawtransactions/decodeRawTransaction: `, err)
+    //error(`Error in rawtransactions/decodeRawTransaction: `, err)
     wlogger.error(`Error in address.ts/utxoSingle().`, err)
 
     res.status(500)
@@ -420,7 +420,7 @@ async function utxoBulk(
       }
     }
 
-    logger.debug(`Executing address/utxoBulk with these addresses: `, addresses)
+    debug(`Executing address/utxoBulk with these addresses: `, addresses)
     wlogger.debug(
       `Executing address/utxoBulk with these addresses: `,
       addresses
@@ -448,7 +448,7 @@ async function utxoBulk(
     }
 
     // Write out error to error log.
-    //logger.error(`Error in rawtransactions/decodeRawTransaction: `, err)
+    //error(`Error in rawtransactions/decodeRawTransaction: `, err)
     wlogger.error(`Error in address.ts/utxoBulk().`, err)
 
     res.status(500)
@@ -477,7 +477,7 @@ async function unconfirmedSingle(
       })
     }
 
-    logger.debug(`Executing address/utxoSingle with this address: `, address)
+    debug(`Executing address/utxoSingle with this address: `, address)
     wlogger.debug(`Executing address/utxoSingle with this address: `, address)
 
     // Ensure the input is a valid BCH address.
@@ -526,7 +526,7 @@ async function unconfirmedSingle(
     }
 
     // Write out error to error log.
-    //logger.error(`Error in rawtransactions/decodeRawTransaction: `, err)
+    //error(`Error in rawtransactions/decodeRawTransaction: `, err)
     wlogger.error(`Error in address.ts/unconfirmedSingle().`, err)
 
     res.status(500)
@@ -549,7 +549,7 @@ async function unconfirmedBulk(
       return res.json({ error: "addresses needs to be an array" })
     }
 
-    logger.debug(`Executing address/utxo with these addresses: `, addresses)
+    debug(`Executing address/utxo with these addresses: `, addresses)
     wlogger.debug(`Executing address/utxo with these addresses: `, addresses)
 
     // Enforce array size rate limits
@@ -623,7 +623,7 @@ async function unconfirmedBulk(
     }
 
     // Write out error to error log.
-    //logger.error(`Error in rawtransactions/decodeRawTransaction: `, err)
+    //error(`Error in rawtransactions/decodeRawTransaction: `, err)
     wlogger.error(`Error in address.ts/unconfirmedBulk().`, err)
 
     res.status(500)
@@ -674,7 +674,7 @@ async function transactionsBulk(
       return res.json({ error: "addresses needs to be an array" })
     }
 
-    logger.debug(`Executing address/utxo with these addresses: `, addresses)
+    debug(`Executing address/utxo with these addresses: `, addresses)
     wlogger.debug(`Executing address/utxo with these addresses: `, addresses)
 
     // Enforce array size rate limits
@@ -731,7 +731,7 @@ async function transactionsBulk(
     }
 
     // Write out error to error log.
-    //logger.error(`Error in rawtransactions/decodeRawTransaction: `, err)
+    //error(`Error in rawtransactions/decodeRawTransaction: `, err)
     wlogger.error(`Error in address.ts/transactionsBulk().`, err)
 
     res.status(500)
@@ -764,10 +764,7 @@ async function transactionsSingle(
       })
     }
 
-    logger.debug(
-      `Executing address/transactionsSingle with this address: `,
-      address
-    )
+    debug(`Executing address/transactionsSingle with this address: `, address)
     wlogger.debug(
       `Executing address/transactionsSingle with this address: `,
       address
@@ -810,7 +807,7 @@ async function transactionsSingle(
     }
 
     // Write out error to error log.
-    //logger.error(`Error in rawtransactions/decodeRawTransaction: `, err)
+    //error(`Error in rawtransactions/decodeRawTransaction: `, err)
     wlogger.error(`Error in address.ts/transactionsSingle().`, err)
 
     res.status(500)
@@ -840,7 +837,7 @@ async function fromXPubSingle(
       })
     }
 
-    logger.debug(`Executing address/fromXPub with this xpub: `, xpub)
+    debug(`Executing address/fromXPub with this xpub: `, xpub)
     wlogger.debug(`Executing address/fromXPub with this xpub: `, xpub)
 
     let cashAddr: string = bitbox.Address.fromXPub(xpub, hdPath)
@@ -859,7 +856,7 @@ async function fromXPubSingle(
     }
 
     // Write out error to error log.
-    //logger.error(`Error in rawtransactions/decodeRawTransaction: `, err)
+    //error(`Error in rawtransactions/decodeRawTransaction: `, err)
     wlogger.error(`Error in address.ts/fromXPubSingle().`, err)
 
     res.status(500)

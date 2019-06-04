@@ -14,7 +14,7 @@ const cashAccounts: cashAccountClass = new cashAccountClass(
 const SLPSDK: any = require("slp-sdk")
 const SLP: any = new SLPSDK()
 const slp: any = SLP.slpjs
-const utils: any = slp.Utils
+// const utils: any = slp.Utils
 
 // Used for processing error messages before sending them to the user.
 util.inspect.defaultOptions = { depth: 1 }

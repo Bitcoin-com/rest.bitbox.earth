@@ -1,14 +1,14 @@
 // imports
 import { AxiosResponse } from "axios"
 import * as express from "express"
+import * as util from "util"
 import { wlogger } from "../../util/winston-logging"
 import { MiningInfoInterface } from "./interfaces/RESTInterfaces"
 import routeUtils = require("./route-utils")
 
 // consts
-const router: any = express.Router()
+const router: express.Router = express.Router()
 // Used to convert error messages to strings, to safely pass to users.
-const util = require("util")
 util.inspect.defaultOptions = { depth: 1 }
 
 router.get("/", root)
