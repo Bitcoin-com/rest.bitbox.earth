@@ -585,7 +585,7 @@ async function sendRawTransactionSingle(
   }
 }
 
-module.exports = {
+export default {
   router,
   getRawTransactionsFromNode,
   testableComponents: {

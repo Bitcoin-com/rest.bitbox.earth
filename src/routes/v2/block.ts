@@ -284,7 +284,7 @@ async function detailsByHeightBulk(
   }
 }
 
-module.exports = {
+export default {
   router,
   testableComponents: {
     root,

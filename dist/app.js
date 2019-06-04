@@ -1,11 +1,27 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+// imports
 var express = require("express");
 var http = require("http");
 var path = require("path");
-// Middleware
 var route_ratelimit_1 = require("./middleware/route-ratelimit");
+// v2
+var address_1 = require("./routes/v2/address");
+var block_1 = require("./routes/v2/block");
+var blockchain_1 = require("./routes/v2/blockchain");
+var cashaccounts_1 = require("./routes/v2/cashaccounts");
+var control_1 = require("./routes/v2/control");
+var generating_1 = require("./routes/v2/generating");
+var health_check_1 = require("./routes/v2/health-check");
+var index_1 = require("./routes/v2/index");
+var mining_1 = require("./routes/v2/mining");
+var network_1 = require("./routes/v2/network");
+var rawtransactions_1 = require("./routes/v2/rawtransactions");
+var slp_1 = require("./routes/v2/slp");
+var transaction_1 = require("./routes/v2/transaction");
+var util_1 = require("./routes/v2/util");
 var utilities_1 = require("./utilities");
+// consts
 var logger = require("morgan");
 var wlogger = require("./util/winston-logging");
 var cookieParser = require("cookie-parser");
@@ -29,21 +45,6 @@ var serverError = function () {
 // websockets
 var zmq = require("zeromq");
 var sock = zmq.socket("sub");
-// v2
-var indexV2 = require("./routes/v2/index");
-var healthCheckV2 = require("./routes/v2/health-check");
-var addressV2 = require("./routes/v2/address");
-var cashAccountsV2 = require("./routes/v2/cashaccounts");
-var blockV2 = require("./routes/v2/block");
-var blockchainV2 = require("./routes/v2/blockchain");
-var controlV2 = require("./routes/v2/control");
-var generatingV2 = require("./routes/v2/generating");
-var miningV2 = require("./routes/v2/mining");
-var networkV2 = require("./routes/v2/network");
-var rawtransactionsV2 = require("./routes/v2/rawtransactions");
-var transactionV2 = require("./routes/v2/transaction");
-var utilV2 = require("./routes/v2/util");
-var slpV2 = require("./routes/v2/slp");
 var app = express();
 app.locals.env = process.env;
 app.use(swStats.getMiddleware({ swaggerSpec: apiSpec }));
@@ -85,20 +86,20 @@ var auth = new AuthMW();
 app.use("/" + v2prefix + "/", auth.mw());
 // Rate limit on all v2 routes
 app.use("/" + v2prefix + "/", route_ratelimit_1.routeRateLimit);
-app.use("/", indexV2);
-app.use("/" + v2prefix + "/" + "health-check", healthCheckV2);
-app.use("/" + v2prefix + "/" + "address", addressV2.router);
-app.use("/" + v2prefix + "/" + "cashAccounts", cashAccountsV2.router);
-app.use("/" + v2prefix + "/" + "blockchain", blockchainV2.router);
-app.use("/" + v2prefix + "/" + "block", blockV2.router);
-app.use("/" + v2prefix + "/" + "control", controlV2.router);
-app.use("/" + v2prefix + "/" + "generating", generatingV2);
-app.use("/" + v2prefix + "/" + "mining", miningV2.router);
-app.use("/" + v2prefix + "/" + "network", networkV2);
-app.use("/" + v2prefix + "/" + "rawtransactions", rawtransactionsV2.router);
-app.use("/" + v2prefix + "/" + "transaction", transactionV2.router);
-app.use("/" + v2prefix + "/" + "util", utilV2.router);
-app.use("/" + v2prefix + "/" + "slp", slpV2.router);
+app.use("/", index_1.default);
+app.use("/" + v2prefix + "/" + "health-check", health_check_1.default);
+app.use("/" + v2prefix + "/" + "address", address_1.default.router);
+app.use("/" + v2prefix + "/" + "block", block_1.default.router);
+app.use("/" + v2prefix + "/" + "blockchain", blockchain_1.default.router);
+app.use("/" + v2prefix + "/" + "cashAccounts", cashaccounts_1.default.router);
+app.use("/" + v2prefix + "/" + "control", control_1.default.router);
+app.use("/" + v2prefix + "/" + "generating", generating_1.default);
+app.use("/" + v2prefix + "/" + "mining", mining_1.default.router);
+app.use("/" + v2prefix + "/" + "network", network_1.default);
+app.use("/" + v2prefix + "/" + "rawtransactions", rawtransactions_1.default.router);
+app.use("/" + v2prefix + "/" + "transaction", transaction_1.default.router);
+app.use("/" + v2prefix + "/" + "util", util_1.default.router);
+app.use("/" + v2prefix + "/" + "slp", slp_1.default.router);
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
     var err = {
@@ -172,5 +173,5 @@ server.listen(port);
 server.on("error", serverError);
 server.on("listening", listening);
 // Set the time before a timeout error is generated. This impacts testing and
-// the handling of timeout errors. Is 10 seconds too agressive?
+// the handling of timeout errors.
 server.setTimeout(30 * 1000);

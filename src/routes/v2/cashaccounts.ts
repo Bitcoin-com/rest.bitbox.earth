@@ -2,10 +2,7 @@
 import * as cashAccountClass from "cashaccounts"
 import * as express from "express"
 import * as util from "util"
-import {
-  CashAccountInterface,
-  CashAccountRegistration
-} from "./interfaces/RESTInterfaces"
+import { CashAccountInterface } from "./interfaces/RESTInterfaces"
 import routeUtils = require("./route-utils")
 import wlogger = require("../../util/winston-logging")
 
@@ -201,7 +198,7 @@ async function lookup(
 //   }
 // }
 
-module.exports = {
+export default {
   router,
   lookupableComponents: {
     root,

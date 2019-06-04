@@ -152,7 +152,7 @@ async function validateAddressBulk(
   }
 }
 
-module.exports = {
+export default {
   router,
   testableComponents: {
     root,

@@ -891,7 +891,7 @@ async function verifyTxOutProofBulk(
   }
 }
 
-module.exports = {
+export default {
   router,
   testableComponents: {
     root,

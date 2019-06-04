@@ -1552,7 +1552,7 @@ async function txsTokenIdAddressSingle(
   }
 }
 
-module.exports = {
+export default {
   router,
   testableComponents: {
     root,

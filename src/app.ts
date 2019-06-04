@@ -1,22 +1,38 @@
+// imports
 import * as express from "express"
 import * as http from "http"
 import { Socket } from "net"
 import * as path from "path"
-// Middleware
 import { routeRateLimit } from "./middleware/route-ratelimit"
+// v2
+import addressV2 from "./routes/v2/address"
+import blockV2 from "./routes/v2/block"
+import blockchainV2 from "./routes/v2/blockchain"
+import cashAccountsV2 from "./routes/v2/cashaccounts"
+import controlV2 from "./routes/v2/control"
+import generatingV2 from "./routes/v2/generating"
+import healthCheckV2 from "./routes/v2/health-check"
+import indexV2 from "./routes/v2/index"
+import miningV2 from "./routes/v2/mining"
+import networkV2 from "./routes/v2/network"
+import rawtransactionsV2 from "./routes/v2/rawtransactions"
+import slpV2 from "./routes/v2/slp"
+import transactionV2 from "./routes/v2/transaction"
+import utilV2 from "./routes/v2/util"
 import { normalizePort, onError, onListening } from "./utilities"
 
-const logger = require("morgan")
-const wlogger = require("./util/winston-logging")
-const cookieParser = require("cookie-parser")
-const bodyParser = require("body-parser")
+// consts
+const logger: any = require("morgan")
+const wlogger: any = require("./util/winston-logging")
+const cookieParser: any = require("cookie-parser")
+const bodyParser: any = require("body-parser")
 // const basicAuth = require("express-basic-auth")
-const helmet = require("helmet")
-const cors = require("cors")
-const AuthMW = require("./middleware/auth")
-const BitcoinCashZMQDecoder = require("bitcoincash-zmq-decoder")
-const swStats = require("swagger-stats")
-const apiSpec =
+const helmet: any = require("helmet")
+const cors: any = require("cors")
+const AuthMW: any = require("./middleware/auth")
+const BitcoinCashZMQDecoder: any = require("bitcoincash-zmq-decoder")
+const swStats: any = require("swagger-stats")
+const apiSpec: any =
   process.env.NETWORK === "mainnet"
     ? require("./public/bitcoin-com-mainnet-rest-v2.json")
     : require("./public/bitcoin-com-testnet-rest-v2.json")
@@ -35,22 +51,6 @@ const serverError = (): void => {
 // websockets
 const zmq = require("zeromq")
 const sock: any = zmq.socket("sub")
-
-// v2
-const indexV2 = require("./routes/v2/index")
-const healthCheckV2 = require("./routes/v2/health-check")
-const addressV2 = require("./routes/v2/address")
-const cashAccountsV2 = require("./routes/v2/cashaccounts")
-const blockV2 = require("./routes/v2/block")
-const blockchainV2 = require("./routes/v2/blockchain")
-const controlV2 = require("./routes/v2/control")
-const generatingV2 = require("./routes/v2/generating")
-const miningV2 = require("./routes/v2/mining")
-const networkV2 = require("./routes/v2/network")
-const rawtransactionsV2 = require("./routes/v2/rawtransactions")
-const transactionV2 = require("./routes/v2/transaction")
-const utilV2 = require("./routes/v2/util")
-const slpV2 = require("./routes/v2/slp")
 
 interface IError {
   message: string
@@ -114,9 +114,9 @@ app.use(`/${v2prefix}/`, routeRateLimit)
 app.use("/", indexV2)
 app.use(`/${v2prefix}/` + `health-check`, healthCheckV2)
 app.use(`/${v2prefix}/` + `address`, addressV2.router)
-app.use(`/${v2prefix}/` + `cashAccounts`, cashAccountsV2.router)
-app.use(`/${v2prefix}/` + `blockchain`, blockchainV2.router)
 app.use(`/${v2prefix}/` + `block`, blockV2.router)
+app.use(`/${v2prefix}/` + `blockchain`, blockchainV2.router)
+app.use(`/${v2prefix}/` + `cashAccounts`, cashAccountsV2.router)
 app.use(`/${v2prefix}/` + `control`, controlV2.router)
 app.use(`/${v2prefix}/` + `generating`, generatingV2)
 app.use(`/${v2prefix}/` + `mining`, miningV2.router)
@@ -225,5 +225,5 @@ server.on("error", serverError)
 server.on("listening", listening)
 
 // Set the time before a timeout error is generated. This impacts testing and
-// the handling of timeout errors. Is 10 seconds too agressive?
+// the handling of timeout errors.
 server.setTimeout(30 * 1000)

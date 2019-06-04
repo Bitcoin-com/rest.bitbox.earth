@@ -867,7 +867,7 @@ async function fromXPubSingle(
   }
 }
 
-module.exports = {
+export default {
   router,
   testableComponents: {
     root,

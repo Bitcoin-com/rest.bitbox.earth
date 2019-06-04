@@ -146,7 +146,7 @@ async function getNetworkHashPS(
 //   });
 // });
 
-module.exports = {
+export default {
   router,
   testableComponents: {
     root,

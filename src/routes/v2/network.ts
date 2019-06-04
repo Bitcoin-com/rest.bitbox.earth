@@ -1,16 +1,16 @@
 // imports
-import * as express from "express";
+import * as express from "express"
 
 // consts
-const router = express.Router();
-router.get("/", root);
+const router = express.Router()
+router.get("/", root)
 
 function root(
   req: express.Request,
   res: express.Response,
   next: express.NextFunction
 ): express.Response {
-  return res.json({ status: "network" });
+  return res.json({ status: "network" })
 }
 
 // router.post('/addNode/:node/:command', (req, res, next) => {
@@ -171,4 +171,4 @@ function root(
 //   });
 // });
 
-module.exports = router;
+export default router

@@ -89,7 +89,7 @@ async function getInfo(
 //   });
 // });
 
-module.exports = {
+export default {
   router,
   testableComponents: {
     root,

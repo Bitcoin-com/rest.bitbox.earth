@@ -192,7 +192,7 @@ async function detailsSingle(
   }
 }
 
-module.exports = {
+export default {
   router,
   transactionsFromInsight,
   testableComponents: {
