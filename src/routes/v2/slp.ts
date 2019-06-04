@@ -918,9 +918,7 @@ async function validateBulk(
     const validatePromises: Promise<any>[] = txids.map(async txid => {
       try {
         // Dev note: must call module.exports to allow stubs in unit tests.
-        const isValid: Promise<
-          boolean
-        > = await module.exports.testableComponents.isValidSlpTxid(txid)
+        const isValid: boolean = await isValidSlpTxid(txid)
 
         let tmp: {
           txid: string
@@ -980,9 +978,7 @@ async function validateSingle(
 
     // Validate txid
     // Dev note: must call module.exports to allow stubs in unit tests.
-    const isValid: Promise<
-      boolean
-    > = await module.exports.testableComponents.isValidSlpTxid(txid)
+    const isValid: boolean = await isValidSlpTxid(txid)
 
     let tmp: ValidateTxidResult = {
       txid: txid,
@@ -1368,12 +1364,7 @@ async function txDetails(
 
     // Get TX info + token info
     // Wrapped in a testable function so that it can be stubbed for unit tests.
-    const result: Promise<
-      any
-    > = await module.exports.testableComponents.getSlpjsTxDetails(
-      tmpbitboxNetwork,
-      txid
-    )
+    const result: Promise<any> = await getSlpjsTxDetails(tmpbitboxNetwork, txid)
 
     res.status(200)
     return res.json(result)

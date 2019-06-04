@@ -24,7 +24,7 @@ let originalUrl: any // Used during transition from integration to unit tests.
 
 // Mocking data.
 const { mockReq, mockRes } = require("./../mocks/express-mocks")
-const mockData = require("./../mocks/address-mock")
+const mockData = require("./../mocks/address-mocks")
 
 // Used for debugging.
 const util = require("util")
