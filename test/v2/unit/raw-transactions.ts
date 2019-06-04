@@ -9,27 +9,29 @@
   -Create e2e test for sendRawTransaction.
 
 */
+// imports
+import * as chai from "chai"
+import rawtransactionsV2 from "./../../../src/routes/v2/rawtransactions"
 
-"use strict"
-
-const chai = require("chai")
+// consts
 const assert = chai.assert
-const rawtransactions = require("../../dist/routes/v2/rawtransactions")
 const nock = require("nock") // HTTP mocking
 
-let originalEnvVars // Used during transition from integration to unit tests.
+let originalEnvVars: any // Used during transition from integration to unit tests.
 
 // Mocking data.
 //delete require.cache[require.resolve("./mocks/express-mocks")] // Fixes bug
-const { mockReq, mockRes, mockNext } = require("./mocks/express-mocks")
-const mockData = require("./mocks/raw-transactions-mocks")
+const { mockReq, mockRes, mockNext } = require("./../mocks/express-mocks")
+const mockData = require("./../mocks/address-mock")
 
 // Used for debugging.
 const util = require("util")
 util.inspect.defaultOptions = { depth: 5 }
 
 describe("#Raw-Transactions", () => {
-  let req, res, next
+  let req: any
+  let res: any
+  let next: any
 
   before(() => {
     // Save existing environment variables.
@@ -81,25 +83,25 @@ describe("#Raw-Transactions", () => {
     process.env.RPC_PASSWORD = originalEnvVars.RPC_PASSWORD
   })
 
-  describe("#root", async () => {
-    // root route handler.
-    const root = rawtransactions.testableComponents.root
+  // describe("#root", async () => {
+  //   // root route handler.
+  //   const root = rawtransactionsV2.testableComponents.root
 
-    it("should respond to GET for base route", async () => {
-      const result = root(req, res)
-      //console.log(`result: ${util.inspect(result)}`)
+  //   it("should respond to GET for base route", async () => {
+  //     const result: any = root(req, res, next)
+  //     //console.log(`result: ${util.inspect(result)}`)
 
-      assert.equal(result.status, "rawtransactions", "Returns static string")
-    })
-  })
+  //     assert.equal(result.status, "rawtransactionsV2", "Returns static string")
+  //   })
+  // })
 
   describe("decodeRawTransactionSingle()", () => {
     // block route handler.
     const decodeRawTransaction =
-      rawtransactions.testableComponents.decodeRawTransactionSingle
+      rawtransactionsV2.testableComponents.decodeRawTransactionSingle
 
     it("should throw error if hex is missing", async () => {
-      const result = await decodeRawTransaction(req, res)
+      const result: any = await decodeRawTransaction(req, res, next)
       //console.log(`result: ${util.inspect(result)}`)
 
       assert.hasAllKeys(result, ["error"])
@@ -116,7 +118,7 @@ describe("#Raw-Transactions", () => {
       req.params.hex =
         "0200000001b9b598d7d6d72fc486b2b3a3c03c79b5bade6ec9a77ced850515ab5e64edcc21010000006b483045022100a7b1b08956abb8d6f322aa709d8583c8ea492ba0585f1a6f4f9983520af74a5a0220411aee4a9a54effab617b0508c504c31681b15f9b187179b4874257badd4139041210360cfc66fdacb650bc4c83b4e351805181ee696b7d5ab4667c57b2786f51c413dffffffff0210270000000000001976a914eb4b180def88e3f5625b2d8ae2c098ff7d85f66488ac786e9800000000001976a914eb4b180def88e3f5625b2d8ae2c098ff7d85f66488ac00000000"
 
-      const result = await decodeRawTransaction(req, res)
+      const result: any = await decodeRawTransaction(req, res, next)
       //console.log(`result: ${util.inspect(result)}`)
 
       // Restore the saved URL.
@@ -141,7 +143,7 @@ describe("#Raw-Transactions", () => {
       req.params.hex =
         "0200000001b9b598d7d6d72fc486b2b3a3c03c79b5bade6ec9a77ced850515ab5e64edcc21010000006b483045022100a7b1b08956abb8d6f322aa709d8583c8ea492ba0585f1a6f4f9983520af74a5a0220411aee4a9a54effab617b0508c504c31681b15f9b187179b4874257badd4139041210360cfc66fdacb650bc4c83b4e351805181ee696b7d5ab4667c57b2786f51c413dffffffff0210270000000000001976a914eb4b180def88e3f5625b2d8ae2c098ff7d85f66488ac786e9800000000001976a914eb4b180def88e3f5625b2d8ae2c098ff7d85f66488ac00000000"
 
-      const result = await decodeRawTransaction(req, res)
+      const result: any = await decodeRawTransaction(req, res, next)
       //console.log(`result: ${util.inspect(result)}`)
 
       assert.hasAnyKeys(result, [
@@ -160,10 +162,10 @@ describe("#Raw-Transactions", () => {
 
   describe("decodeRawTransactionBulk()", () => {
     const decodeRawTransactionBulk =
-      rawtransactions.testableComponents.decodeRawTransactionBulk
+      rawtransactionsV2.testableComponents.decodeRawTransactionBulk
 
     it("should throw 400 error if hexes array is missing", async () => {
-      const result = await decodeRawTransactionBulk(req, res)
+      const result: any = await decodeRawTransactionBulk(req, res, next)
       //console.log(`result: ${util.inspect(result)}`)
 
       assert.hasAllKeys(result, ["error"])
@@ -176,7 +178,7 @@ describe("#Raw-Transactions", () => {
 
       req.body.hexes = testArray
 
-      const result = await decodeRawTransactionBulk(req, res)
+      const result: any = await decodeRawTransactionBulk(req, res, next)
       //console.log(`result: ${util.inspect(result)}`)
 
       assert.hasAllKeys(result, ["error"])
@@ -186,7 +188,7 @@ describe("#Raw-Transactions", () => {
     it("should throw 400 error if hexes is empty", async () => {
       req.body.hexes = [""]
 
-      const result = await decodeRawTransactionBulk(req, res)
+      const result: any = await decodeRawTransactionBulk(req, res, next)
       //console.log(`result: ${util.inspect(result)}`)
 
       assert.hasAllKeys(result, ["error"])
@@ -197,7 +199,7 @@ describe("#Raw-Transactions", () => {
       req.body.hexes =
         "0200000001b9b598d7d6d72fc486b2b3a3c03c79b5bade6ec9a77ced850515ab5e64edcc21010000006b483045022100a7b1b08956abb8d6f322aa709d8583c8ea492ba0585f1a6f4f9983520af74a5a0220411aee4a9a54effab617b0508c504c31681b15f9b187179b4874257badd4139041210360cfc66fdacb650bc4c83b4e351805181ee696b7d5ab4667c57b2786f51c413dffffffff0210270000000000001976a914eb4b180def88e3f5625b2d8ae2c098ff7d85f66488ac786e9800000000001976a914eb4b180def88e3f5625b2d8ae2c098ff7d85f66488ac00000000"
 
-      const result = await decodeRawTransactionBulk(req, res)
+      const result: any = await decodeRawTransactionBulk(req, res, next)
 
       assert.equal(res.statusCode, 400, "HTTP status code 400 expected.")
       assert.include(
@@ -219,7 +221,7 @@ describe("#Raw-Transactions", () => {
         "0200000001b9b598d7d6d72fc486b2b3a3c03c79b5bade6ec9a77ced850515ab5e64edcc21010000006b483045022100a7b1b08956abb8d6f322aa709d8583c8ea492ba0585f1a6f4f9983520af74a5a0220411aee4a9a54effab617b0508c504c31681b15f9b187179b4874257badd4139041210360cfc66fdacb650bc4c83b4e351805181ee696b7d5ab4667c57b2786f51c413dffffffff0210270000000000001976a914eb4b180def88e3f5625b2d8ae2c098ff7d85f66488ac786e9800000000001976a914eb4b180def88e3f5625b2d8ae2c098ff7d85f66488ac00000000"
       ]
 
-      const result = await decodeRawTransactionBulk(req, res)
+      const result: any = await decodeRawTransactionBulk(req, res, next)
       //console.log(`result: ${util.inspect(result)}`)
 
       assert.isArray(result)
@@ -250,7 +252,7 @@ describe("#Raw-Transactions", () => {
         "0200000001b9b598d7d6d72fc486b2b3a3c03c79b5bade6ec9a77ced850515ab5e64edcc21010000006b483045022100a7b1b08956abb8d6f322aa709d8583c8ea492ba0585f1a6f4f9983520af74a5a0220411aee4a9a54effab617b0508c504c31681b15f9b187179b4874257badd4139041210360cfc66fdacb650bc4c83b4e351805181ee696b7d5ab4667c57b2786f51c413dffffffff0210270000000000001976a914eb4b180def88e3f5625b2d8ae2c098ff7d85f66488ac786e9800000000001976a914eb4b180def88e3f5625b2d8ae2c098ff7d85f66488ac00000000"
       ]
 
-      const result = await decodeRawTransactionBulk(req, res)
+      const result: any = await decodeRawTransactionBulk(req, res, next)
       //console.log(`result: ${util.inspect(result)}`)
 
       assert.isArray(result)
@@ -271,10 +273,10 @@ describe("#Raw-Transactions", () => {
   describe("decodeScriptSingle()", () => {
     // block route handler.
     const decodeScriptSingle =
-      rawtransactions.testableComponents.decodeScriptSingle
+      rawtransactionsV2.testableComponents.decodeScriptSingle
 
     it("should throw error if hex is missing", async () => {
-      const result = await decodeScriptSingle(req, res)
+      const result: any = await decodeScriptSingle(req, res, next)
       //console.log(`result: ${util.inspect(result)}`)
 
       assert.hasAllKeys(result, ["error"])
@@ -291,7 +293,7 @@ describe("#Raw-Transactions", () => {
       req.params.hex =
         "0200000001b9b598d7d6d72fc486b2b3a3c03c79b5bade6ec9a77ced850515ab5e64edcc21010000006b483045022100a7b1b08956abb8d6f322aa709d8583c8ea492ba0585f1a6f4f9983520af74a5a0220411aee4a9a54effab617b0508c504c31681b15f9b187179b4874257badd4139041210360cfc66fdacb650bc4c83b4e351805181ee696b7d5ab4667c57b2786f51c413dffffffff0210270000000000001976a914eb4b180def88e3f5625b2d8ae2c098ff7d85f66488ac786e9800000000001976a914eb4b180def88e3f5625b2d8ae2c098ff7d85f66488ac00000000"
 
-      const result = await decodeScriptSingle(req, res)
+      const result: any = await decodeScriptSingle(req, res, next)
       //console.log(`result: ${util.inspect(result)}`)
 
       // Restore the saved URL.
@@ -316,7 +318,7 @@ describe("#Raw-Transactions", () => {
       req.params.hex =
         "0200000001b9b598d7d6d72fc486b2b3a3c03c79b5bade6ec9a77ced850515ab5e64edcc21010000006b483045022100a7b1b08956abb8d6f322aa709d8583c8ea492ba0585f1a6f4f9983520af74a5a0220411aee4a9a54effab617b0508c504c31681b15f9b187179b4874257badd4139041210360cfc66fdacb650bc4c83b4e351805181ee696b7d5ab4667c57b2786f51c413dffffffff0210270000000000001976a914eb4b180def88e3f5625b2d8ae2c098ff7d85f66488ac786e9800000000001976a914eb4b180def88e3f5625b2d8ae2c098ff7d85f66488ac00000000"
 
-      const result = await decodeScriptSingle(req, res)
+      const result: any = await decodeScriptSingle(req, res, next)
       //console.log(`result: ${util.inspect(result)}`)
 
       assert.hasAllKeys(result, ["asm", "type", "p2sh"])
@@ -324,10 +326,11 @@ describe("#Raw-Transactions", () => {
   })
 
   describe("decodeScriptBulk()", () => {
-    const decodeScriptBulk = rawtransactions.testableComponents.decodeScriptBulk
+    const decodeScriptBulk =
+      rawtransactionsV2.testableComponents.decodeScriptBulk
 
     it("should throw 400 error if hexes array is missing", async () => {
-      const result = await decodeScriptBulk(req, res)
+      const result: any = await decodeScriptBulk(req, res, next)
       //console.log(`result: ${util.inspect(result)}`)
 
       assert.hasAllKeys(result, ["error"])
@@ -340,7 +343,7 @@ describe("#Raw-Transactions", () => {
 
       req.body.hexes = testArray
 
-      const result = await decodeScriptBulk(req, res)
+      const result: any = await decodeScriptBulk(req, res, next)
       //console.log(`result: ${util.inspect(result)}`)
 
       assert.hasAllKeys(result, ["error"])
@@ -350,7 +353,7 @@ describe("#Raw-Transactions", () => {
     it("should throw 400 error if hexes is empty", async () => {
       req.body.hexes = [""]
 
-      const result = await decodeScriptBulk(req, res)
+      const result: any = await decodeScriptBulk(req, res, next)
       //console.log(`result: ${util.inspect(result)}`)
 
       assert.hasAllKeys(result, ["error"])
@@ -361,7 +364,7 @@ describe("#Raw-Transactions", () => {
       req.body.hexes =
         "0200000001b9b598d7d6d72fc486b2b3a3c03c79b5bade6ec9a77ced850515ab5e64edcc21010000006b483045022100a7b1b08956abb8d6f322aa709d8583c8ea492ba0585f1a6f4f9983520af74a5a0220411aee4a9a54effab617b0508c504c31681b15f9b187179b4874257badd4139041210360cfc66fdacb650bc4c83b4e351805181ee696b7d5ab4667c57b2786f51c413dffffffff0210270000000000001976a914eb4b180def88e3f5625b2d8ae2c098ff7d85f66488ac786e9800000000001976a914eb4b180def88e3f5625b2d8ae2c098ff7d85f66488ac00000000"
 
-      const result = await decodeScriptBulk(req, res)
+      const result: any = await decodeScriptBulk(req, res, next)
 
       assert.equal(res.statusCode, 400, "HTTP status code 400 expected.")
       assert.include(
@@ -383,7 +386,7 @@ describe("#Raw-Transactions", () => {
         "4830450221009a51e00ec3524a7389592bc27bea4af5104a59510f5f0cfafa64bbd5c164ca2e02206c2a8bbb47eabdeed52f17d7df668d521600286406930426e3a9415fe10ed592012102e6e1423f7abde8b70bca3e78a7d030e5efabd3eb35c19302542b5fe7879c1a16"
       ]
 
-      const result = await decodeScriptBulk(req, res)
+      const result: any = await decodeScriptBulk(req, res, next)
       //console.log(`result: ${util.inspect(result)}`)
 
       assert.isArray(result)
@@ -404,7 +407,7 @@ describe("#Raw-Transactions", () => {
         "4830450221009a51e00ec3524a7389592bc27bea4af5104a59510f5f0cfafa64bbd5c164ca2e02206c2a8bbb47eabdeed52f17d7df668d521600286406930426e3a9415fe10ed592012102e6e1423f7abde8b70bca3e78a7d030e5efabd3eb35c19302542b5fe7879c1a16"
       ]
 
-      const result = await decodeScriptBulk(req, res)
+      const result: any = await decodeScriptBulk(req, res, next)
       //console.log(`result: ${util.inspect(result)}`)
 
       assert.isArray(result)
@@ -416,10 +419,10 @@ describe("#Raw-Transactions", () => {
   describe("getRawTransactionBulk()", () => {
     // block route handler.
     const getRawTransactionBulk =
-      rawtransactions.testableComponents.getRawTransactionBulk
+      rawtransactionsV2.testableComponents.getRawTransactionBulk
 
     it("should throw 400 error if txids array is missing", async () => {
-      const result = await getRawTransactionBulk(req, res)
+      const result: any = await getRawTransactionBulk(req, res, next)
       //console.log(`result: ${util.inspect(result)}`)
 
       assert.hasAllKeys(result, ["error"])
@@ -432,7 +435,7 @@ describe("#Raw-Transactions", () => {
 
       req.body.txids = testArray
 
-      const result = await getRawTransactionBulk(req, res)
+      const result: any = await getRawTransactionBulk(req, res, next)
       //console.log(`result: ${util.inspect(result)}`)
 
       assert.hasAllKeys(result, ["error"])
@@ -442,7 +445,7 @@ describe("#Raw-Transactions", () => {
     it("should throw 400 error if txid is empty", async () => {
       req.body.txids = [""]
 
-      const result = await getRawTransactionBulk(req, res)
+      const result: any = await getRawTransactionBulk(req, res, next)
       //console.log(`result: ${util.inspect(result)}`)
 
       assert.hasAllKeys(result, ["error"])
@@ -461,7 +464,7 @@ describe("#Raw-Transactions", () => {
 
       req.body.txids = ["abc123"]
 
-      const result = await getRawTransactionBulk(req, res)
+      const result: any = await getRawTransactionBulk(req, res, next)
       //console.log(`result: ${util.inspect(result)}`)
 
       assert.hasAllKeys(result, ["error"])
@@ -481,7 +484,7 @@ describe("#Raw-Transactions", () => {
         "bd320377db7026a3dd5c7ec444596c0ee18fc25c4f34ee944adc03e432ce1971"
       ]
 
-      const result = await getRawTransactionBulk(req, res)
+      const result: any = await getRawTransactionBulk(req, res, next)
       //console.log(`result: ${util.inspect(result)}`)
 
       assert.isArray(result)
@@ -501,7 +504,7 @@ describe("#Raw-Transactions", () => {
       ]
       req.body.verbose = true
 
-      const result = await getRawTransactionBulk(req, res)
+      const result: any = await getRawTransactionBulk(req, res, next)
       //console.log(`result: ${util.inspect(result)}`)
 
       assert.isArray(result)
@@ -527,10 +530,10 @@ describe("#Raw-Transactions", () => {
   describe("getRawTransactionSingle()", () => {
     // block route handler.
     const getRawTransactionSingle =
-      rawtransactions.testableComponents.getRawTransactionSingle
+      rawtransactionsV2.testableComponents.getRawTransactionSingle
 
     it("should throw 400 error if txid is missing", async () => {
-      const result = await getRawTransactionSingle(req, res)
+      const result: any = await getRawTransactionSingle(req, res, next)
       //console.log(`result: ${util.inspect(result)}`)
 
       assert.hasAllKeys(result, ["error"])
@@ -549,7 +552,7 @@ describe("#Raw-Transactions", () => {
 
       req.params.txid = "abc123"
 
-      const result = await getRawTransactionSingle(req, res)
+      const result: any = await getRawTransactionSingle(req, res, next)
       //console.log(`result: ${util.inspect(result)}`)
 
       assert.hasAllKeys(result, ["error"])
@@ -568,7 +571,7 @@ describe("#Raw-Transactions", () => {
       req.params.txid =
         "bd320377db7026a3dd5c7ec444596c0ee18fc25c4f34ee944adc03e432ce1971"
 
-      const result = await getRawTransactionSingle(req, res)
+      const result: any = await getRawTransactionSingle(req, res, next)
       //console.log(`result: ${util.inspect(result)}`)
 
       assert.isString(result)
@@ -586,7 +589,7 @@ describe("#Raw-Transactions", () => {
         "bd320377db7026a3dd5c7ec444596c0ee18fc25c4f34ee944adc03e432ce1971"
       req.query.verbose = "true"
 
-      const result = await getRawTransactionSingle(req, res)
+      const result: any = await getRawTransactionSingle(req, res, next)
       //console.log(`result: ${util.inspect(result)}`)
 
       assert.hasAnyKeys(result, [
@@ -610,10 +613,10 @@ describe("#Raw-Transactions", () => {
 
   describe("sendRawTransactionBulk()", () => {
     const sendRawTransaction =
-      rawtransactions.testableComponents.sendRawTransactionBulk
+      rawtransactionsV2.testableComponents.sendRawTransactionBulk
 
     it("should throw 400 error if hexs array is missing", async () => {
-      const result = await sendRawTransaction(req, res)
+      const result: any = await sendRawTransaction(req, res, next)
       //console.log(`result: ${util.inspect(result)}`)
 
       assert.hasAllKeys(result, ["error"])
@@ -626,7 +629,7 @@ describe("#Raw-Transactions", () => {
 
       req.body.hexes = testArray
 
-      const result = await sendRawTransaction(req, res)
+      const result: any = await sendRawTransaction(req, res, next)
       //console.log(`result: ${util.inspect(result)}`)
 
       assert.hasAllKeys(result, ["error"])
@@ -636,7 +639,7 @@ describe("#Raw-Transactions", () => {
     it("should throw 400 error if hex array element is empty", async () => {
       req.body.hexes = [""]
 
-      const result = await sendRawTransaction(req, res)
+      const result: any = await sendRawTransaction(req, res, next)
       //console.log(`result: ${util.inspect(result)}`)
 
       assert.hasAllKeys(result, ["error"])
@@ -655,7 +658,7 @@ describe("#Raw-Transactions", () => {
 
       req.body.hexes = ["abc123"]
 
-      const result = await sendRawTransaction(req, res)
+      const result: any = await sendRawTransaction(req, res, next)
       //console.log(`result: ${util.inspect(result)}`)
 
       assert.hasAllKeys(result, ["error"])
@@ -682,7 +685,7 @@ describe("#Raw-Transactions", () => {
         "0200000001189f7cf4303e2e0bcc5af4be323b9b397dd4104ca2de09528eb90a1450b8a999010000006a4730440220212ec2ffce136a30cec1bc86a40b08a2afdeb6f8dbd652d7bcb07b1aad6dfa8c022041f59585273b89d88879a9a531ba3272dc953f48ff57dad955b2dee70e76c0624121030143ffd18f1c4add75c86b2f930d9551d51f7a6bd786314247022b7afc45d231ffffffff0230d39700000000001976a914af64a026e06910c59463b000d18c3d125d7e951a88ac58c20000000000001976a914af64a026e06910c59463b000d18c3d125d7e951a88ac00000000"
       ]
 
-      const result = await sendRawTransaction(req, res)
+      const result: any = await sendRawTransaction(req, res, next)
       //console.log(`result: ${util.inspect(result)}`)
 
       if (process.env.TEST === "unit") {
@@ -700,12 +703,12 @@ describe("#Raw-Transactions", () => {
   describe("sendRawTransactionSingle()", () => {
     // block route handler.
     const sendRawTransaction =
-      rawtransactions.testableComponents.sendRawTransactionSingle
+      rawtransactionsV2.testableComponents.sendRawTransactionSingle
 
     it("should throw an error for an empty hex", async () => {
       req.params.hex = ""
 
-      const result = await sendRawTransaction(req, res)
+      const result: any = await sendRawTransaction(req, res, next)
 
       assert.equal(res.statusCode, 400, "HTTP status code 400 expected.")
       assert.include(
@@ -718,7 +721,7 @@ describe("#Raw-Transactions", () => {
     it("should throw an error for a non-string", async () => {
       req.params.hex = 456
 
-      const result = await sendRawTransaction(req, res)
+      const result: any = await sendRawTransaction(req, res, next)
 
       assert.equal(res.statusCode, 400, "HTTP status code 400 expected.")
       assert.include(
@@ -739,7 +742,7 @@ describe("#Raw-Transactions", () => {
 
       req.params.hex =
         "0200000001189f7cf4303e2e0bcc5af4be323b9b397dd4104ca2de09528eb90a1450b8a999010000006a4730440220212ec2ffce136a30cec1bc86a40b08a2afdeb6f8dbd652d7bcb07b1aad6dfa8c022041f59585273b89d88879a9a531ba3272dc953f48ff57dad955b2dee70e76c0624121030143ffd18f1c4add75c86b2f930d9551d51f7a6bd786314247022b7afc45d231ffffffff0230d39700000000001976a914af64a026e06910c59463b000d18c3d125d7e951a88ac58c20000000000001976a914af64a026e06910c59463b000d18c3d125d7e951a88ac00000000"
-      const result = await sendRawTransaction(req, res)
+      const result: any = await sendRawTransaction(req, res, next)
       //console.log(`result: ${util.inspect(result)}`)
 
       // Restore the saved URL.
@@ -765,7 +768,7 @@ describe("#Raw-Transactions", () => {
           })
       }
 
-      const result = await sendRawTransaction(req, res)
+      const result: any = await sendRawTransaction(req, res, next)
       //console.log(`result: ${util.inspect(result)}`)
 
       assert.hasAllKeys(result, ["error"])
@@ -791,7 +794,7 @@ describe("#Raw-Transactions", () => {
       req.params.hex =
         "0200000001189f7cf4303e2e0bcc5af4be323b9b397dd4104ca2de09528eb90a1450b8a999010000006a4730440220212ec2ffce136a30cec1bc86a40b08a2afdeb6f8dbd652d7bcb07b1aad6dfa8c022041f59585273b89d88879a9a531ba3272dc953f48ff57dad955b2dee70e76c0624121030143ffd18f1c4add75c86b2f930d9551d51f7a6bd786314247022b7afc45d231ffffffff0230d39700000000001976a914af64a026e06910c59463b000d18c3d125d7e951a88ac58c20000000000001976a914af64a026e06910c59463b000d18c3d125d7e951a88ac00000000"
 
-      const result = await sendRawTransaction(req, res)
+      const result: any = await sendRawTransaction(req, res, next)
       //console.log(`result: ${util.inspect(result)}`)
 
       if (process.env.TEST === "unit") {

@@ -6,12 +6,13 @@
   --Needs e2e test to create unconfirmed tx, for real-world test.
 */
 
-"use strict"
+// imports
+import * as chai from "chai"
+import blockchainV2 from "./../../../src/routes/v2/blockchain"
 
-const chai = require("chai")
+// consts
 const assert = chai.assert
 const nock = require("nock") // HTTP mocking
-const blockchainRoute = require("../../dist/routes/v2/blockchain")
 
 const util = require("util")
 util.inspect.defaultOptions = { depth: 1 }
@@ -19,13 +20,15 @@ util.inspect.defaultOptions = { depth: 1 }
 if (!process.env.TEST) process.env.TEST = "unit"
 
 // Mocking data.
-const { mockReq, mockRes } = require("./mocks/express-mocks")
-const mockData = require("./mocks/blockchain-mock")
+const { mockReq, mockRes } = require("./../mocks/express-mocks")
+const mockData = require("./../mocks/address-mock")
 
-let originalEnvVars // Used during transition from integration to unit tests.
+let originalEnvVars: any // Used during transition from integration to unit tests.
 
 describe("#BlockchainRouter", () => {
-  let req, res
+  let req: any
+  let res: any
+  let next: any
 
   // local node will be started in regtest mode on the port 48332
   //before(panda.runLocalNode)
@@ -79,20 +82,20 @@ describe("#BlockchainRouter", () => {
     process.env.RPC_PASSWORD = originalEnvVars.RPC_PASSWORD
   })
 
-  describe("#root", () => {
-    // root route handler.
-    const root = blockchainRoute.testableComponents.root
+  // describe("#root", () => {
+  //   // root route handler.
+  //   const root = blockchainV2.testableComponents.root
 
-    it("should respond to GET for base route", async () => {
-      const result = root(req, res)
+  //   it("should respond to GET for base route", async () => {
+  //     const result: any = root(req, res, next)
 
-      assert.equal(result.status, "blockchain", "Returns static string")
-    })
-  })
+  //     assert.equal(result.status, "blockchain", "Returns static string")
+  //   })
+  // })
 
   describe("getBestBlockHash()", () => {
     // block route handler.
-    const getBestBlockHash = blockchainRoute.testableComponents.getBestBlockHash
+    const getBestBlockHash = blockchainV2.testableComponents.getBestBlockHash
 
     it("should throw 503 when network issues", async () => {
       // Save the existing RPC URL.
@@ -101,7 +104,7 @@ describe("#BlockchainRouter", () => {
       // Manipulate the URL to cause a 500 network error.
       process.env.RPC_BASEURL = "http://fakeurl/api/"
 
-      const result = await getBestBlockHash(req, res)
+      const result: any = await getBestBlockHash(req, res, next)
       //console.log(`result: ${util.inspect(result)}`)
 
       // Restore the saved URL.
@@ -123,7 +126,7 @@ describe("#BlockchainRouter", () => {
           .reply(200, { result: mockData.mockBlockHash })
       }
 
-      const result = await getBestBlockHash(req, res)
+      const result: any = await getBestBlockHash(req, res, next)
       //console.log(`result: ${util.inspect(result)}`)
 
       assert.isString(result)
@@ -133,8 +136,7 @@ describe("#BlockchainRouter", () => {
 
   describe("getBlockchainInfo()", () => {
     // block route handler.
-    const getBlockchainInfo =
-      blockchainRoute.testableComponents.getBlockchainInfo
+    const getBlockchainInfo = blockchainV2.testableComponents.getBlockchainInfo
 
     it("should throw 503 when network issues", async () => {
       // Save the existing RPC URL.
@@ -143,7 +145,7 @@ describe("#BlockchainRouter", () => {
       // Manipulate the URL to cause a 500 network error.
       process.env.RPC_BASEURL = "http://fakeurl/api/"
 
-      const result = await getBlockchainInfo(req, res)
+      const result: any = await getBlockchainInfo(req, res, next)
       //console.log(`result: ${util.inspect(result)}`)
 
       // Restore the saved URL.
@@ -165,7 +167,7 @@ describe("#BlockchainRouter", () => {
           .reply(200, { result: mockData.mockBlockchainInfo })
       }
 
-      const result = await getBlockchainInfo(req, res)
+      const result: any = await getBlockchainInfo(req, res, next)
       //console.log(`result: ${util.inspect(result)}`)
 
       assert.hasAnyKeys(result, [
@@ -186,7 +188,7 @@ describe("#BlockchainRouter", () => {
 
   describe("getBlockCount()", () => {
     // block route handler.
-    const getBlockCount = blockchainRoute.testableComponents.getBlockCount
+    const getBlockCount = blockchainV2.testableComponents.getBlockCount
 
     it("should throw 503 when network issues", async () => {
       // Save the existing RPC URL.
@@ -195,7 +197,7 @@ describe("#BlockchainRouter", () => {
       // Manipulate the URL to cause a 500 network error.
       process.env.RPC_BASEURL = "http://fakeurl/api/"
 
-      const result = await getBlockCount(req, res)
+      const result: any = await getBlockCount(req, res, next)
       //console.log(`result: ${util.inspect(result)}`)
 
       // Restore the saved URL.
@@ -217,7 +219,7 @@ describe("#BlockchainRouter", () => {
           .reply(200, { result: 126769 })
       }
 
-      const result = await getBlockCount(req, res)
+      const result: any = await getBlockCount(req, res, next)
       //console.log(`result: ${util.inspect(result)}`)
 
       assert.isNumber(result)
@@ -225,11 +227,10 @@ describe("#BlockchainRouter", () => {
   })
 
   describe("getBlockHeaderSingle()", async () => {
-    const getBlockHeader =
-      blockchainRoute.testableComponents.getBlockHeaderSingle
+    const getBlockHeader = blockchainV2.testableComponents.getBlockHeaderSingle
 
     it("should throw 400 error if hash is missing", async () => {
-      const result = await getBlockHeader(req, res)
+      const result: any = await getBlockHeader(req, res, next)
       //console.log(`result: ${util.inspect(result)}`)
 
       assert.hasAllKeys(result, ["error"])
@@ -246,7 +247,7 @@ describe("#BlockchainRouter", () => {
       req.params.hash =
         "00000000000008c3679777df34f1a09565f98b2400a05b7c8da72525fdca3900"
 
-      const result = await getBlockHeader(req, res)
+      const result: any = await getBlockHeader(req, res, next)
       //console.log(`result: ${util.inspect(result)}`)
 
       // Restore the saved URL.
@@ -274,7 +275,7 @@ describe("#BlockchainRouter", () => {
       req.params.hash =
         "00000000000008c3679777df34f1a09565f98b2400a05b7c8da72525fdca3900"
 
-      const result = await getBlockHeader(req, res)
+      const result: any = await getBlockHeader(req, res, next)
       //console.log(`result: ${util.inspect(result)}`)
 
       assert.isString(result)
@@ -296,7 +297,7 @@ describe("#BlockchainRouter", () => {
       req.params.hash =
         "00000000000008c3679777df34f1a09565f98b2400a05b7c8da72525fdca3900"
 
-      const result = await getBlockHeader(req, res)
+      const result: any = await getBlockHeader(req, res, next)
       //console.log(`result: ${util.inspect(result)}`)
 
       assert.hasAllKeys(result, [
@@ -321,12 +322,12 @@ describe("#BlockchainRouter", () => {
   describe("#getBlockHeaderBulk", () => {
     // route handler.
     const getBlockHeaderBulk =
-      blockchainRoute.testableComponents.getBlockHeaderBulk
+      blockchainV2.testableComponents.getBlockHeaderBulk
 
     it("should throw an error for an empty body", async () => {
       req.body = {}
 
-      const result = await getBlockHeaderBulk(req, res)
+      const result: any = await getBlockHeaderBulk(req, res, next)
 
       assert.equal(res.statusCode, 400, "HTTP status code 400 expected.")
       assert.include(
@@ -340,7 +341,7 @@ describe("#BlockchainRouter", () => {
       req.body.hashes =
         "00000000000008c3679777df34f1a09565f98b2400a05b7c8da72525fdca3900"
 
-      const result = await getBlockHeaderBulk(req, res)
+      const result: any = await getBlockHeaderBulk(req, res, next)
 
       assert.equal(res.statusCode, 400, "HTTP status code 400 expected.")
       assert.include(
@@ -356,7 +357,7 @@ describe("#BlockchainRouter", () => {
 
       req.body.hashes = testArray
 
-      const result = await getBlockHeaderBulk(req, res)
+      const result: any = await getBlockHeaderBulk(req, res, next)
       //console.log(`result: ${util.inspect(result)}`)
 
       assert.hasAllKeys(result, ["error"])
@@ -366,7 +367,7 @@ describe("#BlockchainRouter", () => {
     it("should throw a 400 error for an invalid hash", async () => {
       req.body.hashes = ["badHash"]
 
-      await getBlockHeaderBulk(req, res)
+      await getBlockHeaderBulk(req, res, next)
       // console.log(`result: ${util.inspect(result)}`)
 
       assert.equal(res.statusCode, 400, "HTTP status code 400 expected.")
@@ -383,7 +384,7 @@ describe("#BlockchainRouter", () => {
         // Switch the Insight URL to something that will error out.
         process.env.BITCOINCOM_BASEURL = "http://fakeurl/api/"
 
-        const result = await getBlockHeaderBulk(req, res)
+        const result: any = await getBlockHeaderBulk(req, res, next)
 
         // Restore the saved URL.
         process.env.BITCOINCOM_BASEURL = savedUrl
@@ -409,7 +410,7 @@ describe("#BlockchainRouter", () => {
       }
 
       // Call the details API.
-      const result = await getBlockHeaderBulk(req, res)
+      const result: any = await getBlockHeaderBulk(req, res, next)
       //console.log(`result: ${util.inspect(result)}`)
 
       // Assert that required fields exist in the returned object.
@@ -436,7 +437,7 @@ describe("#BlockchainRouter", () => {
       }
 
       // Call the details API.
-      const result = await getBlockHeaderBulk(req, res)
+      const result: any = await getBlockHeaderBulk(req, res, next)
       //console.log(`result: ${util.inspect(result)}`)
 
       // Assert that required fields exist in the returned object.
@@ -474,7 +475,7 @@ describe("#BlockchainRouter", () => {
       }
 
       // Call the details API.
-      const result = await getBlockHeaderBulk(req, res)
+      const result: any = await getBlockHeaderBulk(req, res, next)
       //console.log(`result: ${util.inspect(result)}`)
 
       assert.isArray(result)
@@ -484,16 +485,16 @@ describe("#BlockchainRouter", () => {
 
   describe("getChainTips()", () => {
     // block route handler.
-    const getChainTips = blockchainRoute.testableComponents.getChainTips
+    const getChainTips = blockchainV2.testableComponents.getChainTips
 
     it("should throw 503 when network issues", async () => {
       // Save the existing RPC URL.
       const savedUrl2 = process.env.RPC_BASEURL
 
       // Manipulate the URL to cause a 500 network error.
-      process.env.RPC_BASEURL = "http://fakeurl/api/"
+      process.env.RPC_BASEURL = "huttp://fakeurl/api/"
 
-      const result = await getChainTips(req, res)
+      const result: any = await getChainTips(req, res, next)
       //console.log(`result: ${util.inspect(result)}`)
 
       // Restore the saved URL.
@@ -515,7 +516,7 @@ describe("#BlockchainRouter", () => {
           .reply(200, { result: mockData.mockChainTips })
       }
 
-      const result = await getChainTips(req, res)
+      const result: any = await getChainTips(req, res, next)
       //console.log(`result: ${util.inspect(result)}`)
 
       assert.isArray(result)
@@ -525,7 +526,7 @@ describe("#BlockchainRouter", () => {
 
   describe("getDifficulty()", () => {
     // block route handler.
-    const getDifficulty = blockchainRoute.testableComponents.getDifficulty
+    const getDifficulty = blockchainV2.testableComponents.getDifficulty
 
     it("should throw 503 when network issues", async () => {
       // Save the existing RPC URL.
@@ -534,7 +535,7 @@ describe("#BlockchainRouter", () => {
       // Manipulate the URL to cause a 500 network error.
       process.env.RPC_BASEURL = "http://fakeurl/api/"
 
-      const result = await getDifficulty(req, res)
+      const result: any = await getDifficulty(req, res, next)
       //console.log(`result: ${util.inspect(result)}`)
 
       // Restore the saved URL.
@@ -556,7 +557,7 @@ describe("#BlockchainRouter", () => {
           .reply(200, { result: 4049809.205246544 })
       }
 
-      const result = await getDifficulty(req, res)
+      const result: any = await getDifficulty(req, res, next)
       //console.log(`result: ${util.inspect(result)}`)
 
       assert.isNumber(result)
@@ -565,7 +566,7 @@ describe("#BlockchainRouter", () => {
 
   describe("getMempoolInfo()", () => {
     // block route handler.
-    const getMempoolInfo = blockchainRoute.testableComponents.getMempoolInfo
+    const getMempoolInfo = blockchainV2.testableComponents.getMempoolInfo
 
     it("should throw 503 when network issues", async () => {
       // Save the existing RPC URL.
@@ -574,7 +575,7 @@ describe("#BlockchainRouter", () => {
       // Manipulate the URL to cause a 500 network error.
       process.env.RPC_BASEURL = "http://fakeurl/api/"
 
-      const result = await getMempoolInfo(req, res)
+      const result: any = await getMempoolInfo(req, res, next)
       //console.log(`result: ${util.inspect(result)}`)
 
       // Restore the saved URL.
@@ -596,7 +597,7 @@ describe("#BlockchainRouter", () => {
           .reply(200, { result: mockData.mockMempoolInfo })
       }
 
-      const result = await getMempoolInfo(req, res)
+      const result: any = await getMempoolInfo(req, res, next)
       //console.log(`result: ${util.inspect(result)}`)
 
       assert.hasAnyKeys(result, [
@@ -611,7 +612,7 @@ describe("#BlockchainRouter", () => {
 
   describe("getRawMempool()", () => {
     // block route handler.
-    const getRawMempool = blockchainRoute.testableComponents.getRawMempool
+    const getRawMempool = blockchainV2.testableComponents.getRawMempool
 
     it("should throw 503 when network issues", async () => {
       // Save the existing RPC URL.
@@ -620,7 +621,7 @@ describe("#BlockchainRouter", () => {
       // Manipulate the URL to cause a 500 network error.
       process.env.RPC_BASEURL = "http://fakeurl/api/"
 
-      const result = await getRawMempool(req, res)
+      const result: any = await getRawMempool(req, res, next)
       //console.log(`result: ${util.inspect(result)}`)
 
       // Restore the saved URL.
@@ -642,7 +643,7 @@ describe("#BlockchainRouter", () => {
           .reply(200, { result: mockData.mockRawMempool })
       }
 
-      const result = await getRawMempool(req, res)
+      const result: any = await getRawMempool(req, res, next)
       //console.log(`result: ${util.inspect(result)}`)
 
       assert.isArray(result)
@@ -653,10 +654,10 @@ describe("#BlockchainRouter", () => {
   describe("getMempoolEntry()", () => {
     // block route handler.
     const getMempoolEntry =
-      blockchainRoute.testableComponents.getMempoolEntrySingle
+      blockchainV2.testableComponents.getMempoolEntrySingle
 
     it("should throw 400 if txid is empty", async () => {
-      const result = await getMempoolEntry(req, res)
+      const result: any = await getMempoolEntry(req, res, next)
       //console.log(`result: ${util.inspect(result)}`)
 
       assert.hasAllKeys(result, ["error"])
@@ -672,7 +673,7 @@ describe("#BlockchainRouter", () => {
 
       req.params.txid = `d65881582ff2bff36747d7a0d0e273f10281abc8bd5c15df5d72f8f3fa779cde`
 
-      const result = await getMempoolEntry(req, res)
+      const result: any = await getMempoolEntry(req, res, next)
       //console.log(`result: ${util.inspect(result)}`)
 
       // Restore the saved URL.
@@ -696,7 +697,7 @@ describe("#BlockchainRouter", () => {
 
       req.params.txid = `d65881582ff2bff36747d7a0d0e273f10281abc8bd5c15df5d72f8f3fa779cde`
 
-      const result = await getMempoolEntry(req, res)
+      const result: any = await getMempoolEntry(req, res, next)
       //console.log(`result: ${util.inspect(result)}`)
 
       assert.hasAllKeys(result, ["error"])
@@ -708,12 +709,12 @@ describe("#BlockchainRouter", () => {
   describe("#getMempoolEntryBulk", () => {
     // route handler.
     const getMempoolEntryBulk =
-      blockchainRoute.testableComponents.getMempoolEntryBulk
+      blockchainV2.testableComponents.getMempoolEntryBulk
 
     it("should throw an error for an empty body", async () => {
       req.body = {}
 
-      const result = await getMempoolEntryBulk(req, res)
+      const result: any = await getMempoolEntryBulk(req, res, next)
 
       assert.equal(res.statusCode, 400, "HTTP status code 400 expected.")
       assert.include(
@@ -726,7 +727,7 @@ describe("#BlockchainRouter", () => {
     it("should error on non-array single txid", async () => {
       req.body.txids = `d65881582ff2bff36747d7a0d0e273f10281abc8bd5c15df5d72f8f3fa779cde`
 
-      const result = await getMempoolEntryBulk(req, res)
+      const result: any = await getMempoolEntryBulk(req, res, next)
 
       assert.equal(res.statusCode, 400, "HTTP status code 400 expected.")
       assert.include(
@@ -742,7 +743,7 @@ describe("#BlockchainRouter", () => {
 
       req.body.txids = testArray
 
-      const result = await getMempoolEntryBulk(req, res)
+      const result: any = await getMempoolEntryBulk(req, res, next)
       //console.log(`result: ${util.inspect(result)}`)
 
       assert.hasAllKeys(result, ["error"])
@@ -759,7 +760,7 @@ describe("#BlockchainRouter", () => {
           `d65881582ff2bff36747d7a0d0e273f10281abc8bd5c15df5d72f8f3fa779cde`
         ]
 
-        const result = await getMempoolEntryBulk(req, res)
+        const result: any = await getMempoolEntryBulk(req, res, next)
         //console.log(`result: ${util.inspect(result)}`)
 
         assert.hasAllKeys(result, ["error"])
@@ -776,7 +777,7 @@ describe("#BlockchainRouter", () => {
           `d65881582ff2bff36747d7a0d0e273f10281abc8bd5c15df5d72f8f3fa779cde`
         ]
 
-        const result = await getMempoolEntryBulk(req, res)
+        const result: any = await getMempoolEntryBulk(req, res, next)
         //console.log(`result: ${util.inspect(result)}`)
 
         assert.hasAllKeys(result, ["error"])
@@ -788,10 +789,10 @@ describe("#BlockchainRouter", () => {
 
   describe("getTxOut()", () => {
     // block route handler.
-    const getTxOut = blockchainRoute.testableComponents.getTxOut
+    const getTxOut = blockchainV2.testableComponents.getTxOut
 
     it("should throw 400 if txid is empty", async () => {
-      const result = await getTxOut(req, res)
+      const result: any = await getTxOut(req, res, next)
       //console.log(`result: ${util.inspect(result)}`)
 
       assert.hasAllKeys(result, ["error"])
@@ -800,7 +801,7 @@ describe("#BlockchainRouter", () => {
 
     it("should throw 400 if n is empty", async () => {
       req.params.txid = `sometxid`
-      const result = await getTxOut(req, res)
+      const result: any = await getTxOut(req, res, next)
       //console.log(`result: ${util.inspect(result)}`)
 
       assert.hasAllKeys(result, ["error"])
@@ -817,7 +818,7 @@ describe("#BlockchainRouter", () => {
       req.params.txid = `d65881582ff2bff36747d7a0d0e273f10281abc8bd5c15df5d72f8f3fa779cde`
       req.params.n = 0
 
-      const result = await getTxOut(req, res)
+      const result: any = await getTxOut(req, res, next)
       //console.log(`result: ${util.inspect(result)}`)
 
       // Restore the saved URL.
@@ -843,7 +844,7 @@ describe("#BlockchainRouter", () => {
       req.params.txid = `5747e6462e2c452a5d583fd6a5f82866cd8e4a86826c86d9a1842b7d023e0c0c`
       req.params.n = 1
 
-      const result = await getTxOut(req, res)
+      const result: any = await getTxOut(req, res, next)
       //console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
       assert.hasAllKeys(result, [
@@ -865,10 +866,10 @@ describe("#BlockchainRouter", () => {
   })
 
   describe("getTxOutProof()", () => {
-    const getTxOutProof = blockchainRoute.testableComponents.getTxOutProofSingle
+    const getTxOutProof = blockchainV2.testableComponents.getTxOutProofSingle
 
     it("should throw 400 if txid is empty", async () => {
-      const result = await getTxOutProof(req, res)
+      const result: any = await getTxOutProof(req, res, next)
       //console.log(`result: ${util.inspect(result)}`)
 
       assert.hasAllKeys(result, ["error"])
@@ -884,7 +885,7 @@ describe("#BlockchainRouter", () => {
 
       req.params.txid = `d65881582ff2bff36747d7a0d0e273f10281abc8bd5c15df5d72f8f3fa779cde`
 
-      const result = await getTxOutProof(req, res)
+      const result: any = await getTxOutProof(req, res, next)
       //console.log(`result: ${util.inspect(result)}`)
 
       // Restore the saved URL.
@@ -908,7 +909,7 @@ describe("#BlockchainRouter", () => {
 
       req.params.txid = `d65881582ff2bff36747d7a0d0e273f10281abc8bd5c15df5d72f8f3fa779cde`
 
-      const result = await getTxOutProof(req, res)
+      const result: any = await getTxOutProof(req, res, next)
       //console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
       assert.isString(result)
@@ -917,13 +918,12 @@ describe("#BlockchainRouter", () => {
 
   describe("#getTxOutProofBulk", () => {
     // route handler.
-    const getTxOutProofBulk =
-      blockchainRoute.testableComponents.getTxOutProofBulk
+    const getTxOutProofBulk = blockchainV2.testableComponents.getTxOutProofBulk
 
     it("should throw an error for an empty body", async () => {
       req.body = {}
 
-      const result = await getTxOutProofBulk(req, res)
+      const result: any = await getTxOutProofBulk(req, res, next)
 
       assert.equal(res.statusCode, 400, "HTTP status code 400 expected.")
       assert.include(
@@ -936,7 +936,7 @@ describe("#BlockchainRouter", () => {
     it("should error on non-array single txid", async () => {
       req.body.txids = `d65881582ff2bff36747d7a0d0e273f10281abc8bd5c15df5d72f8f3fa779cde`
 
-      const result = await getTxOutProofBulk(req, res)
+      const result: any = await getTxOutProofBulk(req, res, next)
 
       assert.equal(res.statusCode, 400, "HTTP status code 400 expected.")
       assert.include(
@@ -952,7 +952,7 @@ describe("#BlockchainRouter", () => {
 
       req.body.txids = testArray
 
-      const result = await getTxOutProofBulk(req, res)
+      const result: any = await getTxOutProofBulk(req, res, next)
       //console.log(`result: ${util.inspect(result)}`)
 
       assert.hasAllKeys(result, ["error"])
@@ -971,7 +971,7 @@ describe("#BlockchainRouter", () => {
         `d65881582ff2bff36747d7a0d0e273f10281abc8bd5c15df5d72f8f3fa779cde`
       ]
 
-      const result = await getTxOutProofBulk(req, res)
+      const result: any = await getTxOutProofBulk(req, res, next)
       //console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
       assert.isArray(result)
@@ -992,7 +992,7 @@ describe("#BlockchainRouter", () => {
         `d65881582ff2bff36747d7a0d0e273f10281abc8bd5c15df5d72f8f3fa779cde`
       ]
 
-      const result = await getTxOutProofBulk(req, res)
+      const result: any = await getTxOutProofBulk(req, res, next)
       //console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
       assert.isArray(result)
@@ -1002,10 +1002,10 @@ describe("#BlockchainRouter", () => {
 
   describe("verifyTxOutProof()", () => {
     const verifyTxOutProof =
-      blockchainRoute.testableComponents.verifyTxOutProofSingle
+      blockchainV2.testableComponents.verifyTxOutProofSingle
 
     it("should throw 400 if proof is empty", async () => {
-      const result = await verifyTxOutProof(req, res)
+      const result: any = await verifyTxOutProof(req, res, next)
       //console.log(`result: ${util.inspect(result)}`)
 
       assert.hasAllKeys(result, ["error"])
@@ -1021,7 +1021,7 @@ describe("#BlockchainRouter", () => {
 
       req.params.proof = mockData.mockTxOutProof
 
-      const result = await verifyTxOutProof(req, res)
+      const result: any = await verifyTxOutProof(req, res, next)
       //console.log(`result: ${util.inspect(result)}`)
 
       // Restore the saved URL.
@@ -1048,7 +1048,7 @@ describe("#BlockchainRouter", () => {
 
       req.params.proof = mockData.mockTxOutProof
 
-      const result = await verifyTxOutProof(req, res)
+      const result: any = await verifyTxOutProof(req, res, next)
       //console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
       assert.isArray(result)
@@ -1060,12 +1060,12 @@ describe("#BlockchainRouter", () => {
   describe("#verifyTxOutProofBulk", () => {
     // route handler.
     const verifyTxOutProofBulk =
-      blockchainRoute.testableComponents.verifyTxOutProofBulk
+      blockchainV2.testableComponents.verifyTxOutProofBulk
 
     it("should throw an error for an empty body", async () => {
       req.body = {}
 
-      const result = await verifyTxOutProofBulk(req, res)
+      const result: any = await verifyTxOutProofBulk(req, res, next)
 
       assert.equal(res.statusCode, 400, "HTTP status code 400 expected.")
       assert.include(
@@ -1078,7 +1078,7 @@ describe("#BlockchainRouter", () => {
     it("should error on non-array single txid", async () => {
       req.body.proofs = mockData.mockTxOutProof
 
-      const result = await verifyTxOutProofBulk(req, res)
+      const result: any = await verifyTxOutProofBulk(req, res, next)
 
       assert.equal(res.statusCode, 400, "HTTP status code 400 expected.")
       assert.include(
@@ -1094,7 +1094,7 @@ describe("#BlockchainRouter", () => {
 
       req.body.proofs = testArray
 
-      const result = await verifyTxOutProofBulk(req, res)
+      const result: any = await verifyTxOutProofBulk(req, res, next)
       //console.log(`result: ${util.inspect(result)}`)
 
       assert.hasAllKeys(result, ["error"])
@@ -1114,7 +1114,7 @@ describe("#BlockchainRouter", () => {
 
       req.body.proofs = [mockData.mockTxOutProof]
 
-      const result = await verifyTxOutProofBulk(req, res)
+      const result: any = await verifyTxOutProofBulk(req, res, next)
       //console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
       assert.isArray(result)
@@ -1136,7 +1136,7 @@ describe("#BlockchainRouter", () => {
 
       req.body.proofs = [mockData.mockTxOutProof, mockData.mockTxOutProof]
 
-      const result = await verifyTxOutProofBulk(req, res)
+      const result: any = await verifyTxOutProofBulk(req, res, next)
       //console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
       assert.isArray(result)

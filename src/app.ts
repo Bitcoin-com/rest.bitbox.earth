@@ -3,6 +3,7 @@ import * as express from "express"
 import * as http from "http"
 import { Socket } from "net"
 import * as path from "path"
+import { AuthMW } from "./middleware/auth"
 import { routeRateLimit } from "./middleware/route-ratelimit"
 // v2
 import addressV2 from "./routes/v2/address"
@@ -29,13 +30,12 @@ const bodyParser: any = require("body-parser")
 // const basicAuth = require("express-basic-auth")
 const helmet: any = require("helmet")
 const cors: any = require("cors")
-const AuthMW: any = require("./middleware/auth")
 const BitcoinCashZMQDecoder: any = require("bitcoincash-zmq-decoder")
 const swStats: any = require("swagger-stats")
 const apiSpec: any =
   process.env.NETWORK === "mainnet"
-    ? require("./public/bitcoin-com-mainnet-rest-v2.json")
-    : require("./public/bitcoin-com-testnet-rest-v2.json")
+    ? require("./../public/bitcoin-com-mainnet-rest-v2.json")
+    : require("./../public/bitcoin-com-testnet-rest-v2.json")
 const port: string | number | boolean = normalizePort(
   process.env.PORT || "3000"
 )

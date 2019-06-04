@@ -46,7 +46,7 @@ export const validateArraySize = (
 // trest.bitcoin.com.
 export const validateNetwork = (address: string): boolean => {
   try {
-    const network: string = process.env.NETWORK
+    const network: string | undefined = process.env.NETWORK
 
     // Return false if NETWORK is not defined.
     if (!network || network === "") {
@@ -78,8 +78,8 @@ export const setEnvVars = (): iSetEnvVars => {
   const BitboxHTTP: AxiosInstance = axios.create({
     baseURL: process.env.RPC_BASEURL
   })
-  const username: string = process.env.RPC_USERNAME
-  const password: string = process.env.RPC_PASSWORD
+  const username: string | undefined = process.env.RPC_USERNAME
+  const password: string | undefined = process.env.RPC_PASSWORD
 
   const requestConfig: RequestConfig = {
     method: "post",

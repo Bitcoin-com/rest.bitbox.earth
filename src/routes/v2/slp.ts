@@ -119,7 +119,10 @@ async function getRawTransactionsFromNode(txids: string[]): Promise<any> {
 }
 
 // Create a validator for validating SLP transactions.
-function createValidator(network: string, getRawTransactions: any = null): any {
+function createValidator(
+  network: string | undefined,
+  getRawTransactions: any = null
+): any {
   let tmpSLP: any
 
   if (network === "mainnet") {
@@ -128,12 +131,7 @@ function createValidator(network: string, getRawTransactions: any = null): any {
     tmpSLP = new SLPSDK({ restURL: process.env.TREST_URL })
   }
 
-  const slpValidator: any = new slp.LocalValidator(
-    tmpSLP,
-    getRawTransactions
-      ? getRawTransactions
-      : tmpSLP.RawTransactions.getRawTransaction.bind(this)
-  )
+  const slpValidator: any = new slp.LocalValidator(tmpSLP, getRawTransactions)
 
   return slpValidator
 }
@@ -499,7 +497,7 @@ async function balancesForAddress(
 
     let tokenIds: string[] = []
     if (tokenRes.data.a.length > 0) {
-      tokenRes.data.a = tokenRes.data.a.map(token => {
+      tokenRes.data.a = tokenRes.data.a.map((token: any) => {
         token.tokenId = token.tokenDetails.tokenIdHex
         tokenIds.push(token.tokenId)
         token.balance = parseFloat(token.token_balance)
@@ -1404,7 +1402,7 @@ async function txDetails(
 // It expects an instance of the slpjs BitboxNetwork class as input.
 // Wrapping this in a function allows it to be stubbed so that the txDetails
 // route can be tested as a unit test.
-async function getSlpjsTxDetails(slpjsBitboxNetworkInstance, txid) {
+async function getSlpjsTxDetails(slpjsBitboxNetworkInstance: any, txid: any) {
   const result: Promise<
     any
   > = await slpjsBitboxNetworkInstance.getTransactionDetails(txid)

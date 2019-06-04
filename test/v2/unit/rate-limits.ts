@@ -1,6 +1,11 @@
-"use strict"
+// imports
+import * as chai from "chai"
+// Libraries under test
+// TODO: Confirm routeRateLimit below doesn't need to be declared for each test.
+import { routeRateLimit } from "./../../../src/middleware/route-ratelimit"
+import controlV2 from "./../../../src/routes/v2/control"
 
-const chai = require("chai")
+// consts
 const assert = chai.assert
 const nock = require("nock") // HTTP mocking
 
@@ -9,14 +14,13 @@ const util = require("util")
 util.inspect.defaultOptions = { depth: 1 }
 
 // Mocking data.
-const { mockReq, mockRes, mockNext } = require("./mocks/express-mocks")
+const { mockReq, mockRes, mockNext } = require("./../mocks/express-mocks")
+const mockData = require("./../mocks/address-mock")
 
-// Libraries under test
-let rateLimitMiddleware = require("../../dist/middleware/route-ratelimit")
-const controlRoute = require("../../dist/routes/v2/control")
-
-let req, res, next
-let originalEnvVars // Used during transition from integration to unit tests.
+let req: any
+let res: any
+let next: any
+let originalEnvVars: any // Used during transition from integration to unit tests.
 
 describe("#route-ratelimits", () => {
   before(() => {
@@ -43,8 +47,7 @@ describe("#route-ratelimits", () => {
   })
 
   describe("#routeRateLimit", () => {
-    let routeRateLimit = rateLimitMiddleware.routeRateLimit
-    const getInfo = controlRoute.testableComponents.getInfo
+    const getInfo = controlV2.testableComponents.getInfo
 
     it("should pass through rate-limit middleware", async () => {
       req.baseUrl = "/v2"
@@ -82,8 +85,8 @@ describe("#route-ratelimits", () => {
       delete require.cache[
         require.resolve("../../dist/middleware/route-ratelimit")
       ]
-      rateLimitMiddleware = require("../../dist/middleware/route-ratelimit")
-      routeRateLimit = rateLimitMiddleware.routeRateLimit
+      // routeRateLimit = require("../../dist/middleware/route-ratelimit")
+      // routeRateLimit = routeRateLimit.routeRateLimit
 
       req.baseUrl = "/v2"
       req.path = "/control/getInfo"
@@ -118,8 +121,8 @@ describe("#route-ratelimits", () => {
       delete require.cache[
         require.resolve("../../dist/middleware/route-ratelimit")
       ]
-      rateLimitMiddleware = require("../../dist/middleware/route-ratelimit")
-      routeRateLimit = rateLimitMiddleware.routeRateLimit
+      // routeRateLimit = require("../../dist/middleware/route-ratelimit")
+      // routeRateLimit = routeRateLimit.routeRateLimit
 
       req.baseUrl = "/v2"
       req.path = "/control/getInfo"
@@ -152,7 +155,7 @@ describe("#route-ratelimits", () => {
 })
 
 // Generates a Basic authorization header.
-function generateAuthHeader(pass) {
+function generateAuthHeader(pass: any) {
   // https://en.wikipedia.org/wiki/Basic_access_authentication
   const username = "BITBOX"
   const combined = `${username}:${pass}`

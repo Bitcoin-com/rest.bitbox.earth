@@ -6,25 +6,28 @@
   to 'integration' to run the tests against BCH mainnet.
 */
 
-"use strict"
+// imports
+import * as chai from "chai"
+import miningV2 from "./../../../src/routes/v2/mining"
 
-const chai = require("chai")
+// consts
 const assert = chai.assert
-const miningRoute = require("../../dist/routes/v2/mining")
 const nock = require("nock") // HTTP mocking
 
-let originalEnvVars // Used during transition from integration to unit tests.
+let originalEnvVars: any // Used during transition from integration to unit tests.
 
 // Mocking data.
-const { mockReq, mockRes } = require("./mocks/express-mocks")
-const mockData = require("./mocks/mining-mocks")
+const { mockReq, mockRes } = require("./../mocks/express-mocks")
+const mockData = require("./../mocks/address-mock")
 
 // Used for debugging.
 const util = require("util")
 util.inspect.defaultOptions = { depth: 1 }
 
 describe("#Mining", () => {
-  let req, res
+  let req: any
+  let res: any
+  let next: any
 
   before(() => {
     // Save existing environment variables.
@@ -74,20 +77,20 @@ describe("#Mining", () => {
     process.env.RPC_PASSWORD = originalEnvVars.RPC_PASSWORD
   })
 
-  describe("#root", async () => {
-    // root route handler.
-    const root = miningRoute.testableComponents.root
+  // describe("#root", async () => {
+  //   // root route handler.
+  //   const root = miningV2.testableComponents.root
 
-    it("should respond to GET for base route", async () => {
-      const result = root(req, res)
-      //console.log(`result: ${util.inspect(result)}`)
+  //   it("should respond to GET for base route", async () => {
+  //     const result = root(req, res, next)
+  //     //console.log(`result: ${util.inspect(result)}`)
 
-      assert.equal(result.status, "mining", "Returns static string")
-    })
-  })
+  //     assert.equal(result.status, "mining", "Returns static string")
+  //   })
+  // })
 
   describe("#getMiningInfo", async () => {
-    const getMiningInfo = miningRoute.testableComponents.getMiningInfo
+    const getMiningInfo = miningV2.testableComponents.getMiningInfo
 
     it("should throw 503 when network issues", async () => {
       // Save the existing RPC URL.
@@ -96,7 +99,7 @@ describe("#Mining", () => {
       // Manipulate the URL to cause a 500 network error.
       process.env.RPC_BASEURL = "http://fakeurl/api/"
 
-      const result = await getMiningInfo(req, res)
+      const result = await getMiningInfo(req, res, next)
       //console.log(`result: ${util.inspect(result)}`)
 
       // Restore the saved URL.
@@ -118,7 +121,7 @@ describe("#Mining", () => {
           .reply(200, { result: mockData.mockMiningInfo })
       }
 
-      const result = await getMiningInfo(req, res)
+      const result = await getMiningInfo(req, res, next)
       // console.log(`result: ${util.inspect(result)}`)
 
       assert.hasAllKeys(result, [
@@ -136,7 +139,7 @@ describe("#Mining", () => {
   })
 
   describe("#getNetworkHashPS", async () => {
-    const getNetworkHashPS = miningRoute.testableComponents.getNetworkHashPS
+    const getNetworkHashPS = miningV2.testableComponents.getNetworkHashPS
 
     it("should throw 503 when network issues", async () => {
       // Save the existing RPC URL.
@@ -145,7 +148,7 @@ describe("#Mining", () => {
       // Manipulate the URL to cause a 500 network error.
       process.env.RPC_BASEURL = "http://fakeurl/api/"
 
-      const result = await getNetworkHashPS(req, res)
+      const result = await getNetworkHashPS(req, res, next)
       //console.log(`result: ${util.inspect(result)}`)
 
       // Restore the saved URL.
@@ -167,7 +170,7 @@ describe("#Mining", () => {
           .reply(200, { result: 517604755.6648782 })
       }
 
-      const result = await getNetworkHashPS(req, res)
+      const result = await getNetworkHashPS(req, res, next)
       //console.log(`result: ${util.inspect(result)}`)
 
       assert.isNumber(result)

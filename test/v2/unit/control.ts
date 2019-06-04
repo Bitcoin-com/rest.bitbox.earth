@@ -7,25 +7,28 @@
 
 */
 
-"use strict"
+// imports
+import * as chai from "chai"
+import controlV2 from "./../../../src/routes/v2/control"
 
-const chai = require("chai")
+// consts
 const assert = chai.assert
-const controlRoute = require("../../dist/routes/v2/control")
 const nock = require("nock") // HTTP mocking
 
-let originalEnvVars // Used during transition from integration to unit tests.
+let originalEnvVars: any // Used during transition from integration to unit tests.
 
 // Mocking data.
-const { mockReq, mockRes } = require("./mocks/express-mocks")
-const mockData = require("./mocks/control-mock")
+const { mockReq, mockRes } = require("./../mocks/express-mocks")
+const mockData = require("./../mocks/address-mock")
 
 // Used for debugging.
 const util = require("util")
 util.inspect.defaultOptions = { depth: 1 }
 
 describe("#ControlRouter", () => {
-  let req, res
+  let req: any
+  let res: any
+  let next: any
 
   before(() => {
     // Save existing environment variables.
@@ -75,20 +78,20 @@ describe("#ControlRouter", () => {
     process.env.RPC_PASSWORD = originalEnvVars.RPC_PASSWORD
   })
 
-  describe("#root", async () => {
-    // root route handler.
-    const root = controlRoute.testableComponents.root
+  // describe("#root", async () => {
+  //   // root route handler.
+  //   const root = controlV2.testableComponents.root
 
-    it("should respond to GET for base route", async () => {
-      const result = root(req, res)
-      //console.log(`result: ${util.inspect(result)}`)
+  //   it("should respond to GET for base route", async () => {
+  //     const result = root(req, res, next)
+  //     //console.log(`result: ${util.inspect(result)}`)
 
-      assert.equal(result.status, "control", "Returns static string")
-    })
-  })
+  //     assert.equal(result.status, "control", "Returns static string")
+  //   })
+  // })
 
   describe("#GetInfo", () => {
-    const getInfo = controlRoute.testableComponents.getInfo
+    const getInfo = controlV2.testableComponents.getInfo
 
     it("should throw 500 when network issues", async () => {
       // Save the existing RPC URL.
@@ -97,7 +100,7 @@ describe("#ControlRouter", () => {
       // Manipulate the URL to cause a 500 network error.
       process.env.RPC_BASEURL = "http://fakeurl/api/"
 
-      const result = await getInfo(req, res)
+      const result = await getInfo(req, res, next)
       //console.log(`result: ${util.inspect(result)}`)
 
       // Restore the saved URL.
@@ -119,7 +122,7 @@ describe("#ControlRouter", () => {
           .reply(200, { result: mockData.mockGetInfo })
       }
 
-      const result = await getInfo(req, res)
+      const result = await getInfo(req, res, next)
       //console.log(`result: ${util.inspect(result)}`)
 
       assert.hasAnyKeys(result, [

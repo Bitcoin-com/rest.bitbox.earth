@@ -1,5 +1,4 @@
 // imports
-import * as cashAccountClass from "cashaccounts"
 import * as express from "express"
 import * as util from "util"
 import { wlogger } from "../../util/winston-logging"
@@ -8,7 +7,8 @@ import { decodeError } from "./route-utils"
 
 // consts
 const router: express.Router = express.Router()
-const cashAccounts: cashAccountClass = new cashAccountClass(
+const cashAccountClass = require("cashaccounts")
+const cashAccounts: any = new cashAccountClass(
   process.env.CASHACCOUNT_LOOKUPSERVER
 )
 const SLPSDK: any = require("slp-sdk")

@@ -5,26 +5,28 @@
   and integration tests. By default, TEST is set to 'unit'. Set this variable
   to 'integration' to run the tests against BCH mainnet.
 */
+// imports
+import * as chai from "chai"
+import utilV2 from "./../../../src/routes/v2/util"
 
-"use strict"
-
-const chai = require("chai")
+// consts
 const assert = chai.assert
-const utilRoute = require("../../dist/routes/v2/util")
 const nock = require("nock") // HTTP mocking
 
-let originalEnvVars // Used during transition from integration to unit tests.
+let originalEnvVars: any // Used during transition from integration to unit tests.
 
 // Mocking data.
-const { mockReq, mockRes } = require("./mocks/express-mocks")
-const mockData = require("./mocks/util-mocks")
+const { mockReq, mockRes, mockNext } = require("./../mocks/express-mocks")
+const mockData = require("./../mocks/address-mock")
 
 // Used for debugging.
 const util = require("util")
 util.inspect.defaultOptions = { depth: 1 }
 
 describe("#Util", () => {
-  let req, res
+  let req: any
+  let res: any
+  let next: any
 
   before(() => {
     // Save existing environment variables.
@@ -74,23 +76,23 @@ describe("#Util", () => {
     process.env.RPC_PASSWORD = originalEnvVars.RPC_PASSWORD
   })
 
-  describe("#root", async () => {
-    // root route handler.
-    const root = utilRoute.testableComponents.root
+  // describe("#root", async () => {
+  //   // root route handler.
+  //   const root = utilV2.testableComponents.root
 
-    it("should respond to GET for base route", async () => {
-      const result = root(req, res)
-      //console.log(`result: ${util.inspect(result)}`)
+  //   it("should respond to GET for base route", async () => {
+  //     const result: any = root(req, res, next)
+  //     //console.log(`result: ${util.inspect(result)}`)
 
-      assert.equal(result.status, "util", "Returns static string")
-    })
-  })
+  //     assert.equal(result.status, "util", "Returns static string")
+  //   })
+  // })
 
   describe("#validateAddressSingle", async () => {
-    const validateAddress = utilRoute.testableComponents.validateAddressSingle
+    const validateAddress = utilV2.testableComponents.validateAddressSingle
 
     it("should throw an error for an empty address", async () => {
-      const result = await validateAddress(req, res)
+      const result: any = await validateAddress(req, res, next)
 
       assert.equal(res.statusCode, 400, "HTTP status code 400 expected.")
       assert.include(
@@ -109,7 +111,7 @@ describe("#Util", () => {
 
       req.params.address = `bchtest:qqqk4y6lsl5da64sg5qc3xezmplyu5kmpyz2ysaa5y`
 
-      const result = await validateAddress(req, res)
+      const result: any = await validateAddress(req, res, next)
       //console.log(`result: ${util.inspect(result)}`)
 
       // Restore the saved URL.
@@ -133,7 +135,7 @@ describe("#Util", () => {
 
       req.params.address = `bchtest:qqqk4y6lsl5da64sg5qc3xezmplyu5kmpyz2ysaa5y`
 
-      const result = await validateAddress(req, res)
+      const result: any = await validateAddress(req, res, next)
       //console.log(`result: ${util.inspect(result)}`)
 
       assert.hasAllKeys(result, [
@@ -148,10 +150,10 @@ describe("#Util", () => {
   })
 
   describe("#validateAddressBulk", async () => {
-    const validateAddressBulk = utilRoute.testableComponents.validateAddressBulk
+    const validateAddressBulk = utilV2.testableComponents.validateAddressBulk
 
     it("should throw an error for an empty body", async () => {
-      const result = await validateAddressBulk(req, res)
+      const result: any = await validateAddressBulk(req, res, next)
 
       assert.equal(res.statusCode, 400, "HTTP status code 400 expected.")
       assert.include(
@@ -166,7 +168,7 @@ describe("#Util", () => {
         addresses: `bchtest:qqqk4y6lsl5da64sg5qc3xezmplyu5kmpyz2ysaa5y`
       }
 
-      const result = await validateAddressBulk(req, res)
+      const result: any = await validateAddressBulk(req, res, next)
 
       assert.equal(res.statusCode, 400, "HTTP status code 400 expected.")
       assert.include(
@@ -182,7 +184,7 @@ describe("#Util", () => {
 
       req.body.addresses = testArray
 
-      const result = await validateAddressBulk(req, res)
+      const result: any = await validateAddressBulk(req, res, next)
       //console.log(`result: ${util.inspect(result)}`)
 
       assert.hasAllKeys(result, ["error"])
@@ -194,7 +196,7 @@ describe("#Util", () => {
         addresses: [`bchtest:qqqk4y6lsl5da64sg5qc3xezmpl`]
       }
 
-      const result = await validateAddressBulk(req, res)
+      const result: any = await validateAddressBulk(req, res, next)
 
       assert.equal(res.statusCode, 400, "HTTP status code 400 expected.")
       assert.include(
@@ -209,7 +211,7 @@ describe("#Util", () => {
         addresses: [`bitcoincash:qrcc3jsqpgwqcdru70sk54sd0g3l04q7c53ycm6ucj`]
       }
 
-      const result = await validateAddressBulk(req, res)
+      const result: any = await validateAddressBulk(req, res, next)
 
       assert.equal(res.statusCode, 400, "HTTP status code 400 expected.")
       assert.include(
@@ -230,7 +232,7 @@ describe("#Util", () => {
         `bchtest:qqqk4y6lsl5da64sg5qc3xezmplyu5kmpyz2ysaa5y`
       ]
 
-      const result = await validateAddressBulk(req, res)
+      const result: any = await validateAddressBulk(req, res, next)
       //console.log(`result: ${util.inspect(result)}`)
 
       // Restore the saved URL.
@@ -255,7 +257,7 @@ describe("#Util", () => {
         `bchtest:qqqk4y6lsl5da64sg5qc3xezmplyu5kmpyz2ysaa5y`
       ]
 
-      const result = await validateAddressBulk(req, res)
+      const result: any = await validateAddressBulk(req, res, next)
       //console.log(`result: ${util.inspect(result)}`)
 
       assert.isArray(result)
@@ -283,7 +285,7 @@ describe("#Util", () => {
         `bchtest:qqqk4y6lsl5da64sg5qc3xezmplyu5kmpyz2ysaa5y`
       ]
 
-      const result = await validateAddressBulk(req, res)
+      const result: any = await validateAddressBulk(req, res, next)
       //console.log(`result: ${util.inspect(result)}`)
 
       assert.isArray(result)

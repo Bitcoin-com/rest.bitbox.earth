@@ -80,10 +80,12 @@ async function detailsFromInsight(
     const pagesTotal: number = Math.ceil(retData.txApperances / PAGE_SIZE)
 
     // Append different address formats to the return data.
-    retData.legacyAddress = bitbox.Address.toLegacyAddress(retData.addrStr)
-    retData.cashAddress = bitbox.Address.toCashAddress(retData.addrStr)
-    retData.slpAddress = Utils.toSlpAddress(retData.cashAddress)
-    delete retData.addrStr
+    if (retData.addrStr) {
+      retData.legacyAddress = bitbox.Address.toLegacyAddress(retData.addrStr)
+      retData.cashAddress = bitbox.Address.toCashAddress(retData.addrStr)
+      retData.slpAddress = Utils.toSlpAddress(retData.cashAddress)
+      delete retData.addrStr
+    }
 
     // Append pagination information to the return data.
     retData.currentPage = currentPage

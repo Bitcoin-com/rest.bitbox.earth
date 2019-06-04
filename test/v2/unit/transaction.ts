@@ -10,26 +10,28 @@
   --The error handler should be refactored to return an intelligent error message,
   instead of the 503 error it is returning now.
 */
+// imports
+import * as chai from "chai"
+import transactionV2 from "./../../../src/routes/v2/transaction"
 
-"use strict"
-
-const chai = require("chai")
+// consts
 const assert = chai.assert
-const transactionRoute = require("../../dist/routes/v2/transaction")
 const nock = require("nock") // HTTP mocking
 
-let originalEnvVars // Used during transition from integration to unit tests.
+let originalEnvVars: any // Used during transition from integration to unit tests.
 
 // Mocking data.
-const { mockReq, mockRes } = require("./mocks/express-mocks")
-const mockData = require("./mocks/transaction-mocks")
+const { mockReq, mockRes, mockNext } = require("./../mocks/express-mocks")
+const mockData = require("./../mocks/address-mock")
 
 // Used for debugging.
 const util = require("util")
 util.inspect.defaultOptions = { depth: 1 }
 
 describe("#Transactions", () => {
-  let req, res
+  let req: any
+  let res: any
+  let next: any
 
   before(() => {
     // Save existing environment variables.
@@ -79,25 +81,25 @@ describe("#Transactions", () => {
     process.env.RPC_PASSWORD = originalEnvVars.RPC_PASSWORD
   })
 
-  describe("#root", async () => {
-    // root route handler.
-    const root = transactionRoute.testableComponents.root
+  // describe("#root", async () => {
+  //   // root route handler.
+  //   const root = transactionV2.testableComponents.root
 
-    it("should respond to GET for base route", async () => {
-      const result = root(req, res)
-      //console.log(`result: ${util.inspect(result)}`)
+  //   it("should respond to GET for base route", async () => {
+  //     const result: any = root(req, res, next)
+  //     //console.log(`result: ${util.inspect(result)}`)
 
-      assert.equal(result.status, "transaction", "Returns static string")
-    })
-  })
+  //     assert.equal(result.status, "transaction", "Returns static string")
+  //   })
+  // })
 
   describe("#detailsBulk", async () => {
-    const detailsBulk = transactionRoute.testableComponents.detailsBulk
+    const detailsBulk = transactionV2.testableComponents.detailsBulk
 
     it("should throw an error for an empty body", async () => {
       req.body = {}
 
-      const result = await detailsBulk(req, res)
+      const result: any = await detailsBulk(req, res, next)
 
       assert.equal(res.statusCode, 400, "HTTP status code 400 expected.")
       assert.include(
@@ -112,7 +114,7 @@ describe("#Transactions", () => {
         txids: `6f235bd3a689f03c11969cd649ccad592462ca958bc519a30194e7a67b349a40`
       }
 
-      const result = await detailsBulk(req, res)
+      const result: any = await detailsBulk(req, res, next)
 
       assert.equal(res.statusCode, 400, "HTTP status code 400 expected.")
       assert.include(
@@ -138,7 +140,7 @@ describe("#Transactions", () => {
         txids: [fakeTXID]
       }
 
-      const result = await detailsBulk(req, res)
+      const result: any = await detailsBulk(req, res, next)
       //console.log(`result: ${util.inspect(result)}`)
 
       assert.equal(res.statusCode, 400, "HTTP status code 400 expected.")
@@ -158,7 +160,7 @@ describe("#Transactions", () => {
         txids: [txid]
       }
 
-      const result = await detailsBulk(req, res)
+      const result: any = await detailsBulk(req, res, next)
       //console.log(`result: ${util.inspect(result)}`)
 
       assert.isArray(result)
@@ -202,7 +204,7 @@ describe("#Transactions", () => {
         txids: [txid1, txid2]
       }
 
-      const result = await detailsBulk(req, res)
+      const result: any = await detailsBulk(req, res, next)
       //console.log(`result: ${util.inspect(result)}`)
 
       assert.isArray(result)
@@ -227,10 +229,10 @@ describe("#Transactions", () => {
 
   describe("#detailsSingle", () => {
     // details route handler.
-    const detailsSingle = transactionRoute.testableComponents.detailsSingle
+    const detailsSingle = transactionV2.testableComponents.detailsSingle
 
     it("should throw 400 if txid is empty", async () => {
-      const result = await detailsSingle(req, res)
+      const result: any = await detailsSingle(req, res, next)
       //console.log(`result: ${util.inspect(result)}`)
 
       assert.hasAllKeys(result, ["error"])
@@ -240,7 +242,7 @@ describe("#Transactions", () => {
     it("should error on an array", async () => {
       req.params.txid = [`qzs02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c`]
 
-      const result = await detailsSingle(req, res)
+      const result: any = await detailsSingle(req, res, next)
 
       assert.equal(res.statusCode, 400, "HTTP status code 400 expected.")
       assert.include(
@@ -254,7 +256,7 @@ describe("#Transactions", () => {
       if (process.env.TEST !== "unit") {
         req.params.txid = `02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c`
 
-        const result = await detailsSingle(req, res)
+        const result: any = await detailsSingle(req, res, next)
         //console.log(`result: ${util.inspect(result)}`)
 
         // The error handling code should probably be updated to respond with a better
@@ -277,7 +279,7 @@ describe("#Transactions", () => {
         // Switch the Insight URL to something that will error out.
         process.env.BITCOINCOM_BASEURL = "http://fakeurl/api/"
 
-        const result = await detailsSingle(req, res)
+        const result: any = await detailsSingle(req, res, next)
 
         // Restore the saved URL.
         process.env.BITCOINCOM_BASEURL = savedUrl
@@ -306,7 +308,7 @@ describe("#Transactions", () => {
       }
 
       // Call the details API.
-      const result = await detailsSingle(req, res)
+      const result: any = await detailsSingle(req, res, next)
       //console.log(`result: ${util.inspect(result)}`)
 
       // Assert that required fields exist in the returned object.

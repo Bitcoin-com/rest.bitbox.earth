@@ -1,22 +1,25 @@
-"use strict"
+// imports
+import * as chai from "chai"
+import blockV2 from "./../../../src/routes/v2/block"
 
-const blockRoute = require("../../dist/routes/v2/block")
-const chai = require("chai")
+// consts
 const assert = chai.assert
 const nock = require("nock") // HTTP mocking
 
-let originalEnvVars // Used during transition from integration to unit tests.
+let originalEnvVars: any // Used during transition from integration to unit tests.
 
 // Mocking data.
-const { mockReq, mockRes } = require("./mocks/express-mocks")
-const mockData = require("./mocks/block-mock")
+const { mockReq, mockRes } = require("./../mocks/express-mocks")
+const mockData = require("./../mocks/address-mock")
 
 // Used for debugging.
 const util = require("util")
 util.inspect.defaultOptions = { depth: 1 }
 
 describe("#Block", () => {
-  let req, res
+  let req: any
+  let res: any
+  let next: any
 
   before(() => {
     // Save existing environment variables.
@@ -67,22 +70,22 @@ describe("#Block", () => {
 
   describe("#root", () => {
     // root route handler.
-    const root = blockRoute.testableComponents.root
+    const root = blockV2.testableComponents.root
 
     it("should respond to GET for base route", async () => {
-      const result = root(req, res)
+      const result: any = root(req, res, next)
 
       assert.equal(result.status, "block", "Returns static string")
     })
   })
 
   describe("#detailsByHashSingle", () => {
-    const detailsByHash = blockRoute.testableComponents.detailsByHashSingle
+    const detailsByHash = blockV2.testableComponents.detailsByHashSingle
 
     it("should throw an error for an empty hash", async () => {
       req.params.hash = ""
 
-      const result = await detailsByHash(req, res)
+      const result: any = await detailsByHash(req, res, next)
 
       assert.equal(res.statusCode, 400, "HTTP status code 400 expected.")
       assert.include(
@@ -100,7 +103,7 @@ describe("#Block", () => {
       process.env.BITCOINCOM_BASEURL = "http://fakeurl/api/"
 
       req.params.hash = "abc123"
-      const result = await detailsByHash(req, res)
+      const result: any = await detailsByHash(req, res, next)
       //console.log(`result: ${util.inspect(result)}`)
 
       // Restore the saved URL.
@@ -120,7 +123,7 @@ describe("#Block", () => {
           .reply(404, "Not found")
       }
 
-      const result = await detailsByHash(req, res)
+      const result: any = await detailsByHash(req, res, next)
       //console.log(`result: ${util.inspect(result)}`)
 
       assert.include(result.error, "Not found", "Proper error message")
@@ -137,7 +140,7 @@ describe("#Block", () => {
           .reply(200, mockData.mockBlockDetails)
       }
 
-      const result = await detailsByHash(req, res)
+      const result: any = await detailsByHash(req, res, next)
       //console.log(`result: ${util.inspect(result)}`)
 
       assert.hasAnyKeys(result, [
@@ -165,12 +168,12 @@ describe("#Block", () => {
 
   describe("#detailsByHashBulk", () => {
     // details route handler.
-    const detailsByHashBulk = blockRoute.testableComponents.detailsByHashBulk
+    const detailsByHashBulk = blockV2.testableComponents.detailsByHashBulk
 
     it("should throw an error for an empty body", async () => {
       req.body = {}
 
-      const result = await detailsByHashBulk(req, res)
+      const result: any = await detailsByHashBulk(req, res, next)
 
       assert.equal(res.statusCode, 400, "HTTP status code 400 expected.")
       assert.include(
@@ -186,7 +189,7 @@ describe("#Block", () => {
           "00000000000000645dec6503d3f5eafb0d2537a7a28f181d721dec7c44154c79"
       }
 
-      const result = await detailsByHashBulk(req, res)
+      const result: any = await detailsByHashBulk(req, res, next)
 
       assert.equal(res.statusCode, 400, "HTTP status code 400 expected.")
       assert.include(
@@ -202,7 +205,7 @@ describe("#Block", () => {
 
       req.body.hashes = testArray
 
-      const result = await detailsByHashBulk(req, res)
+      const result: any = await detailsByHashBulk(req, res, next)
       //console.log(`result: ${util.inspect(result)}`)
 
       assert.hasAllKeys(result, ["error"])
@@ -214,7 +217,7 @@ describe("#Block", () => {
         hashes: [`abc123`]
       }
 
-      const result = await detailsByHashBulk(req, res)
+      const result: any = await detailsByHashBulk(req, res, next)
       //console.log(`result: ${util.inspect(result)}`)
 
       assert.equal(res.statusCode, 400, "HTTP status code 400 expected.")
@@ -234,7 +237,7 @@ describe("#Block", () => {
         // Switch the Insight URL to something that will error out.
         process.env.BITCOINCOM_BASEURL = "http://fakeurl/api/"
 
-        const result = await detailsByHashBulk(req, res)
+        const result: any = await detailsByHashBulk(req, res, next)
 
         // Restore the saved URL.
         process.env.BITCOINCOM_BASEURL = savedUrl
@@ -262,7 +265,7 @@ describe("#Block", () => {
       }
 
       // Call the details API.
-      const result = await detailsByHashBulk(req, res)
+      const result: any = await detailsByHashBulk(req, res, next)
       //console.log(`result: ${util.inspect(result)}`)
 
       // Assert that required fields exist in the returned object.
@@ -308,7 +311,7 @@ describe("#Block", () => {
       }
 
       // Call the details API.
-      const result = await detailsByHashBulk(req, res)
+      const result: any = await detailsByHashBulk(req, res, next)
       //console.log(`result: ${util.inspect(result)}`)
 
       assert.isArray(result)
@@ -330,7 +333,7 @@ describe("#Block", () => {
           .reply(404, "Not found")
       }
 
-      const result = await detailsByHashBulk(req, res)
+      const result: any = await detailsByHashBulk(req, res, next)
       //console.log(`result: ${util.inspect(result)}`)
 
       assert.equal(res.statusCode, 404, "HTTP status code 404 expected.")
@@ -340,12 +343,12 @@ describe("#Block", () => {
 
   describe("Block Details By Height", () => {
     // block route handler.
-    const detailsByHeight = blockRoute.testableComponents.detailsByHeightSingle
+    const detailsByHeight = blockV2.testableComponents.detailsByHeightSingle
 
     it("should throw an error for an empty height", async () => {
       req.params.height = ""
 
-      const result = await detailsByHeight(req, res)
+      const result: any = await detailsByHeight(req, res, next)
 
       assert.equal(res.statusCode, 400, "HTTP status code 400 expected.")
       assert.include(
@@ -365,7 +368,7 @@ describe("#Block", () => {
       process.env.RPC_BASEURL = "http://fakeurl/api/"
 
       req.params.height = "abc123"
-      const result = await detailsByHeight(req, res)
+      const result: any = await detailsByHeight(req, res, next)
       //console.log(`result: ${util.inspect(result)}`)
 
       // Restore the saved URL.
@@ -395,7 +398,7 @@ describe("#Block", () => {
           })
       }
 
-      const result = await detailsByHeight(req, res)
+      const result: any = await detailsByHeight(req, res, next)
       //console.log(`result: ${util.inspect(result)}`)
 
       assert.equal(res.statusCode, 400, "HTTP status code 400 expected.")
@@ -425,7 +428,7 @@ describe("#Block", () => {
 
       req.params.height = 500000
 
-      const result = await detailsByHeight(req, res)
+      const result: any = await detailsByHeight(req, res, next)
       //console.log(`result: ${util.inspect(result)}`)
 
       assert.hasAnyKeys(result, [
@@ -453,13 +456,12 @@ describe("#Block", () => {
 
   describe("#detailsByHeightBulk", () => {
     // details route handler.
-    const detailsByHeightBulk =
-      blockRoute.testableComponents.detailsByHeightBulk
+    const detailsByHeightBulk = blockV2.testableComponents.detailsByHeightBulk
 
     it("should throw an error for an empty body", async () => {
       req.body = {}
 
-      const result = await detailsByHeightBulk(req, res)
+      const result: any = await detailsByHeightBulk(req, res, next)
 
       assert.equal(res.statusCode, 400, "HTTP status code 400 expected.")
       assert.include(
@@ -474,7 +476,7 @@ describe("#Block", () => {
         heights: 500000
       }
 
-      const result = await detailsByHeightBulk(req, res)
+      const result: any = await detailsByHeightBulk(req, res, next)
 
       assert.equal(res.statusCode, 400, "HTTP status code 400 expected.")
       assert.include(
@@ -490,7 +492,7 @@ describe("#Block", () => {
 
       req.body.heights = testArray
 
-      const result = await detailsByHeightBulk(req, res)
+      const result: any = await detailsByHeightBulk(req, res, next)
       //console.log(`result: ${util.inspect(result)}`)
 
       assert.hasAllKeys(result, ["error"])
@@ -512,7 +514,7 @@ describe("#Block", () => {
 
       req.body.heights = [`abc123`]
 
-      const result = await detailsByHeightBulk(req, res)
+      const result: any = await detailsByHeightBulk(req, res, next)
       // console.log(`result: ${util.inspect(result)}`)
 
       assert.equal(res.statusCode, 400, "HTTP status code 400 expected.")
@@ -527,7 +529,7 @@ describe("#Block", () => {
         // Switch the Insight URL to something that will error out.
         process.env.BITCOINCOM_BASEURL = "http://fakeurl/api/"
 
-        const result = await detailsByHeightBulk(req, res)
+        const result: any = await detailsByHeightBulk(req, res, next)
 
         // Restore the saved URL.
         process.env.BITCOINCOM_BASEURL = savedUrl
@@ -555,7 +557,7 @@ describe("#Block", () => {
       }
 
       // Call the details API.
-      const result = await detailsByHeightBulk(req, res)
+      const result: any = await detailsByHeightBulk(req, res, next)
       //console.log(`result: ${util.inspect(result)}`)
 
       // Assert that required fields exist in the returned object.
@@ -600,7 +602,7 @@ describe("#Block", () => {
       }
 
       // Call the details API.
-      const result = await detailsByHeightBulk(req, res)
+      const result: any = await detailsByHeightBulk(req, res, next)
       //console.log(`result: ${util.inspect(result)}`)
 
       assert.isArray(result)

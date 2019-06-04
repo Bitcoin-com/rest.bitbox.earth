@@ -7,7 +7,7 @@
 let winston: any = require("winston")
 require("winston-daily-rotate-file")
 
-let NETWORK: string = process.env.NETWORK
+let NETWORK: string | undefined = process.env.NETWORK
 
 // Configure daily-rotation transport.
 let transport: any = new winston.transports.DailyRotateFile({

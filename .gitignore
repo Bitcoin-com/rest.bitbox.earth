@@ -12,3 +12,9 @@ logs/
 dist/
 package-lock.json
 yarn-error.log
+
+
+src/**/*.js
+src/**/*.js.map
+test/**/*.js
+test/**/*.js.map

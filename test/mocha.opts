@@ -1,0 +1,4 @@
+--require ts-node/register/transpile-only 
+--require source-map-support/register
+--recursivee
+test/v2/unit/**/*.ts 

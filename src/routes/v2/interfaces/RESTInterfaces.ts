@@ -394,8 +394,8 @@ export interface ServerAddress {
 export interface RequestConfig {
   method: string
   auth: {
-    username: string
-    password: string
+    username: string | undefined
+    password: string | undefined
   }
   data: {
     jsonrpc: string
@@ -407,8 +407,8 @@ export interface RequestConfig {
 
 export interface iSetEnvVars {
   BitboxHTTP: any
-  username: string
-  password: string
+  username: string | undefined
+  password: string | undefined
   requestConfig: any
 }
 export interface iDecodeError {
