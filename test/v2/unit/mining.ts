@@ -9,6 +9,7 @@
 // imports
 import * as chai from "chai"
 import miningV2 from "./../../../src/routes/v2/mining"
+import { mockMiningInfo } from "./../mocks/mining-mocks"
 
 // consts
 const assert = chai.assert
@@ -18,7 +19,6 @@ let originalEnvVars: any // Used during transition from integration to unit test
 
 // Mocking data.
 const { mockReq, mockRes } = require("./../mocks/express-mocks")
-const mockData = require("./../mocks/mining-mocks")
 
 // Used for debugging.
 const util = require("util")
@@ -118,7 +118,7 @@ describe("#Mining", () => {
       if (process.env.TEST === "unit") {
         nock(`${process.env.RPC_BASEURL}`)
           .post(``)
-          .reply(200, { result: mockData.mockMiningInfo })
+          .reply(200, { result: mockMiningInfo })
       }
 
       const result = await getMiningInfo(req, res, next)

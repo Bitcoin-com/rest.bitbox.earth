@@ -16,15 +16,19 @@
 // imports
 import * as chai from "chai"
 import addressV2 from "./../../../src/routes/v2/address"
+// Mocking data.
+import {
+  mockAddressDetails,
+  mockTransactions,
+  mockUtxoDetails
+} from "./../mocks/address-mocks"
 
 // consts
 const assert = chai.assert
 const nock = require("nock") // HTTP mocking
 let originalUrl: any // Used during transition from integration to unit tests.
 
-// Mocking data.
 const { mockReq, mockRes } = require("./../mocks/express-mocks")
-const mockData = require("./../mocks/address-mocks")
 
 // Used for debugging.
 const util = require("util")
@@ -194,7 +198,7 @@ describe("#AddressRouter", () => {
       if (process.env.TEST === "unit") {
         nock(`${process.env.BITCOINCOM_BASEURL}`)
           .get(`/addr/mgps7qxk2Z5ma4mXsviznnet8wx4VvMPFz?from=0&to=1000`)
-          .reply(200, mockData.mockAddressDetails)
+          .reply(200, mockAddressDetails)
       }
 
       // Call the details API.
@@ -215,7 +219,7 @@ describe("#AddressRouter", () => {
       if (process.env.TEST === "unit") {
         nock(`${process.env.BITCOINCOM_BASEURL}`)
           .get(`/addr/mgps7qxk2Z5ma4mXsviznnet8wx4VvMPFz?from=5000&to=6000`)
-          .reply(200, mockData.mockAddressDetails)
+          .reply(200, mockAddressDetails)
       }
 
       // Call the details API.
@@ -235,7 +239,7 @@ describe("#AddressRouter", () => {
       if (process.env.TEST === "unit") {
         nock(`${process.env.BITCOINCOM_BASEURL}`)
           .get(`/addr/mgps7qxk2Z5ma4mXsviznnet8wx4VvMPFz?from=0&to=1000`)
-          .reply(200, mockData.mockAddressDetails)
+          .reply(200, mockAddressDetails)
       }
 
       // Call the details API.
@@ -254,7 +258,7 @@ describe("#AddressRouter", () => {
       if (process.env.TEST === "unit") {
         nock(`${process.env.BITCOINCOM_BASEURL}`)
           .get(`/addr/mgps7qxk2Z5ma4mXsviznnet8wx4VvMPFz?from=0&to=1000`)
-          .reply(200, mockData.mockAddressDetails)
+          .reply(200, mockAddressDetails)
       }
 
       // Call the details API.
@@ -295,11 +299,11 @@ describe("#AddressRouter", () => {
       if (process.env.TEST === "unit") {
         nock(`${process.env.BITCOINCOM_BASEURL}`)
           .get(`/addr/mgps7qxk2Z5ma4mXsviznnet8wx4VvMPFz?from=0&to=1000`)
-          .reply(200, mockData.mockAddressDetails)
+          .reply(200, mockAddressDetails)
 
         nock(`${process.env.BITCOINCOM_BASEURL}`)
           .get(`/addr/mwJnEzXzKkveF2q5Af9jxi9j1zrtWAnPU8?from=0&to=1000`)
-          .reply(200, mockData.mockAddressDetails)
+          .reply(200, mockAddressDetails)
       }
 
       // Call the details API.
@@ -387,7 +391,7 @@ describe("#AddressRouter", () => {
       if (process.env.TEST === "unit") {
         nock(`${process.env.BITCOINCOM_BASEURL}`)
           .get(`/addr/mgps7qxk2Z5ma4mXsviznnet8wx4VvMPFz?from=0&to=1000`)
-          .reply(200, mockData.mockAddressDetails)
+          .reply(200, mockAddressDetails)
       }
 
       // Call the details API.
@@ -406,7 +410,7 @@ describe("#AddressRouter", () => {
       if (process.env.TEST === "unit") {
         nock(`${process.env.BITCOINCOM_BASEURL}`)
           .get(`/addr/mgps7qxk2Z5ma4mXsviznnet8wx4VvMPFz?from=5000&to=6000`)
-          .reply(200, mockData.mockAddressDetails)
+          .reply(200, mockAddressDetails)
       }
 
       // Call the details API.
@@ -423,7 +427,7 @@ describe("#AddressRouter", () => {
       if (process.env.TEST === "unit") {
         nock(`${process.env.BITCOINCOM_BASEURL}`)
           .get(`/addr/mgps7qxk2Z5ma4mXsviznnet8wx4VvMPFz?from=0&to=1000`)
-          .reply(200, mockData.mockAddressDetails)
+          .reply(200, mockAddressDetails)
       }
 
       // Call the details API.
@@ -439,7 +443,7 @@ describe("#AddressRouter", () => {
       if (process.env.TEST === "unit") {
         nock(`${process.env.BITCOINCOM_BASEURL}`)
           .get(`/addr/mgps7qxk2Z5ma4mXsviznnet8wx4VvMPFz?from=0&to=1000`)
-          .reply(200, mockData.mockAddressDetails)
+          .reply(200, mockAddressDetails)
       }
 
       // Call the details API.
@@ -559,7 +563,7 @@ describe("#AddressRouter", () => {
       if (process.env.TEST === "unit") {
         nock(`${process.env.BITCOINCOM_BASEURL}`)
           .get(`/addr/mgps7qxk2Z5ma4mXsviznnet8wx4VvMPFz/utxo`)
-          .reply(200, mockData.mockUtxoDetails)
+          .reply(200, mockUtxoDetails)
       }
 
       // Call the details API.
@@ -600,11 +604,11 @@ describe("#AddressRouter", () => {
       if (process.env.TEST === "unit") {
         nock(`${process.env.BITCOINCOM_BASEURL}`)
           .get(`/addr/mgps7qxk2Z5ma4mXsviznnet8wx4VvMPFz/utxo`)
-          .reply(200, mockData.mockUtxoDetails)
+          .reply(200, mockUtxoDetails)
 
         nock(`${process.env.BITCOINCOM_BASEURL}`)
           .get(`/addr/mwJnEzXzKkveF2q5Af9jxi9j1zrtWAnPU8/utxo`)
-          .reply(200, mockData.mockUtxoDetails)
+          .reply(200, mockUtxoDetails)
       }
 
       // Call the details API.
@@ -705,7 +709,7 @@ describe("#AddressRouter", () => {
       if (process.env.TEST === "unit") {
         nock(`${process.env.BITCOINCOM_BASEURL}`)
           .get(`/addr/mgps7qxk2Z5ma4mXsviznnet8wx4VvMPFz/utxo`)
-          .reply(200, mockData.mockUtxoDetails)
+          .reply(200, mockUtxoDetails)
       }
 
       // Call the details API.
@@ -837,7 +841,7 @@ describe("#AddressRouter", () => {
       if (process.env.TEST === "unit") {
         nock(`${process.env.BITCOINCOM_BASEURL}`)
           .get(`/addr/mgps7qxk2Z5ma4mXsviznnet8wx4VvMPFz/utxo`)
-          .reply(200, mockData.mockUtxoDetails)
+          .reply(200, mockUtxoDetails)
       }
 
       // Call the details API.
@@ -864,11 +868,11 @@ describe("#AddressRouter", () => {
       if (process.env.TEST === "unit") {
         nock(`${process.env.BITCOINCOM_BASEURL}`)
           .get(`/addr/mgps7qxk2Z5ma4mXsviznnet8wx4VvMPFz/utxo`)
-          .reply(200, mockData.mockUtxoDetails)
+          .reply(200, mockUtxoDetails)
 
         nock(`${process.env.BITCOINCOM_BASEURL}`)
           .get(`/addr/mwJnEzXzKkveF2q5Af9jxi9j1zrtWAnPU8/utxo`)
-          .reply(200, mockData.mockUtxoDetails)
+          .reply(200, mockUtxoDetails)
       }
 
       // Call the details API.
@@ -954,7 +958,7 @@ describe("#AddressRouter", () => {
       if (process.env.TEST === "unit") {
         nock(`${process.env.BITCOINCOM_BASEURL}`)
           .get(`/addr/mgps7qxk2Z5ma4mXsviznnet8wx4VvMPFz/utxo`)
-          .reply(200, mockData.mockUtxoDetails)
+          .reply(200, mockUtxoDetails)
       }
 
       // Call the details API.
@@ -1080,7 +1084,7 @@ describe("#AddressRouter", () => {
           .get(
             `/txs/?address=bchtest:qq89kjkeqz9mngp8kl3dpmu43y2wztdjqu500gn4c4&pageNum=0`
           )
-          .reply(200, mockData.mockTransactions)
+          .reply(200, mockTransactions)
       }
 
       // Call the endpoint
@@ -1102,7 +1106,7 @@ describe("#AddressRouter", () => {
           .get(
             `/txs/?address=bchtest:qq89kjkeqz9mngp8kl3dpmu43y2wztdjqu500gn4c4&pageNum=5`
           )
-          .reply(200, mockData.mockTransactions)
+          .reply(200, mockTransactions)
       }
 
       // Call the endpoint
@@ -1123,7 +1127,7 @@ describe("#AddressRouter", () => {
           .get(
             `/txs/?address=bchtest:qq89kjkeqz9mngp8kl3dpmu43y2wztdjqu500gn4c4&pageNum=0`
           )
-          .reply(200, mockData.mockTransactions)
+          .reply(200, mockTransactions)
       }
 
       // Call the details API.
@@ -1153,13 +1157,13 @@ describe("#AddressRouter", () => {
           .get(
             `/txs/?address=bchtest:qq89kjkeqz9mngp8kl3dpmu43y2wztdjqu500gn4c4&pageNum=0`
           )
-          .reply(200, mockData.mockTransactions)
+          .reply(200, mockTransactions)
 
         nock(`${process.env.BITCOINCOM_BASEURL}`)
           .get(
             `/txs/?address=bchtest:qzknfggae0av6yvxk77gmyq7syc67yux6sk80haqyr&pageNum=0`
           )
-          .reply(200, mockData.mockTransactions)
+          .reply(200, mockTransactions)
       }
 
       // Call the details API.
@@ -1249,7 +1253,7 @@ describe("#AddressRouter", () => {
           .get(
             `/txs/?address=bchtest:qq89kjkeqz9mngp8kl3dpmu43y2wztdjqu500gn4c4&pageNum=0`
           )
-          .reply(200, mockData.mockTransactions)
+          .reply(200, mockTransactions)
       }
 
       // Call the endpoint
@@ -1269,7 +1273,7 @@ describe("#AddressRouter", () => {
           .get(
             `/txs/?address=bchtest:qq89kjkeqz9mngp8kl3dpmu43y2wztdjqu500gn4c4&pageNum=5`
           )
-          .reply(200, mockData.mockTransactions)
+          .reply(200, mockTransactions)
       }
 
       // Call the endpoint
@@ -1288,7 +1292,7 @@ describe("#AddressRouter", () => {
           .get(
             `/txs/?address=bchtest:qq89kjkeqz9mngp8kl3dpmu43y2wztdjqu500gn4c4&pageNum=0`
           )
-          .reply(200, mockData.mockTransactions)
+          .reply(200, mockTransactions)
       }
 
       // Call the details API.
@@ -1364,7 +1368,7 @@ describe("#AddressRouter", () => {
       //     .get(
       //       `/txs/?address=bchtest:qq89kjkeqz9mngp8kl3dpmu43y2wztdjqu500gn4c4&pageNum=0`
       //     )
-      //     .reply(200, mockData.mockTransactions)
+      //     .reply(200, mockTransactions)
       // }
 
       // Call the details API.

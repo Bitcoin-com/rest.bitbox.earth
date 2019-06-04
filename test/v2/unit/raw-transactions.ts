@@ -12,6 +12,12 @@
 // imports
 import * as chai from "chai"
 import rawtransactionsV2 from "./../../../src/routes/v2/rawtransactions"
+import {
+  mockDecodeRawTransaction,
+  mockDecodeScript,
+  mockRawTransactionConcise,
+  mockRawTransactionVerbose
+} from "./../mocks/raw-transactions-mocks"
 
 // consts
 const assert = chai.assert
@@ -22,7 +28,6 @@ let originalEnvVars: any // Used during transition from integration to unit test
 // Mocking data.
 //delete require.cache[require.resolve("./mocks/express-mocks")] // Fixes bug
 const { mockReq, mockRes, mockNext } = require("./../mocks/express-mocks")
-const mockData = require("./../mocks/raw-transactions-mocks")
 
 // Used for debugging.
 const util = require("util")
@@ -137,7 +142,7 @@ describe("#Raw-Transactions", () => {
       if (process.env.TEST === "unit") {
         nock(`${process.env.RPC_BASEURL}`)
           .post(``)
-          .reply(200, { result: mockData.mockDecodeRawTransaction })
+          .reply(200, { result: mockDecodeRawTransaction })
       }
 
       req.params.hex =
@@ -214,7 +219,7 @@ describe("#Raw-Transactions", () => {
       if (process.env.TEST === "unit") {
         nock(`${process.env.RPC_BASEURL}`)
           .post(``)
-          .reply(200, { result: mockData.mockDecodeRawTransaction })
+          .reply(200, { result: mockDecodeRawTransaction })
       }
 
       req.body.hexes = [
@@ -244,7 +249,7 @@ describe("#Raw-Transactions", () => {
         nock(`${process.env.RPC_BASEURL}`)
           .post(``)
           .times(2)
-          .reply(200, { result: mockData.mockDecodeRawTransaction })
+          .reply(200, { result: mockDecodeRawTransaction })
       }
 
       req.body.hexes = [
@@ -312,7 +317,7 @@ describe("#Raw-Transactions", () => {
       if (process.env.TEST === "unit") {
         nock(`${process.env.RPC_BASEURL}`)
           .post(``)
-          .reply(200, { result: mockData.mockDecodeScript })
+          .reply(200, { result: mockDecodeScript })
       }
 
       req.params.hex =
@@ -379,7 +384,7 @@ describe("#Raw-Transactions", () => {
       if (process.env.TEST === "unit") {
         nock(`${process.env.RPC_BASEURL}`)
           .post(``)
-          .reply(200, { result: mockData.mockDecodeScript })
+          .reply(200, { result: mockDecodeScript })
       }
 
       req.body.hexes = [
@@ -399,7 +404,7 @@ describe("#Raw-Transactions", () => {
         nock(`${process.env.RPC_BASEURL}`)
           .post(``)
           .times(2)
-          .reply(200, { result: mockData.mockDecodeScript })
+          .reply(200, { result: mockDecodeScript })
       }
 
       req.body.hexes = [
@@ -477,7 +482,7 @@ describe("#Raw-Transactions", () => {
       if (process.env.TEST === "unit") {
         nock(`${process.env.RPC_BASEURL}`)
           .post(``)
-          .reply(200, { result: mockData.mockRawTransactionConcise })
+          .reply(200, { result: mockRawTransactionConcise })
       }
 
       req.body.txids = [
@@ -496,7 +501,7 @@ describe("#Raw-Transactions", () => {
       if (process.env.TEST === "unit") {
         nock(`${process.env.RPC_BASEURL}`)
           .post(``)
-          .reply(200, { result: mockData.mockRawTransactionVerbose })
+          .reply(200, { result: mockRawTransactionVerbose })
       }
 
       req.body.txids = [
@@ -565,7 +570,7 @@ describe("#Raw-Transactions", () => {
       if (process.env.TEST === "unit") {
         nock(`${process.env.RPC_BASEURL}`)
           .post(``)
-          .reply(200, { result: mockData.mockRawTransactionConcise })
+          .reply(200, { result: mockRawTransactionConcise })
       }
 
       req.params.txid =
@@ -582,7 +587,7 @@ describe("#Raw-Transactions", () => {
       if (process.env.TEST === "unit") {
         nock(`${process.env.RPC_BASEURL}`)
           .post(``)
-          .reply(200, { result: mockData.mockRawTransactionVerbose })
+          .reply(200, { result: mockRawTransactionVerbose })
       }
 
       req.params.txid =

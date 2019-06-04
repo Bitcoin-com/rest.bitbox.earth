@@ -1,6 +1,7 @@
 // imports
 import * as chai from "chai"
 import blockV2 from "./../../../src/routes/v2/block"
+import { mockBlockDetails, mockBlockHash } from "./../mocks/block-mocks"
 
 // consts
 const assert = chai.assert
@@ -10,7 +11,6 @@ let originalEnvVars: any // Used during transition from integration to unit test
 
 // Mocking data.
 const { mockReq, mockRes } = require("./../mocks/express-mocks")
-const mockData = require("./../mocks/block-mocks")
 
 // Used for debugging.
 const util = require("util")
@@ -137,7 +137,7 @@ describe("#Block", () => {
       if (process.env.TEST === "unit") {
         nock(`${process.env.BITCOINCOM_BASEURL}`)
           .get(`/block/${req.params.hash}`)
-          .reply(200, mockData.mockBlockDetails)
+          .reply(200, mockBlockDetails)
       }
 
       const result: any = await detailsByHash(req, res, next)
@@ -261,7 +261,7 @@ describe("#Block", () => {
       if (process.env.TEST === "unit") {
         nock(`${process.env.BITCOINCOM_BASEURL}`)
           .get(`/block/${req.body.hashes[0]}`)
-          .reply(200, mockData.mockBlockDetails)
+          .reply(200, mockBlockDetails)
       }
 
       // Call the details API.
@@ -303,11 +303,11 @@ describe("#Block", () => {
       if (process.env.TEST === "unit") {
         nock(`${process.env.BITCOINCOM_BASEURL}`)
           .get(`/block/${req.body.hashes[0]}`)
-          .reply(200, mockData.mockBlockDetails)
+          .reply(200, mockBlockDetails)
 
         nock(`${process.env.BITCOINCOM_BASEURL}`)
           .get(`/block/${req.body.hashes[1]}`)
-          .reply(200, mockData.mockBlockDetails)
+          .reply(200, mockBlockDetails)
       }
 
       // Call the details API.
@@ -414,7 +414,7 @@ describe("#Block", () => {
       if (process.env.TEST === "unit") {
         nock(`${process.env.RPC_BASEURL}`)
           .post(``)
-          .reply(200, { result: mockData.mockBlockHash })
+          .reply(200, { result: mockBlockHash })
       }
 
       // Mock the Insight URL for unit tests.
@@ -423,7 +423,7 @@ describe("#Block", () => {
           .get(
             `/block/00000000000000645dec6503d3f5eafb0d2537a7a28f181d721dec7c44154c79`
           )
-          .reply(200, mockData.mockBlockDetails)
+          .reply(200, mockBlockDetails)
       }
 
       req.params.height = 500000
@@ -549,11 +549,11 @@ describe("#Block", () => {
       if (process.env.TEST === "unit") {
         nock(`${process.env.RPC_BASEURL}`)
           .post(``)
-          .reply(200, { result: mockData.mockBlockHash })
+          .reply(200, { result: mockBlockHash })
 
         nock(`${process.env.BITCOINCOM_BASEURL}`)
-          .get(`/block/${mockData.mockBlockHash}`)
-          .reply(200, mockData.mockBlockDetails)
+          .get(`/block/${mockBlockHash}`)
+          .reply(200, mockBlockDetails)
       }
 
       // Call the details API.
@@ -593,12 +593,12 @@ describe("#Block", () => {
         nock(`${process.env.RPC_BASEURL}`)
           .post(``)
           .times(2)
-          .reply(200, { result: mockData.mockBlockHash })
+          .reply(200, { result: mockBlockHash })
 
         nock(`${process.env.BITCOINCOM_BASEURL}`)
-          .get(`/block/${mockData.mockBlockHash}`)
+          .get(`/block/${mockBlockHash}`)
           .times(2)
-          .reply(200, mockData.mockBlockDetails)
+          .reply(200, mockBlockDetails)
       }
 
       // Call the details API.

@@ -8,6 +8,7 @@
 // imports
 import * as chai from "chai"
 import utilV2 from "./../../../src/routes/v2/util"
+import { mockAddress } from "./../mocks/util-mocks"
 
 // consts
 const assert = chai.assert
@@ -17,7 +18,6 @@ let originalEnvVars: any // Used during transition from integration to unit test
 
 // Mocking data.
 const { mockReq, mockRes, mockNext } = require("./../mocks/express-mocks")
-const mockData = require("./../mocks/util-mocks")
 
 // Used for debugging.
 const util = require("util")
@@ -130,7 +130,7 @@ describe("#Util", () => {
       if (process.env.TEST === "unit") {
         nock(`${process.env.RPC_BASEURL}`)
           .post(``)
-          .reply(200, { result: mockData.mockAddress })
+          .reply(200, { result: mockAddress })
       }
 
       req.params.address = `bchtest:qqqk4y6lsl5da64sg5qc3xezmplyu5kmpyz2ysaa5y`
@@ -250,7 +250,7 @@ describe("#Util", () => {
       if (process.env.TEST === "unit") {
         nock(`${process.env.RPC_BASEURL}`)
           .post(``)
-          .reply(200, { result: mockData.mockAddress })
+          .reply(200, { result: mockAddress })
       }
 
       req.body.addresses = [
@@ -277,7 +277,7 @@ describe("#Util", () => {
         nock(`${process.env.RPC_BASEURL}`)
           .post(``)
           .times(2)
-          .reply(200, { result: mockData.mockAddress })
+          .reply(200, { result: mockAddress })
       }
 
       req.body.addresses = [

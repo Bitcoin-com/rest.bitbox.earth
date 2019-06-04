@@ -13,6 +13,7 @@
 // imports
 import * as chai from "chai"
 import transactionV2 from "./../../../src/routes/v2/transaction"
+import { mockDetails } from "./../mocks/transaction-mocks"
 
 // consts
 const assert = chai.assert
@@ -22,7 +23,6 @@ let originalEnvVars: any // Used during transition from integration to unit test
 
 // Mocking data.
 const { mockReq, mockRes, mockNext } = require("./../mocks/express-mocks")
-const mockData = require("./../mocks/transaction-mocks")
 
 // Used for debugging.
 const util = require("util")
@@ -153,7 +153,7 @@ describe("#Transactions", () => {
       if (process.env.TEST === "unit") {
         nock(`${process.env.BITCOINCOM_BASEURL}`)
           .get(`/tx/${txid}`)
-          .reply(200, mockData.mockDetails)
+          .reply(200, mockDetails)
       }
 
       req.body = {
@@ -190,14 +190,14 @@ describe("#Transactions", () => {
       if (process.env.TEST === "unit") {
         nock(`${process.env.BITCOINCOM_BASEURL}`)
           .get(`/tx/${txid1}`)
-          .reply(200, mockData.mockDetails)
+          .reply(200, mockDetails)
       }
 
       // Mock the Insight URL for unit tests.
       if (process.env.TEST === "unit") {
         nock(`${process.env.BITCOINCOM_BASEURL}`)
           .get(`/tx/${txid2}`)
-          .reply(200, mockData.mockDetails)
+          .reply(200, mockDetails)
       }
 
       req.body = {
@@ -304,7 +304,7 @@ describe("#Transactions", () => {
       if (process.env.TEST === "unit") {
         nock(`${process.env.BITCOINCOM_BASEURL}`)
           .get(`/tx/${txid}`)
-          .reply(200, mockData.mockDetails)
+          .reply(200, mockDetails)
       }
 
       // Call the details API.

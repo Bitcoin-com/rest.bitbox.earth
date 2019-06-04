@@ -10,6 +10,7 @@
 // imports
 import * as chai from "chai"
 import controlV2 from "./../../../src/routes/v2/control"
+import { mockGetInfo } from "./../mocks/control-mocks"
 
 // consts
 const assert = chai.assert
@@ -19,7 +20,6 @@ let originalEnvVars: any // Used during transition from integration to unit test
 
 // Mocking data.
 const { mockReq, mockRes } = require("./../mocks/express-mocks")
-const mockData = require("./../mocks/control-mocks")
 
 // Used for debugging.
 const util = require("util")
@@ -119,7 +119,7 @@ describe("#ControlRouter", () => {
       if (process.env.TEST === "unit") {
         nock(`${process.env.RPC_BASEURL}`)
           .post(``)
-          .reply(200, { result: mockData.mockGetInfo })
+          .reply(200, { result: mockGetInfo })
       }
 
       const result = await getInfo(req, res, next)

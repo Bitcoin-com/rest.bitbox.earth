@@ -9,6 +9,17 @@
 // imports
 import * as chai from "chai"
 import blockchainV2 from "./../../../src/routes/v2/blockchain"
+import {
+  mockBlockchainInfo,
+  mockBlockHash,
+  mockBlockHeader,
+  mockBlockHeaderConcise,
+  mockChainTips,
+  mockMempoolInfo,
+  mockRawMempool,
+  mockTxOut,
+  mockTxOutProof
+} from "./../mocks/blockchain-mocks"
 
 // consts
 const assert = chai.assert
@@ -21,7 +32,6 @@ if (!process.env.TEST) process.env.TEST = "unit"
 
 // Mocking data.
 const { mockReq, mockRes } = require("./../mocks/express-mocks")
-const mockData = require("./../mocks/blockchain-mocks")
 
 let originalEnvVars: any // Used during transition from integration to unit tests.
 
@@ -123,7 +133,7 @@ describe("#BlockchainRouter", () => {
       if (process.env.TEST === "unit") {
         nock(`${process.env.RPC_BASEURL}`)
           .post(``)
-          .reply(200, { result: mockData.mockBlockHash })
+          .reply(200, { result: mockBlockHash })
       }
 
       const result: any = await getBestBlockHash(req, res, next)
@@ -164,7 +174,7 @@ describe("#BlockchainRouter", () => {
       if (process.env.TEST === "unit") {
         nock(`${process.env.RPC_BASEURL}`)
           .post(``)
-          .reply(200, { result: mockData.mockBlockchainInfo })
+          .reply(200, { result: mockBlockchainInfo })
       }
 
       const result: any = await getBlockchainInfo(req, res, next)
@@ -290,7 +300,7 @@ describe("#BlockchainRouter", () => {
       if (process.env.TEST === "unit") {
         nock(`${process.env.RPC_BASEURL}`)
           .post(``)
-          .reply(200, { result: mockData.mockBlockHeader })
+          .reply(200, { result: mockBlockHeader })
       }
 
       req.query.verbose = true
@@ -406,7 +416,7 @@ describe("#BlockchainRouter", () => {
       if (process.env.TEST === "unit") {
         nock(`${process.env.RPC_BASEURL}`)
           .post(``)
-          .reply(200, { result: mockData.mockBlockHeaderConcise })
+          .reply(200, { result: mockBlockHeaderConcise })
       }
 
       // Call the details API.
@@ -433,7 +443,7 @@ describe("#BlockchainRouter", () => {
       if (process.env.TEST === "unit") {
         nock(`${process.env.RPC_BASEURL}`)
           .post(``)
-          .reply(200, { result: mockData.mockBlockHeader })
+          .reply(200, { result: mockBlockHeader })
       }
 
       // Call the details API.
@@ -471,7 +481,7 @@ describe("#BlockchainRouter", () => {
         nock(`${process.env.RPC_BASEURL}`)
           .post(``)
           .times(2)
-          .reply(200, { result: mockData.mockBlockHeaderConcise })
+          .reply(200, { result: mockBlockHeaderConcise })
       }
 
       // Call the details API.
@@ -513,7 +523,7 @@ describe("#BlockchainRouter", () => {
       if (process.env.TEST === "unit") {
         nock(`${process.env.RPC_BASEURL}`)
           .post(``)
-          .reply(200, { result: mockData.mockChainTips })
+          .reply(200, { result: mockChainTips })
       }
 
       const result: any = await getChainTips(req, res, next)
@@ -594,7 +604,7 @@ describe("#BlockchainRouter", () => {
       if (process.env.TEST === "unit") {
         nock(`${process.env.RPC_BASEURL}`)
           .post(``)
-          .reply(200, { result: mockData.mockMempoolInfo })
+          .reply(200, { result: mockMempoolInfo })
       }
 
       const result: any = await getMempoolInfo(req, res, next)
@@ -640,7 +650,7 @@ describe("#BlockchainRouter", () => {
       if (process.env.TEST === "unit") {
         nock(`${process.env.RPC_BASEURL}`)
           .post(``)
-          .reply(200, { result: mockData.mockRawMempool })
+          .reply(200, { result: mockRawMempool })
       }
 
       const result: any = await getRawMempool(req, res, next)
@@ -838,7 +848,7 @@ describe("#BlockchainRouter", () => {
       if (process.env.TEST === "unit") {
         nock(`${process.env.RPC_BASEURL}`)
           .post(``)
-          .reply(200, { result: mockData.mockTxOut })
+          .reply(200, { result: mockTxOut })
       }
 
       req.params.txid = `5747e6462e2c452a5d583fd6a5f82866cd8e4a86826c86d9a1842b7d023e0c0c`
@@ -904,7 +914,7 @@ describe("#BlockchainRouter", () => {
       if (process.env.TEST === "unit") {
         nock(`${process.env.RPC_BASEURL}`)
           .post(``)
-          .reply(200, { result: mockData.mockTxOutProof })
+          .reply(200, { result: mockTxOutProof })
       }
 
       req.params.txid = `d65881582ff2bff36747d7a0d0e273f10281abc8bd5c15df5d72f8f3fa779cde`
@@ -964,7 +974,7 @@ describe("#BlockchainRouter", () => {
       if (process.env.TEST === "unit") {
         nock(`${process.env.RPC_BASEURL}`)
           .post(``)
-          .reply(200, { result: mockData.mockTxOutProof })
+          .reply(200, { result: mockTxOutProof })
       }
 
       req.body.txids = [
@@ -984,7 +994,7 @@ describe("#BlockchainRouter", () => {
         nock(`${process.env.RPC_BASEURL}`)
           .post(``)
           .times(2)
-          .reply(200, { result: mockData.mockTxOutProof })
+          .reply(200, { result: mockTxOutProof })
       }
 
       req.body.txids = [
@@ -1019,7 +1029,7 @@ describe("#BlockchainRouter", () => {
       // Manipulate the URL to cause a 500 network error.
       process.env.RPC_BASEURL = "http://fakeurl/api/"
 
-      req.params.proof = mockData.mockTxOutProof
+      req.params.proof = mockTxOutProof
 
       const result: any = await verifyTxOutProof(req, res, next)
       //console.log(`result: ${util.inspect(result)}`)
@@ -1046,7 +1056,7 @@ describe("#BlockchainRouter", () => {
           .reply(200, { result: [expected] })
       }
 
-      req.params.proof = mockData.mockTxOutProof
+      req.params.proof = mockTxOutProof
 
       const result: any = await verifyTxOutProof(req, res, next)
       //console.log(`result: ${JSON.stringify(result, null, 2)}`)
@@ -1076,7 +1086,7 @@ describe("#BlockchainRouter", () => {
     })
 
     it("should error on non-array single txid", async () => {
-      req.body.proofs = mockData.mockTxOutProof
+      req.body.proofs = mockTxOutProof
 
       const result: any = await verifyTxOutProofBulk(req, res, next)
 
@@ -1112,7 +1122,7 @@ describe("#BlockchainRouter", () => {
           .reply(200, { result: [expected] })
       }
 
-      req.body.proofs = [mockData.mockTxOutProof]
+      req.body.proofs = [mockTxOutProof]
 
       const result: any = await verifyTxOutProofBulk(req, res, next)
       //console.log(`result: ${JSON.stringify(result, null, 2)}`)
@@ -1134,7 +1144,7 @@ describe("#BlockchainRouter", () => {
           .reply(200, { result: [expected] })
       }
 
-      req.body.proofs = [mockData.mockTxOutProof, mockData.mockTxOutProof]
+      req.body.proofs = [mockTxOutProof, mockTxOutProof]
 
       const result: any = await verifyTxOutProofBulk(req, res, next)
       //console.log(`result: ${JSON.stringify(result, null, 2)}`)
