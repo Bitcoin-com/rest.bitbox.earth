@@ -9,7 +9,7 @@ import { debug } from "./logging"
 import { decodeError, validateArraySize } from "./route-utils"
 
 // consts
-const router: any = express.Router()
+const router: express.Router = express.Router()
 const bitbox: BITBOX = new BITBOX()
 
 util.inspect.defaultOptions = { depth: 3 }

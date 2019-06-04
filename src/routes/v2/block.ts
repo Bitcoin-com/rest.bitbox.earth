@@ -1,18 +1,18 @@
 // imports
 import axios, { AxiosPromise, AxiosResponse } from "axios"
 import * as express from "express"
+import * as util from "util"
 import { wlogger } from "../../util/winston-logging"
 import { BlockInterface } from "./interfaces/RESTInterfaces"
 import { debug } from "./logging"
 import { decodeError, setEnvVars, validateArraySize } from "./route-utils"
 
 // consts
+const router: express.Router = express.Router()
 
 // Used for processing error messages before sending them to the user.
-const util: any = require("util")
 util.inspect.defaultOptions = { depth: 3 }
 
-const router: express.Router = express.Router()
 //const BitboxHTTP = bitbox.getInstance()
 
 router.get("/", root)

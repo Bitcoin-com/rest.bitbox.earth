@@ -2,6 +2,7 @@
 import axios, { AxiosResponse } from "axios"
 import { BITBOX } from "bitbox-sdk"
 import * as express from "express"
+import * as util from "util"
 import { wlogger } from "../../util/winston-logging"
 import { ValidateAddressInterface } from "./interfaces/RESTInterfaces"
 import { debug } from "./logging"
@@ -13,11 +14,10 @@ import {
 } from "./route-utils"
 
 // consts
-const router: any = express.Router()
-const bitbox = new BITBOX()
+const router: express.Router = express.Router()
+const bitbox: BITBOX = new BITBOX()
 
 // Used to convert error messages to strings, to safely pass to users.
-const util: any = require("util")
 util.inspect.defaultOptions = { depth: 1 }
 
 router.get("/", root)

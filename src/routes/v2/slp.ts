@@ -21,7 +21,7 @@ import {
 } from "./route-utils"
 
 // consts
-const router: any = express.Router()
+const router: express.Router = express.Router()
 const SLPSDK: any = require("slp-sdk")
 const SLP: any = new SLPSDK()
 const slp: any = SLP.slpjs
