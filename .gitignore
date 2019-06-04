@@ -9,5 +9,6 @@ dist/routes/**
 nohup.out
 slp-tx-db/
 logs/
+dist/
 package-lock.json
 yarn-error.log
