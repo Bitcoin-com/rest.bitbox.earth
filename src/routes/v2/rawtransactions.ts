@@ -6,7 +6,7 @@ import {
   DecodedScriptInterface,
   RawTransactionInterface
 } from "./interfaces/RESTInterfaces"
-import routeUtils = require("./route-utils")
+import { decodeError, setEnvVars, validateArraySize } from "./route-utils"
 import wlogger = require("../../util/winston-logging")
 
 // consts
@@ -49,7 +49,7 @@ async function decodeRawTransactionSingle(
       return res.json({ error: "hex can not be empty" })
     }
 
-    const { BitboxHTTP, requestConfig } = routeUtils.setEnvVars()
+    const { BitboxHTTP, requestConfig } = setEnvVars()
 
     requestConfig.data.id = "decoderawtransaction"
     requestConfig.data.method = "decoderawtransaction"
@@ -60,7 +60,7 @@ async function decodeRawTransactionSingle(
     return res.json(rawTransaction)
   } catch (err) {
     // Attempt to decode the error message.
-    const { msg, status } = routeUtils.decodeError(err)
+    const { msg, status } = decodeError(err)
     if (msg) {
       res.status(status)
       return res.json({ error: msg })
@@ -92,7 +92,7 @@ async function decodeRawTransactionBulk(
     }
 
     // Enforce array size rate limits
-    if (!routeUtils.validateArraySize(req, hexes)) {
+    if (!validateArraySize(req, hexes)) {
       res.status(429) // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
       return res.json({
         error: `Array too large.`
@@ -113,7 +113,7 @@ async function decodeRawTransactionBulk(
     // Loop through each height and creates an array of requests to call in parallel
     const promises: Promise<RawTransactionInterface>[] = hexes.map(
       async (hex: string): Promise<RawTransactionInterface> => {
-        const { BitboxHTTP, requestConfig } = routeUtils.setEnvVars()
+        const { BitboxHTTP, requestConfig } = setEnvVars()
         requestConfig.data.id = "decoderawtransaction"
         requestConfig.data.method = "decoderawtransaction"
         requestConfig.data.params = [hex]
@@ -146,7 +146,7 @@ async function decodeRawTransactionBulk(
         username,
         password,
         requestConfig
-      } = routeUtils.setEnvVars()
+      } = setEnvVars()
 
       requestConfig.data.id = "decoderawtransaction"
       requestConfig.data.method = "decoderawtransaction"
@@ -170,7 +170,7 @@ async function decodeRawTransactionBulk(
 */
   } catch (err) {
     // Attempt to decode the error message.
-    const { msg, status } = routeUtils.decodeError(err)
+    const { msg, status } = decodeError(err)
     if (msg) {
       res.status(status)
       return res.json({ error: msg })
@@ -204,7 +204,7 @@ async function decodeScriptSingle(
       return res.json({ error: "hex can not be empty" })
     }
 
-    const { BitboxHTTP, requestConfig } = routeUtils.setEnvVars()
+    const { BitboxHTTP, requestConfig } = setEnvVars()
 
     requestConfig.data.id = "decodescript"
     requestConfig.data.method = "decodescript"
@@ -216,7 +216,7 @@ async function decodeScriptSingle(
     return res.json(decodedScriptInterface)
   } catch (err) {
     // Attempt to decode the error message.
-    const { msg, status } = routeUtils.decodeError(err)
+    const { msg, status } = decodeError(err)
     if (msg) {
       res.status(status)
       return res.json({ error: msg })
@@ -248,7 +248,7 @@ async function decodeScriptBulk(
     }
 
     // Enforce array size rate limits
-    if (!routeUtils.validateArraySize(req, hexes)) {
+    if (!validateArraySize(req, hexes)) {
       res.status(429) // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
       return res.json({
         error: `Array too large.`
@@ -269,7 +269,7 @@ async function decodeScriptBulk(
     // Loop through each hex and create an array of promises
     const promises: Promise<DecodedScriptInterface>[] = hexes.map(
       async (hex: string): Promise<DecodedScriptInterface> => {
-        const { BitboxHTTP, requestConfig } = routeUtils.setEnvVars()
+        const { BitboxHTTP, requestConfig } = setEnvVars()
         requestConfig.data.id = "decodescript"
         requestConfig.data.method = "decodescript"
         requestConfig.data.params = [hex]
@@ -290,7 +290,7 @@ async function decodeScriptBulk(
     return res.json(result)
   } catch (err) {
     // Attempt to decode the error message.
-    const { msg, status } = routeUtils.decodeError(err)
+    const { msg, status } = decodeError(err)
     if (msg) {
       res.status(status)
       return res.json({ error: msg })
@@ -311,7 +311,7 @@ async function getRawTransactionsFromNode(
   verbose: number
 ): Promise<RawTransactionInterface> {
   try {
-    const { BitboxHTTP, requestConfig } = routeUtils.setEnvVars()
+    const { BitboxHTTP, requestConfig } = setEnvVars()
 
     requestConfig.data.id = "getrawtransaction"
     requestConfig.data.method = "getrawtransaction"
@@ -344,7 +344,7 @@ async function getRawTransactionBulk(
     }
 
     // Enforce array size rate limits
-    if (!routeUtils.validateArraySize(req, txids)) {
+    if (!validateArraySize(req, txids)) {
       res.status(429) // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
       return res.json({
         error: `Array too large.`
@@ -382,7 +382,7 @@ async function getRawTransactionBulk(
     return res.json(axiosResult)
   } catch (err) {
     // Attempt to decode the error message.
-    const { msg, status } = routeUtils.decodeError(err)
+    const { msg, status } = decodeError(err)
     if (msg) {
       res.status(status)
       return res.json({ error: msg })
@@ -422,7 +422,7 @@ async function getRawTransactionSingle(
     return res.json(data)
   } catch (err) {
     // Attempt to decode the error message.
-    const { msg, status } = routeUtils.decodeError(err)
+    const { msg, status } = decodeError(err)
     if (msg) {
       res.status(status)
       return res.json({ error: msg })
@@ -453,10 +453,10 @@ async function sendRawTransactionBulk(
       return res.json({ error: "hex must be an array" })
     }
 
-    const { BitboxHTTP, requestConfig } = routeUtils.setEnvVars()
+    const { BitboxHTTP, requestConfig } = setEnvVars()
 
     // Enforce array size rate limits
-    if (!routeUtils.validateArraySize(req, hexes)) {
+    if (!validateArraySize(req, hexes)) {
       res.status(429) // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
       return res.json({
         error: `Array too large.`
@@ -518,7 +518,7 @@ async function sendRawTransactionBulk(
     return res.json(result)
   } catch (err) {
     // Attempt to decode the error message.
-    const { msg, status } = routeUtils.decodeError(err)
+    const { msg, status } = decodeError(err)
     if (msg) {
       res.status(status)
       return res.json({ error: msg })
@@ -554,7 +554,7 @@ async function sendRawTransactionSingle(
       })
     }
 
-    const { BitboxHTTP, requestConfig } = routeUtils.setEnvVars()
+    const { BitboxHTTP, requestConfig } = setEnvVars()
 
     // RPC call
     requestConfig.data.id = "sendrawtransaction"
@@ -569,7 +569,7 @@ async function sendRawTransactionSingle(
     return res.json(result)
   } catch (err) {
     // Attempt to decode the error message.
-    const { msg, status } = routeUtils.decodeError(err)
+    const { msg, status } = decodeError(err)
     if (msg) {
       res.status(status)
       return res.json({ error: msg })

@@ -2,11 +2,11 @@
 import axios, { AxiosPromise, AxiosResponse } from "axios"
 import * as express from "express"
 import { BlockInterface } from "./interfaces/RESTInterfaces"
+import { decodeError, setEnvVars, validateArraySize } from "./route-utils"
 
 // consts
 const logger: any = require("./logging.js")
 const wlogger: any = require("../../util/winston-logging")
-const routeUtils: any = require("./route-utils")
 
 // Used for processing error messages before sending them to the user.
 const util: any = require("util")
@@ -55,7 +55,7 @@ async function detailsByHashSingle(
     //console.log(`error object: ${util.inspect(error)}`)
 
     // Attempt to decode the error message.
-    const { msg, status } = routeUtils.decodeError(error)
+    const { msg, status } = decodeError(error)
     if (msg) {
       res.status(status)
       return res.json({ error: msg })
@@ -92,7 +92,7 @@ async function detailsByHashBulk(
     }
 
     // Enforce array size rate limits
-    if (!routeUtils.validateArraySize(req, hashes)) {
+    if (!validateArraySize(req, hashes)) {
       res.status(429) // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
       return res.json({
         error: `Array too large.`
@@ -133,7 +133,7 @@ async function detailsByHashBulk(
     return res.json(result)
   } catch (error) {
     // Attempt to decode the error message.
-    const { msg, status } = routeUtils.decodeError(error)
+    const { msg, status } = decodeError(error)
     if (msg) {
       res.status(status)
       return res.json({ error: msg })
@@ -169,7 +169,7 @@ async function detailsByHeightSingle(
       return res.json({ error: "height must not be empty" })
     }
 
-    const { BitboxHTTP, requestConfig } = routeUtils.setEnvVars()
+    const { BitboxHTTP, requestConfig } = setEnvVars()
 
     requestConfig.data.id = "getblockhash"
     requestConfig.data.method = "getblockhash"
@@ -185,7 +185,7 @@ async function detailsByHeightSingle(
     return detailsByHashSingle(req, res, next)
   } catch (err) {
     // Attempt to decode the error message.
-    const { msg, status } = routeUtils.decodeError(err)
+    const { msg, status } = decodeError(err)
     if (msg) {
       res.status(status)
       return res.json({ error: msg })
@@ -217,7 +217,7 @@ async function detailsByHeightBulk(
     }
 
     // Enforce array size rate limits
-    if (!routeUtils.validateArraySize(req, heights)) {
+    if (!validateArraySize(req, heights)) {
       res.status(429) // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
       return res.json({
         error: `Array too large.`
@@ -240,7 +240,7 @@ async function detailsByHeightBulk(
     // Loop through each height and creates an array of requests to call in parallel
     const promises: Promise<BlockInterface>[] = heights.map(
       async (height: string): Promise<BlockInterface> => {
-        const { BitboxHTTP, requestConfig } = routeUtils.setEnvVars()
+        const { BitboxHTTP, requestConfig } = setEnvVars()
         requestConfig.data.id = "getblockhash"
         requestConfig.data.method = "getblockhash"
         requestConfig.data.params = [parseInt(height)]
@@ -264,7 +264,7 @@ async function detailsByHeightBulk(
     return res.json(result)
   } catch (error) {
     // Attempt to decode the error message.
-    const { msg, status } = routeUtils.decodeError(error)
+    const { msg, status } = decodeError(error)
     if (msg) {
       res.status(status)
       return res.json({ error: msg })

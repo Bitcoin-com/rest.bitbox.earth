@@ -9,8 +9,8 @@ import {
   TransactionsInterface,
   UTXOsInterface
 } from "./interfaces/RESTInterfaces"
+import { decodeError, validateArraySize, validateNetwork } from "./route-utils"
 import logger = require("./logging.js")
-import routeUtils = require("./route-utils")
 import wlogger = require("../../util/winston-logging")
 
 // consts
@@ -139,7 +139,7 @@ async function detailsSingle(
     }
 
     // Prevent a common user error. Ensure they are using the correct network address.
-    const networkIsValid: boolean = routeUtils.validateNetwork(address)
+    const networkIsValid: boolean = validateNetwork(address)
     if (!networkIsValid) {
       res.status(400)
       return res.json({
@@ -158,7 +158,7 @@ async function detailsSingle(
     return res.json(retData)
   } catch (err) {
     // Attempt to decode the error message.
-    const { msg, status } = routeUtils.decodeError(err)
+    const { msg, status } = decodeError(err)
     if (msg) {
       res.status(status)
       return res.json({ error: msg })
@@ -192,7 +192,7 @@ async function detailsBulk(
     }
 
     // Enforce array size rate limits
-    if (!routeUtils.validateArraySize(req, addresses)) {
+    if (!validateArraySize(req, addresses)) {
       res.status(429) // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
       return res.json({
         error: `Array too large.`
@@ -217,7 +217,7 @@ async function detailsBulk(
       }
 
       // Prevent a common user error. Ensure they are using the correct network address.
-      const networkIsValid: boolean = routeUtils.validateNetwork(thisAddress)
+      const networkIsValid: boolean = validateNetwork(thisAddress)
       if (!networkIsValid) {
         res.status(400)
         return res.json({
@@ -242,7 +242,7 @@ async function detailsBulk(
     return res.json(result)
   } catch (err) {
     // Attempt to decode the error message.
-    const { msg, status } = routeUtils.decodeError(err)
+    const { msg, status } = decodeError(err)
     if (msg) {
       res.status(status)
       return res.json({ error: msg })
@@ -342,7 +342,7 @@ async function utxoSingle(
     }
 
     // Prevent a common user error. Ensure they are using the correct network address.
-    const networkIsValid: boolean = routeUtils.validateNetwork(address)
+    const networkIsValid: boolean = validateNetwork(address)
     if (!networkIsValid) {
       res.status(400)
       return res.json({
@@ -358,7 +358,7 @@ async function utxoSingle(
     return res.json(retData)
   } catch (err) {
     // Attempt to decode the error message.
-    const { msg, status } = routeUtils.decodeError(err)
+    const { msg, status } = decodeError(err)
     if (msg) {
       res.status(status)
       return res.json({ error: msg })
@@ -389,7 +389,7 @@ async function utxoBulk(
     }
 
     // Enforce array size rate limits
-    if (!routeUtils.validateArraySize(req, addresses)) {
+    if (!validateArraySize(req, addresses)) {
       res.status(429) // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
       return res.json({
         error: `Array too large.`
@@ -411,7 +411,7 @@ async function utxoBulk(
       }
 
       // Prevent a common user error. Ensure they are using the correct network address.
-      const networkIsValid: boolean = routeUtils.validateNetwork(thisAddress)
+      const networkIsValid: boolean = validateNetwork(thisAddress)
       if (!networkIsValid) {
         res.status(400)
         return res.json({
@@ -441,7 +441,7 @@ async function utxoBulk(
     return res.json(result)
   } catch (err) {
     // Attempt to decode the error message.
-    const { msg, status } = routeUtils.decodeError(err)
+    const { msg, status } = decodeError(err)
     if (msg) {
       res.status(status)
       return res.json({ error: msg })
@@ -491,7 +491,7 @@ async function unconfirmedSingle(
     }
 
     // Prevent a common user error. Ensure they are using the correct network address.
-    const networkIsValid: boolean = routeUtils.validateNetwork(address)
+    const networkIsValid: boolean = validateNetwork(address)
     if (!networkIsValid) {
       res.status(400)
       return res.json({
@@ -519,7 +519,7 @@ async function unconfirmedSingle(
     return res.json(retData)
   } catch (err) {
     // Attempt to decode the error message.
-    const { msg, status } = routeUtils.decodeError(err)
+    const { msg, status } = decodeError(err)
     if (msg) {
       res.status(status)
       return res.json({ error: msg })
@@ -553,7 +553,7 @@ async function unconfirmedBulk(
     wlogger.debug(`Executing address/utxo with these addresses: `, addresses)
 
     // Enforce array size rate limits
-    if (!routeUtils.validateArraySize(req, addresses)) {
+    if (!validateArraySize(req, addresses)) {
       res.status(429) // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
       return res.json({
         error: `Array too large.`
@@ -575,7 +575,7 @@ async function unconfirmedBulk(
       }
 
       // Prevent a common user error. Ensure they are using the correct network address.
-      const networkIsValid: boolean = routeUtils.validateNetwork(thisAddress)
+      const networkIsValid: boolean = validateNetwork(thisAddress)
       if (!networkIsValid) {
         res.status(400)
         return res.json({
@@ -616,7 +616,7 @@ async function unconfirmedBulk(
     return res.json(finalResult)
   } catch (err) {
     // Attempt to decode the error message.
-    const { msg, status } = routeUtils.decodeError(err)
+    const { msg, status } = decodeError(err)
     if (msg) {
       res.status(status)
       return res.json({ error: msg })
@@ -678,7 +678,7 @@ async function transactionsBulk(
     wlogger.debug(`Executing address/utxo with these addresses: `, addresses)
 
     // Enforce array size rate limits
-    if (!routeUtils.validateArraySize(req, addresses)) {
+    if (!validateArraySize(req, addresses)) {
       res.status(429) // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
       return res.json({
         error: `Array too large.`
@@ -700,7 +700,7 @@ async function transactionsBulk(
       }
 
       // Prevent a common user error. Ensure they are using the correct network address.
-      const networkIsValid: boolean = routeUtils.validateNetwork(thisAddress)
+      const networkIsValid: boolean = validateNetwork(thisAddress)
       if (!networkIsValid) {
         res.status(400)
         return res.json({
@@ -724,7 +724,7 @@ async function transactionsBulk(
     return res.json(result)
   } catch (err) {
     // Attempt to decode the error message.
-    const { msg, status } = routeUtils.decodeError(err)
+    const { msg, status } = decodeError(err)
     if (msg) {
       res.status(status)
       return res.json({ error: msg })
@@ -784,7 +784,7 @@ async function transactionsSingle(
     }
 
     // Prevent a common user error. Ensure they are using the correct network address.
-    const networkIsValid: boolean = routeUtils.validateNetwork(address)
+    const networkIsValid: boolean = validateNetwork(address)
     if (!networkIsValid) {
       res.status(400)
       return res.json({
@@ -803,7 +803,7 @@ async function transactionsSingle(
     return res.json(retData)
   } catch (err) {
     // Attempt to decode the error message.
-    const { msg, status } = routeUtils.decodeError(err)
+    const { msg, status } = decodeError(err)
     if (msg) {
       res.status(status)
       return res.json({ error: msg })
@@ -852,7 +852,7 @@ async function fromXPubSingle(
     })
   } catch (err) {
     // Attempt to decode the error message.
-    const { msg, status } = routeUtils.decodeError(err)
+    const { msg, status } = decodeError(err)
     if (msg) {
       res.status(status)
       return res.json({ error: msg })

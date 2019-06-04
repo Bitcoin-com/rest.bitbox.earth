@@ -1,33 +1,34 @@
 /*
   A private library of utility functions used by several different routes.
 */
+// imports
+import axios, { AxiosInstance } from "axios"
+import { BITBOX } from "bitbox-sdk"
+import * as express from "express"
+import * as util from "util"
+import {
+  iDecodeError,
+  iSetEnvVars,
+  RequestConfig
+} from "./interfaces/RESTInterfaces"
 
-"use strict"
+// consts
+const bitbox: BITBOX = new BITBOX()
+const logger: any = require("./logging.js")
+const wlogger: any = require("../../util/winston-logging")
 
-const axios = require("axios")
-const logger = require("./logging.js")
-const wlogger = require("../../util/winston-logging")
-
-const util = require("util")
 util.inspect.defaultOptions = { depth: 1 }
-
-const BITBOX = require("bitbox-sdk").BITBOX
-const bitbox = new BITBOX()
-
-module.exports = {
-  validateNetwork, // Prevents a common user error
-  setEnvVars, // Allows RPC variables to be set dynamically based on changing env vars.
-  decodeError, // Extract and interpret error messages.
-  validateArraySize // Ensure the passed array meets rate limiting requirements.
-}
 
 // This function expects the Request Express.js object and an array as input.
 // The array is then validated against freemium and pro-tier rate limiting
 // requirements. A boolean is returned to indicate if the array size if valid
 // or not.
-function validateArraySize(req, array) {
-  const FREEMIUM_INPUT_SIZE = 20
-  const PRO_INPUT_SIZE = 100
+export const validateArraySize = (
+  req: express.Request,
+  array: any[]
+): boolean => {
+  const FREEMIUM_INPUT_SIZE: number = 20
+  const PRO_INPUT_SIZE: number = 100
 
   if (req.locals && req.locals.proLimit) {
     if (array.length <= PRO_INPUT_SIZE) return true
@@ -43,9 +44,9 @@ function validateArraySize(req, array) {
 // This prevent a common user-error issue that is easy to make: passing a
 // testnet address into rest.bitcoin.com or passing a mainnet address into
 // trest.bitcoin.com.
-function validateNetwork(addr) {
+export const validateNetwork = (address: string): boolean => {
   try {
-    const network = process.env.NETWORK
+    const network: string = process.env.NETWORK
 
     // Return false if NETWORK is not defined.
     if (!network || network === "") {
@@ -55,14 +56,14 @@ function validateNetwork(addr) {
 
     // Convert the user-provided address to a cashaddress, for easy detection
     // of the intended network.
-    const cashAddr = bitbox.Address.toCashAddress(addr)
+    const cashAddr: string = bitbox.Address.toCashAddress(address)
 
     // Return true if the network and address both match testnet
-    const addrIsTest = bitbox.Address.isTestnetAddress(cashAddr)
+    const addrIsTest: boolean = bitbox.Address.isTestnetAddress(cashAddr)
     if (network === "testnet" && addrIsTest) return true
 
     // Return true if the network and address both match mainnet
-    const addrIsMain = bitbox.Address.isMainnetAddress(cashAddr)
+    const addrIsMain: boolean = bitbox.Address.isMainnetAddress(cashAddr)
     if (network === "mainnet" && addrIsMain) return true
 
     return false
@@ -73,14 +74,14 @@ function validateNetwork(addr) {
 }
 
 // Dynamically set these based on env vars. Allows unit testing.
-function setEnvVars() {
-  const BitboxHTTP = axios.create({
+export const setEnvVars = (): iSetEnvVars => {
+  const BitboxHTTP: AxiosInstance = axios.create({
     baseURL: process.env.RPC_BASEURL
   })
-  const username = process.env.RPC_USERNAME
-  const password = process.env.RPC_PASSWORD
+  const username: string = process.env.RPC_USERNAME
+  const password: string = process.env.RPC_PASSWORD
 
-  const requestConfig = {
+  const requestConfig: RequestConfig = {
     method: "post",
     auth: {
       username: username,
@@ -99,7 +100,7 @@ function setEnvVars() {
 // error messages.
 // Returns an object. If successful, obj.msg is a string.
 // If there is a failure, obj.msg is false.
-function decodeError(err) {
+export const decodeError = (err: any): iDecodeError => {
   try {
     // Attempt to extract the full node error message.
     if (

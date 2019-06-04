@@ -3,8 +3,13 @@ import axios, { AxiosResponse } from "axios"
 import { BITBOX } from "bitbox-sdk"
 import * as express from "express"
 import { ValidateAddressInterface } from "./interfaces/RESTInterfaces"
+import {
+  decodeError,
+  setEnvVars,
+  validateArraySize,
+  validateNetwork
+} from "./route-utils"
 import logger = require("./logging.js")
-import routeUtils = require("./route-utils")
 import wlogger = require("../../util/winston-logging")
 
 // consts
@@ -39,7 +44,7 @@ async function validateAddressSingle(
       return res.json({ error: "address can not be empty" })
     }
 
-    const { BitboxHTTP, requestConfig } = routeUtils.setEnvVars()
+    const { BitboxHTTP, requestConfig } = setEnvVars()
 
     requestConfig.data.id = "validateaddress"
     requestConfig.data.method = "validateaddress"
@@ -51,7 +56,7 @@ async function validateAddressSingle(
     return res.json(validateAddress)
   } catch (err) {
     // Attempt to decode the error message.
-    const { msg, status } = routeUtils.decodeError(err)
+    const { msg, status } = decodeError(err)
     if (msg) {
       res.status(status)
       return res.json({ error: msg })
@@ -81,7 +86,7 @@ async function validateAddressBulk(
     }
 
     // Enforce array size rate limits
-    if (!routeUtils.validateArraySize(req, addresses)) {
+    if (!validateArraySize(req, addresses)) {
       res.status(429) // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
       return res.json({
         error: `Array too large.`
@@ -103,7 +108,7 @@ async function validateAddressBulk(
       }
 
       // Prevent a common user error. Ensure they are using the correct network address.
-      const networkIsValid: boolean = routeUtils.validateNetwork(address)
+      const networkIsValid: boolean = validateNetwork(address)
       if (!networkIsValid) {
         res.status(400)
         return res.json({
@@ -117,7 +122,7 @@ async function validateAddressBulk(
     // Loop through each address and creates an array of requests to call in parallel
     const promises: Promise<ValidateAddressInterface>[] = addresses.map(
       async (address: string): Promise<ValidateAddressInterface> => {
-        const { BitboxHTTP, requestConfig } = routeUtils.setEnvVars()
+        const { BitboxHTTP, requestConfig } = setEnvVars()
 
         requestConfig.data.id = "validateaddress"
         requestConfig.data.method = "validateaddress"
@@ -139,7 +144,7 @@ async function validateAddressBulk(
     return res.json(result)
   } catch (err) {
     // Attempt to decode the error message.
-    const { msg, status } = routeUtils.decodeError(err)
+    const { msg, status } = decodeError(err)
     if (msg) {
       res.status(status)
       return res.json({ error: msg })

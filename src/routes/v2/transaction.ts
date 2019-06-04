@@ -4,8 +4,8 @@ import { BITBOX } from "bitbox-sdk"
 import * as express from "express"
 import * as util from "util"
 import { TransactionInterface } from "./interfaces/RESTInterfaces"
+import { decodeError, validateArraySize } from "./route-utils"
 import logger = require("./logging.js")
-import routeUtils = require("./route-utils")
 import wlogger = require("../../util/winston-logging")
 
 // consts
@@ -106,7 +106,7 @@ async function detailsBulk(
     }
 
     // Enforce array size rate limits
-    if (!routeUtils.validateArraySize(req, txids)) {
+    if (!validateArraySize(req, txids)) {
       res.status(429) // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
       return res.json({
         error: `Array too large.`
@@ -128,7 +128,7 @@ async function detailsBulk(
     return res.json(result)
   } catch (err) {
     // Attempt to decode the error message.
-    const { msg, status } = routeUtils.decodeError(err)
+    const { msg, status } = decodeError(err)
     if (msg) {
       res.status(status)
       return res.json({ error: msg })
@@ -177,7 +177,7 @@ async function detailsSingle(
     return res.json(retData)
   } catch (err) {
     // Attempt to decode the error message.
-    const { msg, status } = routeUtils.decodeError(err)
+    const { msg, status } = decodeError(err)
     if (msg) {
       res.status(status)
       return res.json({ error: msg })

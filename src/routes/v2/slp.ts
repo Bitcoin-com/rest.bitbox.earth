@@ -11,8 +11,13 @@ import {
   TokenInterface,
   ValidateTxidResult
 } from "./interfaces/RESTInterfaces"
+import {
+  decodeError,
+  setEnvVars,
+  validateArraySize,
+  validateNetwork
+} from "./route-utils"
 import logger = require("./logging.js")
-import routeUtils = require("./route-utils")
 import wlogger = require("../../util/winston-logging")
 
 // consts
@@ -73,7 +78,7 @@ if (process.env.NON_JS_FRAMEWORK && process.env.NON_JS_FRAMEWORK === "true") {
 // TODO: Add unit tests for this function.
 async function getRawTransactionsFromNode(txids: string[]): Promise<any> {
   try {
-    const { BitboxHTTP, requestConfig } = routeUtils.setEnvVars()
+    const { BitboxHTTP, requestConfig } = setEnvVars()
 
     const txPromises: Promise<any>[] = txids.map(
       async (txid: string): Promise<any> => {
@@ -238,7 +243,7 @@ async function list(
   } catch (err) {
     wlogger.error(`Error in slp.ts/list().`, err)
 
-    const { msg, status } = routeUtils.decodeError(err)
+    const { msg, status } = decodeError(err)
     if (msg) {
       res.status(status)
       return res.json({ error: msg })
@@ -268,7 +273,7 @@ async function listSingleToken(
   } catch (err) {
     wlogger.error(`Error in slp.ts/listSingleToken().`, err)
 
-    const { msg, status } = routeUtils.decodeError(err)
+    const { msg, status } = decodeError(err)
     if (msg) {
       res.status(status)
       return res.json({ error: msg })
@@ -295,7 +300,7 @@ async function listBulkToken(
     }
 
     // Enforce array size rate limits
-    if (!routeUtils.validateArraySize(req, tokenIds)) {
+    if (!validateArraySize(req, tokenIds)) {
       res.status(429) // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
       return res.json({
         error: `Array too large.`
@@ -361,7 +366,7 @@ async function listBulkToken(
   } catch (err) {
     wlogger.error(`Error in slp.ts/listBulkToken().`, err)
 
-    const { msg, status } = routeUtils.decodeError(err)
+    const { msg, status } = decodeError(err)
     if (msg) {
       res.status(status)
       return res.json({ error: msg })
@@ -459,7 +464,7 @@ async function balancesForAddress(
 
     // Prevent a common user error. Ensure they are using the correct network address.
     let cashAddr: string = utils.toCashAddress(address)
-    const networkIsValid: boolean = routeUtils.validateNetwork(cashAddr)
+    const networkIsValid: boolean = validateNetwork(cashAddr)
     if (!networkIsValid) {
       res.status(400)
       return res.json({
@@ -569,7 +574,7 @@ async function balancesForAddress(
     wlogger.error(`Error in slp.ts/balancesForAddress().`, err)
 
     // Decode the error message.
-    const { msg, status } = routeUtils.decodeError(err)
+    const { msg, status } = decodeError(err)
     if (msg) {
       res.status(status)
       return res.json({ error: msg })
@@ -638,7 +643,7 @@ async function balancesForTokenSingle(
     wlogger.error(`Error in slp.ts/balancesForTokenSingle().`, err)
 
     // Decode the error message.
-    const { msg, status } = routeUtils.decodeError(err)
+    const { msg, status } = decodeError(err)
     if (msg) {
       res.status(status)
       return res.json({ error: msg })
@@ -683,7 +688,7 @@ async function balancesForAddressByTokenID(
 
     // Prevent a common user error. Ensure they are using the correct network address.
     let cashAddr: string = utils.toCashAddress(address)
-    const networkIsValid: boolean = routeUtils.validateNetwork(cashAddr)
+    const networkIsValid: boolean = validateNetwork(cashAddr)
     if (!networkIsValid) {
       res.status(400)
       return res.json({
@@ -780,7 +785,7 @@ async function balancesForAddressByTokenID(
     wlogger.error(`Error in slp.ts/balancesForAddressByTokenID().`, err)
 
     // Decode the error message.
-    const { msg, status } = routeUtils.decodeError(err)
+    const { msg, status } = decodeError(err)
     if (msg) {
       res.status(status)
       return res.json({ error: msg })
@@ -823,7 +828,7 @@ async function convertAddressSingle(
   } catch (err) {
     wlogger.error(`Error in slp.ts/convertAddressSingle().`, err)
 
-    const { msg, status } = routeUtils.decodeError(err)
+    const { msg, status } = decodeError(err)
     if (msg) {
       res.status(status)
       return res.json({ error: msg })
@@ -851,7 +856,7 @@ async function convertAddressBulk(
   }
 
   // Enforce array size rate limits
-  if (!routeUtils.validateArraySize(req, addresses)) {
+  if (!validateArraySize(req, addresses)) {
     res.status(429) // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
     return res.json({
       error: `Array too large.`
@@ -902,7 +907,7 @@ async function validateBulk(
     }
 
     // Enforce array size rate limits
-    if (!routeUtils.validateArraySize(req, txids)) {
+    if (!validateArraySize(req, txids)) {
       res.status(429) // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
       return res.json({
         error: `Array too large.`
@@ -948,7 +953,7 @@ async function validateBulk(
     wlogger.error(`Error in slp.ts/validateBulk().`, err)
 
     // Attempt to decode the error message.
-    const { msg, status } = routeUtils.decodeError(err)
+    const { msg, status } = decodeError(err)
     if (msg) {
       res.status(status)
       return res.json({ error: msg })
@@ -995,7 +1000,7 @@ async function validateSingle(
     wlogger.error(`Error in slp.ts/validateSingle().`, err)
 
     // Attempt to decode the error message.
-    const { msg, status } = routeUtils.decodeError(err)
+    const { msg, status } = decodeError(err)
     if (msg) {
       res.status(status)
       return res.json({ error: msg })
@@ -1075,7 +1080,7 @@ async function burnTotalSingle(
   } catch (err) {
     wlogger.error(`Error in slp.ts/burnTotalSingle().`, err)
 
-    const { msg, status } = routeUtils.decodeError(err)
+    const { msg, status } = decodeError(err)
     if (msg) {
       res.status(status)
       return res.json({ error: msg })
@@ -1378,7 +1383,7 @@ async function txDetails(
     wlogger.error(`Error in slp.ts/txDetails().`, err)
 
     // Attempt to decode the error message.
-    const { msg, status } = routeUtils.decodeError(err)
+    const { msg, status } = decodeError(err)
     if (msg) {
       res.status(status)
       return res.json({ error: msg })
@@ -1466,7 +1471,7 @@ async function tokenStats(
   } catch (err) {
     wlogger.error(`Error in slp.ts/tokenStats().`, err)
 
-    const { msg, status } = routeUtils.decodeError(err)
+    const { msg, status } = decodeError(err)
     if (msg) {
       res.status(status)
       return res.json({ error: msg })
@@ -1539,7 +1544,7 @@ async function txsTokenIdAddressSingle(
     wlogger.error(`Error in slp.ts/txsTokenIdAddressSingle().`, err)
 
     // Decode the error message.
-    const { msg, status } = routeUtils.decodeError(err)
+    const { msg, status } = decodeError(err)
     if (msg) {
       res.status(status)
       return res.json({ error: msg })

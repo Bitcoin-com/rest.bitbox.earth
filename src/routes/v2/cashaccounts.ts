@@ -3,7 +3,7 @@ import * as cashAccountClass from "cashaccounts"
 import * as express from "express"
 import * as util from "util"
 import { CashAccountInterface } from "./interfaces/RESTInterfaces"
-import routeUtils = require("./route-utils")
+import { decodeError } from "./route-utils"
 import wlogger = require("../../util/winston-logging")
 
 // consts
@@ -97,7 +97,7 @@ async function lookup(
     return res.json(lookup)
   } catch (err) {
     // Attempt to decode the error message.
-    const { msg, status } = routeUtils.decodeError(err)
+    const { msg, status } = decodeError(err)
     if (msg) {
       res.status(status)
       return res.json({ error: msg })
@@ -185,7 +185,7 @@ async function lookup(
 //     return res.json(txid)
 //   } catch (err) {
 //     // Attempt to decode the error message.
-//     const { msg, status } = routeUtils.decodeError(err)
+//     const { msg, status } = decodeError(err)
 //     if (msg) {
 //       res.status(status)
 //       return res.json({ error: msg })

@@ -390,3 +390,28 @@ export interface ServerAddress {
   family: string
   port: number
 }
+
+export interface RequestConfig {
+  method: string
+  auth: {
+    username: string
+    password: string
+  }
+  data: {
+    jsonrpc: string
+    id?: any
+    method?: any
+    params?: any
+  }
+}
+
+export interface iSetEnvVars {
+  BitboxHTTP: any
+  username: string
+  password: string
+  requestConfig: any
+}
+export interface iDecodeError {
+  msg: string | boolean
+  status: number
+}

@@ -16,8 +16,8 @@ import {
   TXOutInterface,
   VerboseBlockHeaderInterface
 } from "./interfaces/RESTInterfaces"
+import { decodeError, setEnvVars, validateArraySize } from "./route-utils"
 import logger = require("./logging.js")
-import routeUtils = require("./route-utils")
 import wlogger = require("../../util/winston-logging")
 
 // consts
@@ -63,7 +63,7 @@ async function getBestBlockHash(
   next: express.NextFunction
 ): Promise<express.Response> {
   try {
-    const { BitboxHTTP, requestConfig } = routeUtils.setEnvVars()
+    const { BitboxHTTP, requestConfig } = setEnvVars()
 
     requestConfig.data.id = "getbestblockhash"
     requestConfig.data.method = "getbestblockhash"
@@ -73,7 +73,7 @@ async function getBestBlockHash(
     return res.json(response.data.result)
   } catch (err) {
     // Attempt to decode the error message.
-    const { msg, status } = routeUtils.decodeError(err)
+    const { msg, status } = decodeError(err)
     if (msg) {
       res.status(status)
       return res.json({ error: msg })
@@ -94,7 +94,7 @@ async function getBlockchainInfo(
   next: express.NextFunction
 ): Promise<express.Response> {
   try {
-    const { BitboxHTTP, requestConfig } = routeUtils.setEnvVars()
+    const { BitboxHTTP, requestConfig } = setEnvVars()
 
     requestConfig.data.id = "getblockchaininfo"
     requestConfig.data.method = "getblockchaininfo"
@@ -106,7 +106,7 @@ async function getBlockchainInfo(
     return res.json(blockchainInfo)
   } catch (err) {
     // Attempt to decode the error message.
-    const { msg, status } = routeUtils.decodeError(err)
+    const { msg, status } = decodeError(err)
     if (msg) {
       res.status(status)
       return res.json({ error: msg })
@@ -127,7 +127,7 @@ async function getBlockCount(
   next: express.NextFunction
 ): Promise<express.Response> {
   try {
-    const { BitboxHTTP, requestConfig } = routeUtils.setEnvVars()
+    const { BitboxHTTP, requestConfig } = setEnvVars()
 
     requestConfig.data.id = "getblockcount"
     requestConfig.data.method = "getblockcount"
@@ -138,7 +138,7 @@ async function getBlockCount(
     return res.json(blockCount)
   } catch (err) {
     // Attempt to decode the error message.
-    const { msg, status } = routeUtils.decodeError(err)
+    const { msg, status } = decodeError(err)
     if (msg) {
       res.status(status)
       return res.json({ error: msg })
@@ -169,7 +169,7 @@ async function getBlockHeaderSingle(
       return res.json({ error: "hash can not be empty" })
     }
 
-    const { BitboxHTTP, requestConfig } = routeUtils.setEnvVars()
+    const { BitboxHTTP, requestConfig } = setEnvVars()
 
     requestConfig.data.id = "getblockheader"
     requestConfig.data.method = "getblockheader"
@@ -182,7 +182,7 @@ async function getBlockHeaderSingle(
     return res.json(blockHeader)
   } catch (err) {
     // Attempt to decode the error message.
-    const { msg, status } = routeUtils.decodeError(err)
+    const { msg, status } = decodeError(err)
     if (msg) {
       res.status(status)
       return res.json({ error: msg })
@@ -214,7 +214,7 @@ async function getBlockHeaderBulk(
     }
 
     // Enforce array size rate limits
-    if (!routeUtils.validateArraySize(req, hashes)) {
+    if (!validateArraySize(req, hashes)) {
       res.status(429) // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
       return res.json({
         error: `Array too large.`
@@ -241,7 +241,7 @@ async function getBlockHeaderBulk(
       VerboseBlockHeaderInterface | string
     >[] = hashes.map(
       async (hash: string): Promise<VerboseBlockHeaderInterface | string> => {
-        const { BitboxHTTP, requestConfig } = routeUtils.setEnvVars()
+        const { BitboxHTTP, requestConfig } = setEnvVars()
         requestConfig.data.id = "getblockheader"
         requestConfig.data.method = "getblockheader"
         requestConfig.data.params = [hash, verbose]
@@ -263,7 +263,7 @@ async function getBlockHeaderBulk(
     return res.json(result)
   } catch (err) {
     // Attempt to decode the error message.
-    const { msg, status } = routeUtils.decodeError(err)
+    const { msg, status } = decodeError(err)
     if (msg) {
       res.status(status)
       return res.json({ error: msg })
@@ -284,7 +284,7 @@ async function getChainTips(
   next: express.NextFunction
 ): Promise<express.Response> {
   try {
-    const { BitboxHTTP, requestConfig } = routeUtils.setEnvVars()
+    const { BitboxHTTP, requestConfig } = setEnvVars()
 
     requestConfig.data.id = "getchaintips"
     requestConfig.data.method = "getchaintips"
@@ -295,7 +295,7 @@ async function getChainTips(
     return res.json(chainTips)
   } catch (err) {
     // Attempt to decode the error message.
-    const { msg, status } = routeUtils.decodeError(err)
+    const { msg, status } = decodeError(err)
     if (msg) {
       res.status(status)
       return res.json({ error: msg })
@@ -317,7 +317,7 @@ async function getDifficulty(
   next: express.NextFunction
 ): Promise<express.Response> {
   try {
-    const { BitboxHTTP, requestConfig } = routeUtils.setEnvVars()
+    const { BitboxHTTP, requestConfig } = setEnvVars()
 
     requestConfig.data.id = "getdifficulty"
     requestConfig.data.method = "getdifficulty"
@@ -329,7 +329,7 @@ async function getDifficulty(
     return res.json(difficulty)
   } catch (err) {
     // Attempt to decode the error message.
-    const { msg, status } = routeUtils.decodeError(err)
+    const { msg, status } = decodeError(err)
     if (msg) {
       res.status(status)
       return res.json({ error: msg })
@@ -358,7 +358,7 @@ async function getMempoolEntrySingle(
       return res.json({ error: "txid can not be empty" })
     }
 
-    const { BitboxHTTP, requestConfig } = routeUtils.setEnvVars()
+    const { BitboxHTTP, requestConfig } = setEnvVars()
 
     requestConfig.data.id = "getmempoolentry"
     requestConfig.data.method = "getmempoolentry"
@@ -370,7 +370,7 @@ async function getMempoolEntrySingle(
     return res.json(mempoolEntry)
   } catch (err) {
     // Attempt to decode the error message.
-    const { msg, status } = routeUtils.decodeError(err)
+    const { msg, status } = decodeError(err)
     if (msg) {
       res.status(status)
       return res.json({ error: msg })
@@ -401,7 +401,7 @@ async function getMempoolEntryBulk(
     }
 
     // Enforce array size rate limits
-    if (!routeUtils.validateArraySize(req, txids)) {
+    if (!validateArraySize(req, txids)) {
       res.status(429) // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
       return res.json({
         error: `Array too large.`
@@ -426,7 +426,7 @@ async function getMempoolEntryBulk(
     // Loop through each txid and creates an array of requests to call in parallel
     const promises: Promise<MempoolEntryInterface>[] = txids.map(
       async (txid: string): Promise<MempoolEntryInterface> => {
-        const { BitboxHTTP, requestConfig } = routeUtils.setEnvVars()
+        const { BitboxHTTP, requestConfig } = setEnvVars()
         requestConfig.data.id = "getmempoolentry"
         requestConfig.data.method = "getmempoolentry"
         requestConfig.data.params = [txid]
@@ -447,7 +447,7 @@ async function getMempoolEntryBulk(
     return res.json(result)
   } catch (err) {
     // Attempt to decode the error message.
-    const { msg, status } = routeUtils.decodeError(err)
+    const { msg, status } = decodeError(err)
     if (msg) {
       res.status(status)
       return res.json({ error: msg })
@@ -468,7 +468,7 @@ async function getMempoolInfo(
   next: express.NextFunction
 ): Promise<express.Response> {
   try {
-    const { BitboxHTTP, requestConfig } = routeUtils.setEnvVars()
+    const { BitboxHTTP, requestConfig } = setEnvVars()
 
     requestConfig.data.id = "getmempoolinfo"
     requestConfig.data.method = "getmempoolinfo"
@@ -479,7 +479,7 @@ async function getMempoolInfo(
     return res.json(mempoolinfo)
   } catch (err) {
     // Attempt to decode the error message.
-    const { msg, status } = routeUtils.decodeError(err)
+    const { msg, status } = decodeError(err)
     if (msg) {
       res.status(status)
       return res.json({ error: msg })
@@ -500,7 +500,7 @@ async function getRawMempool(
   next: express.NextFunction
 ): Promise<express.Response> {
   try {
-    const { BitboxHTTP, requestConfig } = routeUtils.setEnvVars()
+    const { BitboxHTTP, requestConfig } = setEnvVars()
 
     let verbose: boolean = false
     if (req.query.verbose && req.query.verbose === "true") verbose = true
@@ -516,7 +516,7 @@ async function getRawMempool(
     return res.json(rawMempoolInterface)
   } catch (err) {
     // Attempt to decode the error message.
-    const { msg, status } = routeUtils.decodeError(err)
+    const { msg, status } = decodeError(err)
     if (msg) {
       res.status(status)
       return res.json({ error: msg })
@@ -556,7 +556,7 @@ async function getTxOut(
     if (req.query.include_mempool && req.query.include_mempool === "true")
       include_mempool = true
 
-    const { BitboxHTTP, requestConfig } = routeUtils.setEnvVars()
+    const { BitboxHTTP, requestConfig } = setEnvVars()
 
     requestConfig.data.id = "gettxout"
     requestConfig.data.method = "gettxout"
@@ -568,7 +568,7 @@ async function getTxOut(
     return res.json(txOutInterface)
   } catch (err) {
     // Attempt to decode the error message.
-    const { msg, status } = routeUtils.decodeError(err)
+    const { msg, status } = decodeError(err)
     if (msg) {
       res.status(status)
       return res.json({ error: msg })
@@ -597,7 +597,7 @@ async function getTxOutProofSingle(
       return res.json({ error: "txid can not be empty" })
     }
 
-    const { BitboxHTTP, requestConfig } = routeUtils.setEnvVars()
+    const { BitboxHTTP, requestConfig } = setEnvVars()
 
     requestConfig.data.id = "gettxoutproof"
     requestConfig.data.method = "gettxoutproof"
@@ -609,7 +609,7 @@ async function getTxOutProofSingle(
     return res.json(txOutProofSingle)
   } catch (err) {
     // Attempt to decode the error message.
-    const { msg, status } = routeUtils.decodeError(err)
+    const { msg, status } = decodeError(err)
     if (msg) {
       res.status(status)
       return res.json({ error: msg })
@@ -642,7 +642,7 @@ async function getTxOutProofBulk(
     }
 
     // Enforce array size rate limits
-    if (!routeUtils.validateArraySize(req, txids)) {
+    if (!validateArraySize(req, txids)) {
       res.status(429) // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
       return res.json({
         error: `Array too large.`
@@ -666,7 +666,7 @@ async function getTxOutProofBulk(
     // Loop through each txid and creates an array of requests to call in parallel
     const promises: Promise<string>[] = txids.map(
       async (txid: string): Promise<string> => {
-        const { BitboxHTTP, requestConfig } = routeUtils.setEnvVars()
+        const { BitboxHTTP, requestConfig } = setEnvVars()
         requestConfig.data.id = "gettxoutproof"
         requestConfig.data.method = "gettxoutproof"
         requestConfig.data.params = [[txid]]
@@ -688,7 +688,7 @@ async function getTxOutProofBulk(
     return res.json(result)
   } catch (err) {
     // Attempt to decode the error message.
-    const { msg, status } = routeUtils.decodeError(err)
+    const { msg, status } = decodeError(err)
     if (msg) {
       res.status(status)
       return res.json({ error: msg })
@@ -788,7 +788,7 @@ async function verifyTxOutProofSingle(
       return res.json({ error: "proof can not be empty" })
     }
 
-    const { BitboxHTTP, requestConfig } = routeUtils.setEnvVars()
+    const { BitboxHTTP, requestConfig } = setEnvVars()
 
     requestConfig.data.id = "verifytxoutproof"
     requestConfig.data.method = "verifytxoutproof"
@@ -800,7 +800,7 @@ async function verifyTxOutProofSingle(
     return res.json(verifyTxOutProofSingle)
   } catch (err) {
     // Attempt to decode the error message.
-    const { msg, status } = routeUtils.decodeError(err)
+    const { msg, status } = decodeError(err)
     if (msg) {
       res.status(status)
       return res.json({ error: msg })
@@ -832,7 +832,7 @@ async function verifyTxOutProofBulk(
     }
 
     // Enforce array size rate limits
-    if (!routeUtils.validateArraySize(req, proofs)) {
+    if (!validateArraySize(req, proofs)) {
       res.status(429) // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
       return res.json({
         error: `Array too large.`
@@ -857,7 +857,7 @@ async function verifyTxOutProofBulk(
     // Loop through each proof and creates an array of requests to call in parallel
     const promises: Promise<string>[] = proofs.map(
       async (proof: string): Promise<string> => {
-        const { BitboxHTTP, requestConfig } = routeUtils.setEnvVars()
+        const { BitboxHTTP, requestConfig } = setEnvVars()
         requestConfig.data.id = "verifytxoutproof"
         requestConfig.data.method = "verifytxoutproof"
         requestConfig.data.params = [proof]
@@ -876,7 +876,7 @@ async function verifyTxOutProofBulk(
     return res.json(result)
   } catch (err) {
     // Attempt to decode the error message.
-    const { msg, status } = routeUtils.decodeError(err)
+    const { msg, status } = decodeError(err)
     if (msg) {
       res.status(status)
       return res.json({ error: msg })

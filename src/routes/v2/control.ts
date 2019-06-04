@@ -2,7 +2,7 @@
 import { AxiosResponse } from "axios"
 import * as express from "express"
 import { InfoInterface } from "./interfaces/RESTInterfaces"
-import routeUtils = require("./route-utils")
+import { setEnvVars } from "./route-utils"
 import wlogger = require("../../util/winston-logging")
 
 // consts
@@ -28,7 +28,7 @@ async function getInfo(
   res: express.Response,
   next: express.NextFunction
 ): Promise<express.Response> {
-  const { BitboxHTTP, requestConfig } = routeUtils.setEnvVars()
+  const { BitboxHTTP, requestConfig } = setEnvVars()
 
   requestConfig.data.id = "getinfo"
   requestConfig.data.method = "getinfo"
