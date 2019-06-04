@@ -1,9 +1,9 @@
 // imports
 import { AxiosResponse } from "axios"
 import * as express from "express"
+import { wlogger } from "../../util/winston-logging"
 import { InfoInterface } from "./interfaces/RESTInterfaces"
 import { setEnvVars } from "./route-utils"
-import wlogger = require("../../util/winston-logging")
 
 // consts
 const router: express.Router = express.Router()

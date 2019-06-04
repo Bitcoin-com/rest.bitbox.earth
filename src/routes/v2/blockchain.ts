@@ -7,6 +7,7 @@
 import axios, { AxiosResponse } from "axios"
 import * as express from "express"
 import * as util from "util"
+import { wlogger } from "../../util/winston-logging"
 import {
   BlockchainInfoInterface,
   ChainTipsInterface,
@@ -18,7 +19,6 @@ import {
 } from "./interfaces/RESTInterfaces"
 import { decodeError, setEnvVars, validateArraySize } from "./route-utils"
 import logger = require("./logging.js")
-import wlogger = require("../../util/winston-logging")
 
 // consts
 const router: express.Router = express.Router()

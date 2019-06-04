@@ -1,9 +1,9 @@
 // imports
 import { AxiosResponse } from "axios"
 import * as express from "express"
+import { wlogger } from "../../util/winston-logging"
 import { MiningInfoInterface } from "./interfaces/RESTInterfaces"
 import routeUtils = require("./route-utils")
-import wlogger = require("../../util/winston-logging")
 
 // consts
 const router: any = express.Router()

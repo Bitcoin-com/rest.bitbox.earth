@@ -1,12 +1,12 @@
 // imports
 import axios, { AxiosPromise, AxiosResponse } from "axios"
 import * as express from "express"
+import { wlogger } from "../../util/winston-logging"
 import { BlockInterface } from "./interfaces/RESTInterfaces"
 import { decodeError, setEnvVars, validateArraySize } from "./route-utils"
 
 // consts
 const logger: any = require("./logging.js")
-const wlogger: any = require("../../util/winston-logging")
 
 // Used for processing error messages before sending them to the user.
 const util: any = require("util")

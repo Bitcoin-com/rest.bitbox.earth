@@ -2,9 +2,9 @@
 import * as cashAccountClass from "cashaccounts"
 import * as express from "express"
 import * as util from "util"
+import { wlogger } from "../../util/winston-logging"
 import { CashAccountInterface } from "./interfaces/RESTInterfaces"
 import { decodeError } from "./route-utils"
-import wlogger = require("../../util/winston-logging")
 
 // consts
 const router: express.Router = express.Router()

@@ -2,6 +2,7 @@
 import axios, { AxiosResponse } from "axios"
 import { BITBOX } from "bitbox-sdk"
 import * as express from "express"
+import { wlogger } from "../../util/winston-logging"
 import { ValidateAddressInterface } from "./interfaces/RESTInterfaces"
 import {
   decodeError,
@@ -10,7 +11,6 @@ import {
   validateNetwork
 } from "./route-utils"
 import logger = require("./logging.js")
-import wlogger = require("../../util/winston-logging")
 
 // consts
 const router: any = express.Router()

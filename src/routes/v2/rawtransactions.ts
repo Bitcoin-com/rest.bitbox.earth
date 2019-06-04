@@ -2,12 +2,12 @@
 import axios, { AxiosResponse } from "axios"
 import * as express from "express"
 import * as util from "util"
+import { wlogger } from "../../util/winston-logging"
 import {
   DecodedScriptInterface,
   RawTransactionInterface
 } from "./interfaces/RESTInterfaces"
 import { decodeError, setEnvVars, validateArraySize } from "./route-utils"
-import wlogger = require("../../util/winston-logging")
 
 // consts
 const router: any = express.Router()

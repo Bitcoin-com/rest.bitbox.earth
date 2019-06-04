@@ -3,6 +3,7 @@ import axios, { AxiosResponse } from "axios"
 import { BITBOX } from "bitbox-sdk"
 import * as express from "express"
 import * as util from "util"
+import { wlogger } from "../../util/winston-logging"
 import {
   AddressDetailsInterface,
   AddressUTXOsInterface,
@@ -11,7 +12,6 @@ import {
 } from "./interfaces/RESTInterfaces"
 import { decodeError, validateArraySize, validateNetwork } from "./route-utils"
 import logger = require("./logging.js")
-import wlogger = require("../../util/winston-logging")
 
 // consts
 const router: express.Router = express.Router()

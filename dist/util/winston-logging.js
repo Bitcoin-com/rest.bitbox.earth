@@ -1,9 +1,10 @@
+"use strict";
 /*
   Instantiates and configures the Winston logging library. This utitlity library
   can be called by other parts of the application to conveniently tap into the
   logging library.
 */
-"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 var winston = require("winston");
 require("winston-daily-rotate-file");
 var NETWORK = process.env.NETWORK;
@@ -16,11 +17,8 @@ var transport = new winston.transports.DailyRotateFile({
     maxFiles: "5d",
     format: winston.format.combine(winston.format.timestamp(), winston.format.json())
 });
-transport.on("rotate", function (oldFilename, newFilename) {
-    wlogger.info("Rotating log files");
-});
 // This controls what goes into the log FILES
-var wlogger = winston.createLogger({
+exports.wlogger = winston.createLogger({
     level: "verbose",
     format: winston.format.json(),
     transports: [
@@ -42,4 +40,6 @@ wlogger.add(
   })
 )
 */
-module.exports = wlogger;
+transport.on("rotate", function (oldFilename, newFilename) {
+    exports.wlogger.info("Rotating log files");
+});
