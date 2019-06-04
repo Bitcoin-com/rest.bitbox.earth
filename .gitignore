@@ -16,5 +16,5 @@ yarn-error.log
 
 src/**/*.js
 src/**/*.js.map
-test/**/*.js
-test/**/*.js.map
+test/v2/unit/**/*.js
+test/v2/unit/**/*.js.map
