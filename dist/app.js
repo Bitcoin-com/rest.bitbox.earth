@@ -5,24 +5,27 @@ var http = require("http");
 var path = require("path");
 // Middleware
 var route_ratelimit_1 = require("./middleware/route-ratelimit");
+var utilities_1 = require("./utilities");
 var logger = require("morgan");
 var wlogger = require("./util/winston-logging");
 var cookieParser = require("cookie-parser");
 var bodyParser = require("body-parser");
 // const basicAuth = require("express-basic-auth")
 var helmet = require("helmet");
-var debug = require("debug")("rest-cloud:server");
 var cors = require("cors");
 var AuthMW = require("./middleware/auth");
 var BitcoinCashZMQDecoder = require("bitcoincash-zmq-decoder");
 var swStats = require("swagger-stats");
-var apiSpec;
-if (process.env.NETWORK === "mainnet") {
-    apiSpec = require("./public/bitcoin-com-mainnet-rest-v2.json");
-}
-else {
-    apiSpec = require("./public/bitcoin-com-testnet-rest-v2.json");
-}
+var apiSpec = process.env.NETWORK === "mainnet"
+    ? require("./public/bitcoin-com-mainnet-rest-v2.json")
+    : require("./public/bitcoin-com-testnet-rest-v2.json");
+var port = utilities_1.normalizePort(process.env.PORT || "3000");
+var listening = function () {
+    utilities_1.onListening(server);
+};
+var serverError = function () {
+    utilities_1.onError(server, port);
+};
 // websockets
 var zmq = require("zeromq");
 var sock = zmq.socket("sub");
@@ -120,9 +123,7 @@ app.use(function (err, req, res, next) {
 /**
  * Get port from environment and store in Express.
  */
-var port = normalizePort(process.env.PORT || "3000");
 app.set("port", port);
-console.log("rest.bitcoin.com started on port " + port);
 /**
  * Create HTTP server.
  */
@@ -168,53 +169,8 @@ else {
  * Listen on provided port, on all network interfaces.
  */
 server.listen(port);
-server.on("error", onError);
-server.on("listening", onListening);
+server.on("error", serverError);
+server.on("listening", listening);
 // Set the time before a timeout error is generated. This impacts testing and
 // the handling of timeout errors. Is 10 seconds too agressive?
 server.setTimeout(30 * 1000);
-/**
- * Normalize a port into a number, string, or false.
- */
-function normalizePort(val) {
-    var port = parseInt(val, 10);
-    if (isNaN(port)) {
-        // named pipe
-        return val;
-    }
-    if (port >= 0) {
-        // port number
-        return port;
-    }
-    return false;
-}
-/**
- * Event listener for HTTP server "error" event.
- */
-function onError(error) {
-    if (error.syscall !== "listen")
-        throw error;
-    var bind = typeof port === "string" ? "Pipe " + port : "Port " + port;
-    // handle specific listen errors with friendly messages
-    switch (error.code) {
-        case "EACCES":
-            console.error(bind + " requires elevated privileges");
-            process.exit(1);
-            break;
-        case "EADDRINUSE":
-            console.error(bind + " is already in use");
-            process.exit(1);
-            break;
-        default:
-            throw error;
-    }
-}
-/**
- * Event listener for HTTP server "listening" event.
- */
-function onListening() {
-    var addr = server.address();
-    var bind = typeof addr === "string" ? "pipe " + addr : "port " + addr.port;
-    debug("Listening on " + bind);
-}
-module.exports = app;

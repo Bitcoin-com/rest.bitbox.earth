@@ -4,7 +4,7 @@ import { Socket } from "net"
 import * as path from "path"
 // Middleware
 import { routeRateLimit } from "./middleware/route-ratelimit"
-import { ServerAddress } from "./routes/v2/interfaces/RESTInterfaces"
+import { normalizePort, onError, onListening } from "./utilities"
 
 const logger = require("morgan")
 const wlogger = require("./util/winston-logging")
@@ -12,16 +12,24 @@ const cookieParser = require("cookie-parser")
 const bodyParser = require("body-parser")
 // const basicAuth = require("express-basic-auth")
 const helmet = require("helmet")
-const debug = require("debug")("rest-cloud:server")
 const cors = require("cors")
 const AuthMW = require("./middleware/auth")
 const BitcoinCashZMQDecoder = require("bitcoincash-zmq-decoder")
 const swStats = require("swagger-stats")
-let apiSpec
-if (process.env.NETWORK === "mainnet") {
-  apiSpec = require("./public/bitcoin-com-mainnet-rest-v2.json")
-} else {
-  apiSpec = require("./public/bitcoin-com-testnet-rest-v2.json")
+const apiSpec =
+  process.env.NETWORK === "mainnet"
+    ? require("./public/bitcoin-com-mainnet-rest-v2.json")
+    : require("./public/bitcoin-com-testnet-rest-v2.json")
+const port: string | number | boolean = normalizePort(
+  process.env.PORT || "3000"
+)
+
+const listening = (): void => {
+  onListening(server)
+}
+
+const serverError = (): void => {
+  onError(server, port)
 }
 
 // websockets
@@ -156,9 +164,7 @@ app.use(
 /**
  * Get port from environment and store in Express.
  */
-const port = normalizePort(process.env.PORT || "3000")
 app.set("port", port)
-console.log(`rest.bitcoin.com started on port ${port}`)
 
 /**
  * Create HTTP server.
@@ -190,7 +196,7 @@ if (process.env.ZEROMQ_URL && process.env.ZEROMQ_PORT) {
 
   sock.on("message", (topic: any, message: string) => {
     try {
-      const decoded = topic.toString("ascii")
+      const decoded: string = topic.toString("ascii")
       if (decoded === "rawtx") {
         const txd = bitcoincashZmqDecoder.decodeTransaction(message)
         io.emit("transactions", JSON.stringify(txd, null, 2))
@@ -215,65 +221,9 @@ if (process.env.ZEROMQ_URL && process.env.ZEROMQ_PORT) {
  */
 
 server.listen(port)
-server.on("error", onError)
-server.on("listening", onListening)
+server.on("error", serverError)
+server.on("listening", listening)
 
 // Set the time before a timeout error is generated. This impacts testing and
 // the handling of timeout errors. Is 10 seconds too agressive?
 server.setTimeout(30 * 1000)
-
-/**
- * Normalize a port into a number, string, or false.
- */
-
-function normalizePort(val: string) {
-  const port = parseInt(val, 10)
-
-  if (isNaN(port)) {
-    // named pipe
-    return val
-  }
-
-  if (port >= 0) {
-    // port number
-    return port
-  }
-
-  return false
-}
-
-/**
- * Event listener for HTTP server "error" event.
- */
-function onError(error: any) {
-  if (error.syscall !== "listen") throw error
-
-  const bind = typeof port === "string" ? `Pipe ${port}` : `Port ${port}`
-
-  // handle specific listen errors with friendly messages
-  switch (error.code) {
-    case "EACCES":
-      console.error(`${bind} requires elevated privileges`)
-      process.exit(1)
-      break
-    case "EADDRINUSE":
-      console.error(`${bind} is already in use`)
-      process.exit(1)
-      break
-    default:
-      throw error
-  }
-}
-
-/**
- * Event listener for HTTP server "listening" event.
- */
-
-function onListening(): void {
-  const addr: string | ServerAddress = server.address()
-  const bind: string =
-    typeof addr === "string" ? `pipe ${addr}` : `port ${addr.port}`
-  debug(`Listening on ${bind}`)
-}
-
-module.exports = app
