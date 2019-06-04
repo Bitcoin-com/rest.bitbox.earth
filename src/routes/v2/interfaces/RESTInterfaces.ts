@@ -384,3 +384,9 @@ export interface BurnTotalResult {
   outputTotal: number
   burnTotal: number
 }
+
+export interface ServerAddress {
+  address: string
+  family: string
+  port: number
+}

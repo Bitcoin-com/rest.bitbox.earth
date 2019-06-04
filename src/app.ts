@@ -1,25 +1,21 @@
 import * as express from "express"
+import * as http from "http"
+import { Socket } from "net"
+import * as path from "path"
 // Middleware
 import { routeRateLimit } from "./middleware/route-ratelimit"
+import { ServerAddress } from "./routes/v2/interfaces/RESTInterfaces"
 
-const path = require("path")
 const logger = require("morgan")
 const wlogger = require("./util/winston-logging")
 const cookieParser = require("cookie-parser")
 const bodyParser = require("body-parser")
-const basicAuth = require("express-basic-auth")
+// const basicAuth = require("express-basic-auth")
 const helmet = require("helmet")
 const debug = require("debug")("rest-cloud:server")
-const http = require("http")
 const cors = require("cors")
 const AuthMW = require("./middleware/auth")
-
-// const BitcoinCashZMQDecoder = require("bitcoincash-zmq-decoder")
-
-// const zmq = require("zeromq")
-
-// const sock: any = zmq.socket("sub")
-
+const BitcoinCashZMQDecoder = require("bitcoincash-zmq-decoder")
 const swStats = require("swagger-stats")
 let apiSpec
 if (process.env.NETWORK === "mainnet") {
@@ -27,6 +23,10 @@ if (process.env.NETWORK === "mainnet") {
 } else {
   apiSpec = require("./public/bitcoin-com-testnet-rest-v2.json")
 }
+
+// websockets
+const zmq = require("zeromq")
+const sock: any = zmq.socket("sub")
 
 // v2
 const indexV2 = require("./routes/v2/index")
@@ -48,8 +48,6 @@ interface IError {
   message: string
   status: number
 }
-
-require("dotenv").config()
 
 const app: express.Application = express()
 
@@ -83,13 +81,14 @@ app.use(express.static(path.join(__dirname, "public")))
 //   }
 // ));
 
-interface ICustomRequest extends express.Request {
-  io: any
-}
+// interface ICustomRequest extends express.Request {
+//   io: any
+// }
 
 // Make io accessible to our router
 // app.use(
 //   (req: ICustomRequest, res: express.Response, next: express.NextFunction) => {
+//     console.log(io)
 //     req.io = io
 
 //     next()
@@ -164,52 +163,52 @@ console.log(`rest.bitcoin.com started on port ${port}`)
 /**
  * Create HTTP server.
  */
-const server = http.createServer(app)
-// const io = require("socket.io").listen(server)
-// io.on("connection", (socket: Socket) => {
-//   console.log("Socket Connected")
+const server: http.Server = http.createServer(app)
+const io = require("socket.io").listen(server)
+io.on("connection", (socket: Socket) => {
+  console.log("Socket Connected")
 
-//   socket.on("disconnect", () => {
-//     console.log("Socket Disconnected")
-//   })
-// })
+  socket.on("disconnect", () => {
+    console.log("Socket Disconnected")
+  })
+})
 
 /**
  * Setup ZMQ connections if ZMQ URL and port provided
  */
 
-// if (process.env.ZEROMQ_URL && process.env.ZEROMQ_PORT) {
-//   console.log(
-//     `Connecting to BCH ZMQ at ${process.env.ZEROMQ_URL}:${
-//       process.env.ZEROMQ_PORT
-//     }`
-//   )
-//   const bitcoincashZmqDecoder = new BitcoinCashZMQDecoder(process.env.NETWORK)
+if (process.env.ZEROMQ_URL && process.env.ZEROMQ_PORT) {
+  console.log(
+    `Connecting to BCH ZMQ at ${process.env.ZEROMQ_URL}:${
+      process.env.ZEROMQ_PORT
+    }`
+  )
+  const bitcoincashZmqDecoder = new BitcoinCashZMQDecoder(process.env.NETWORK)
 
-//   sock.connect(`tcp://${process.env.ZEROMQ_URL}:${process.env.ZEROMQ_PORT}`)
-//   sock.subscribe("raw")
+  sock.connect(`tcp://${process.env.ZEROMQ_URL}:${process.env.ZEROMQ_PORT}`)
+  sock.subscribe("raw")
 
-//   sock.on("message", (topic: any, message: string) => {
-//     try {
-//       const decoded = topic.toString("ascii")
-//       if (decoded === "rawtx") {
-//         const txd = bitcoincashZmqDecoder.decodeTransaction(message)
-//         io.emit("transactions", JSON.stringify(txd, null, 2))
-//       } else if (decoded === "rawblock") {
-//         const blck = bitcoincashZmqDecoder.decodeBlock(message)
-//         io.emit("blocks", JSON.stringify(blck, null, 2))
-//       }
-//     } catch (error) {
-//       const errorMessage = "Error processing ZMQ message"
-//       console.log(errorMessage, error)
-//       wlogger.error(errorMessage, error)
-//     }
-//   })
-// } else {
-//   console.log(
-//     "ZEROMQ_URL and ZEROMQ_PORT env vars missing. Skipping ZMQ connection."
-//   )
-// }
+  sock.on("message", (topic: any, message: string) => {
+    try {
+      const decoded = topic.toString("ascii")
+      if (decoded === "rawtx") {
+        const txd = bitcoincashZmqDecoder.decodeTransaction(message)
+        io.emit("transactions", JSON.stringify(txd, null, 2))
+      } else if (decoded === "rawblock") {
+        const blck = bitcoincashZmqDecoder.decodeBlock(message)
+        io.emit("blocks", JSON.stringify(blck, null, 2))
+      }
+    } catch (error) {
+      const errorMessage = "Error processing ZMQ message"
+      console.log(errorMessage, error)
+      wlogger.error(errorMessage, error)
+    }
+  })
+} else {
+  console.log(
+    "ZEROMQ_URL and ZEROMQ_PORT env vars missing. Skipping ZMQ connection."
+  )
+}
 
 /**
  * Listen on provided port, on all network interfaces.
@@ -270,10 +269,11 @@ function onError(error: any) {
  * Event listener for HTTP server "listening" event.
  */
 
-function onListening() {
-  const addr = server.address()
-  const bind = typeof addr === "string" ? `pipe ${addr}` : `port ${addr.port}`
+function onListening(): void {
+  const addr: string | ServerAddress = server.address()
+  const bind: string =
+    typeof addr === "string" ? `pipe ${addr}` : `port ${addr.port}`
   debug(`Listening on ${bind}`)
 }
-//
-// module.exports = app;
+
+module.exports = app

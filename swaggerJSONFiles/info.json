@@ -2,7 +2,7 @@
   "openapi": "3.0.0",
   "info": {
     "description": "The Bitcoin Cash JSON PRC over HTTP",
-    "version": "3.10.2",
+    "version": "3.10.3",
     "title": "REST",
     "license": {
       "name": "MIT",
