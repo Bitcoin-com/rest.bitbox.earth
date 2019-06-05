@@ -197,6 +197,7 @@ describe("#AddressRouter", () => {
 
       // Mock the Insight URL for unit tests.
       if (process.env.TEST === "unit") {
+        console.log(process.env.BITCOINCOM_BASEURL)
         nock(`${process.env.BITCOINCOM_BASEURL}`)
           .get(`/addr/mgps7qxk2Z5ma4mXsviznnet8wx4VvMPFz?from=0&to=1000`)
           .reply(200, mockAddressDetails)

@@ -182,6 +182,7 @@ async function detailsBulk(
   next: express.NextFunction
 ): Promise<express.Response> {
   try {
+    console.log("REQUEST", req.body)
     let addresses: string[] = req.body.addresses
     const currentPage: number = req.body.page ? parseInt(req.body.page, 10) : 0
 
