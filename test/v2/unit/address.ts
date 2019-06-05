@@ -135,8 +135,8 @@ describe("#AddressRouter", () => {
     })
 
     it("should throw 400 error if addresses array is too large", async () => {
-      const testArray = []
-      for (var i = 0; i < 25; i++) testArray.push("")
+      const testArray: string[] = []
+      for (let i: number = 0; i < 25; i++) testArray.push("")
 
       req.body.addresses = testArray
 
@@ -203,7 +203,7 @@ describe("#AddressRouter", () => {
 
       // Call the details API.
       const result: any = await detailsBulk(req, res, next)
-      //console.log(`result: ${util.inspect(result)}`)
+      console.log(`result: ${util.inspect(result)}`)
 
       // Assert current page defaults to 0
       assert.equal(result[0].currentPage, 0)
