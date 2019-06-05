@@ -47,11 +47,9 @@ export const validateArraySize = (
 export const validateNetwork = (address: string): boolean => {
   try {
     const network: string | undefined = process.env.NETWORK
-    console.log("NETWORK", network)
 
     // Return false if NETWORK is not defined.
     if (!network || network === "") {
-      console.log("NETWORK2", network)
       // console.log(`Warning: NETWORK environment variable is not defined!`)
       return false
     }
@@ -59,16 +57,13 @@ export const validateNetwork = (address: string): boolean => {
     // Convert the user-provided address to a cashaddress, for easy detection
     // of the intended network.
     const cashAddr: string = bitbox.Address.toCashAddress(address)
-    console.log("cashAddr", cashAddr)
 
     // Return true if the network and address both match testnet
     const addrIsTest: boolean = bitbox.Address.isTestnetAddress(cashAddr)
-    console.log("addrIsTest", addrIsTest)
     if (network === "testnet" && addrIsTest) return true
 
     // Return true if the network and address both match mainnet
     const addrIsMain: boolean = bitbox.Address.isMainnetAddress(cashAddr)
-    console.log("addrIsMain", addrIsMain)
     if (network === "mainnet" && addrIsMain) return true
 
     return false

@@ -196,16 +196,14 @@ describe("#AddressRouter", () => {
 
       // Mock the Insight URL for unit tests.
       if (process.env.TEST === "unit") {
-        console.log(process.env.BITCOINCOM_BASEURL)
         nock(`${process.env.BITCOINCOM_BASEURL}`)
           .get(`/addr/mgps7qxk2Z5ma4mXsviznnet8wx4VvMPFz?from=0&to=1000`)
           .reply(200, mockAddressDetails)
       }
-      console.log("THIS IS CALLED IN UNIT TESTS")
 
       // Call the details API.
       const result: any = await detailsBulk(req, res, next)
-      console.log(`result: ${util.inspect(result)}`)
+      // console.log(`result: ${util.inspect(result)}`)
 
       // Assert current page defaults to 0
       assert.equal(result[0].currentPage, 0)

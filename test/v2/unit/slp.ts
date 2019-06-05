@@ -763,7 +763,7 @@ describe("#SLP", () => {
       ]
 
       const result: any = await validateBulk(req, res, next)
-      // console.log(`result: ${util.inspect(result)}`)
+      console.log(`result: ${util.inspect(result)}`)
 
       assert.isArray(result)
       assert.hasAllKeys(result[0], ["txid", "valid"])
