@@ -50,7 +50,7 @@ export const validateNetwork = (address: string): boolean => {
 
     // Return false if NETWORK is not defined.
     if (!network || network === "") {
-      console.log(`Warning: NETWORK environment variable is not defined!`)
+      // console.log(`Warning: NETWORK environment variable is not defined!`)
       return false
     }
 
