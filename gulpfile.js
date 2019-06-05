@@ -2,14 +2,14 @@
 const gulp = require("gulp")
 const fs = require("fs-extra")
 const merge = require("gulp-merge-json")
-const jsonModify = require("gulp-json-modify")
 
-const ASSET_FILES = [
-  "src/*.json",
-  "src/**/*.json",
-  "src/**/*.jade",
-  "src/**/*.css",
-  "src/**/*.png"
+const ASSET_FILES = ["src/*.json", "src/**/*.json", "src/**/*.jade"]
+const VIEW_FILES = ["src/**/*.jade"]
+
+const MARKUP_FILES = [
+  "src/public/**/*.css",
+  "src/public/**/*.png",
+  "src/public/**/*.js"
 ]
 
 gulp.task("build", () => {
@@ -19,6 +19,8 @@ gulp.task("build", () => {
   fs.removeSync("./swaggerJSONFilesBuilt")
 
   gulp.src(ASSET_FILES).pipe(gulp.dest("dist"))
+  gulp.src(MARKUP_FILES).pipe(gulp.dest("dist/public"))
+  gulp.src(VIEW_FILES).pipe(gulp.dest("dist/src"))
 
   // set example vars for testnet
   const testnetInfoJSON = fs.readFileSync(
