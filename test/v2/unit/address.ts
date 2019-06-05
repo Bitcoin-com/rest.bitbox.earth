@@ -193,6 +193,7 @@ describe("#AddressRouter", () => {
       req.body = {
         addresses: [`bchtest:qq89kjkeqz9mngp8kl3dpmu43y2wztdjqu500gn4c4`]
       }
+      console.log("mockAddressDetails", mockAddressDetails)
 
       // Mock the Insight URL for unit tests.
       if (process.env.TEST === "unit") {
