@@ -12,7 +12,7 @@
     "build": "node ./node_modules/gulp/bin/gulp.js build && ./node_modules/typescript/bin/tsc",
     "dev": "nodemon ./dist/app.js",
     "test": "npm run test-v2",
-    "test-v2": "export NETWORK=testnet && npm run build && nyc --reporter=text mocha --require babel-core/register --timeout 25000 test/v2/ --exit",
+    "test-v2": "export NETWORK=testnet && npm run build && nyc --reporter=text mocha --require babel-core/register --timeout 25000 ./dist/test/v2/unit --exit",
     "test-v2-no-build": "export NETWORK=testnet && nyc --reporter=text mocha --require babel-core/register --timeout 25000 test/v2/",
     "test-all": "TEST=integration nyc --reporter=text mocha --require babel-core/register --timeout 15000 test/v2/",
     "test:integration": "mocha test/v2/integration --exit",
@@ -77,6 +77,7 @@
     "request-promise": "^4.2.2",
     "semantic-release": "^15.11.0",
     "sinon": "^6.3.4",
+    "ts-node": "^8.1.0",
     "typescript": "^3.1.4"
   },
   "release": {
