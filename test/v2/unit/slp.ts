@@ -754,16 +754,16 @@ describe("#SLP", () => {
 
     it("should validate array with single element", async () => {
       // Mock the RPC call for unit tests.
-      if (process.env.TEST === "unit") {
-        // sandbox.stub(slpV2.testableComponents, "isValidSlpTxid").resolves(true)
-        let foo = {
-          txid:
-            "78d57a82a0dd9930cc17843d9d06677f267777dd6b25055bad0ae43f1b884091",
-          valid: true
-        }
-        console.log("FOO", foo)
-        sandbox.stub(slpV2.testableComponents, "isValidSlpTxid").resolves([foo])
-      }
+      // if (process.env.TEST === "unit") {
+      //   // sandbox.stub(slpV2.testableComponents, "isValidSlpTxid").resolves(true)
+      //   let foo = {
+      //     txid:
+      //       "78d57a82a0dd9930cc17843d9d06677f267777dd6b25055bad0ae43f1b884091",
+      //     valid: true
+      //   }
+      //   console.log("FOO", foo)
+      //   sandbox.stub(slpV2.testableComponents, "isValidSlpTxid").resolves([foo])
+      // }
 
       req.body.txids = [
         "78d57a82a0dd9930cc17843d9d06677f267777dd6b25055bad0ae43f1b884091"
