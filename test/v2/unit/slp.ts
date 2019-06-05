@@ -762,7 +762,7 @@ describe("#SLP", () => {
           valid: true
         }
         console.log("FOO", foo)
-        sandbox.stub(slpV2.testableComponents, "isValidSlpTxid").resolves()
+        sandbox.stub(slpV2.testableComponents, "isValidSlpTxid").resolves([foo])
       }
 
       req.body.txids = [
@@ -770,7 +770,8 @@ describe("#SLP", () => {
       ]
 
       const result: any = await validateBulk(req, res, next)
-      console.log(`result: ${util.inspect(result)}`)
+      console.log(result)
+      // console.log(`result: ${util.inspect(result)}`)
 
       assert.isArray(result)
       assert.hasAllKeys(result[0], ["txid", "valid"])
