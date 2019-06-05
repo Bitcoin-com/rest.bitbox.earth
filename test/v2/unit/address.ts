@@ -193,7 +193,6 @@ describe("#AddressRouter", () => {
       req.body = {
         addresses: [`bchtest:qq89kjkeqz9mngp8kl3dpmu43y2wztdjqu500gn4c4`]
       }
-      console.log("mockAddressDetails", mockAddressDetails)
 
       // Mock the Insight URL for unit tests.
       if (process.env.TEST === "unit") {
@@ -202,6 +201,7 @@ describe("#AddressRouter", () => {
           .get(`/addr/mgps7qxk2Z5ma4mXsviznnet8wx4VvMPFz?from=0&to=1000`)
           .reply(200, mockAddressDetails)
       }
+      console.log("THIS IS CALLED IN UNIT TESTS")
 
       // Call the details API.
       const result: any = await detailsBulk(req, res, next)
