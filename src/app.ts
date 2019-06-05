@@ -34,8 +34,8 @@ const BitcoinCashZMQDecoder: any = require("bitcoincash-zmq-decoder")
 const swStats: any = require("swagger-stats")
 const apiSpec: any =
   process.env.NETWORK === "mainnet"
-    ? require("./../public/bitcoin-com-mainnet-rest-v2.json")
-    : require("./../public/bitcoin-com-testnet-rest-v2.json")
+    ? require("./public/bitcoin-com-mainnet-rest-v2.json")
+    : require("./public/bitcoin-com-testnet-rest-v2.json")
 const port: string | number | boolean = normalizePort(
   process.env.PORT || "3000"
 )

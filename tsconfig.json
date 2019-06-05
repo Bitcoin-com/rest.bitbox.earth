@@ -1,13 +1,15 @@
 {
   "compilerOptions": {
     "outDir": "./dist/",
+    //"noImplicitAny": true,
+    "baseUrl": ".",
     "module": "commonjs",
     "target": "es5",
-    "downlevelIteration": true,
-    "moduleResolution": "node",
-    "lib": ["es2017"],
-    "sourceMap": true
+    "allowJs": true,
+    "lib": ["es2015", "es2015.symbol", "dom", "es2017"],
+    "typeRoots": ["node_modules/@types/"],
+    "downlevelIteration": true
   },
-  "include": ["./src/**/*", "./test/v2/unit/**/*.ts"],
-  "exclude": ["./node_modules/**/*"]
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "test/**/*"]
 }
