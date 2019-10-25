@@ -1,6 +1,6 @@
 "use strict"
 
-const wtfnode = require("wtfnode") // Debugging the event loop
+// const wtfnode = require("wtfnode") // Debugging the event loop
 // const util = require("util")
 
 import * as express from "express"
@@ -190,18 +190,18 @@ server.on("listening", onListening)
 server.setTimeout(30 * 1000)
 
 // Dump details about the event loop to debug a possible memory leak
-wtfnode.setLogger("info", function(data) {
-  wlogger.verbose(`wtfnode info: ${data}`)
-})
-wtfnode.setLogger("warn", function(data) {
-  wlogger.verbose(`wtfnode warn: ${data}`)
-})
-wtfnode.setLogger("error", function(data) {
-  wlogger.verbose(`wtfnode error: ${data}`)
-})
-setInterval(function() {
-  wtfnode.dump()
-}, 60000 * 5)
+// wtfnode.setLogger("info", function(data) {
+//   wlogger.verbose(`wtfnode info: ${data}`)
+// })
+// wtfnode.setLogger("warn", function(data) {
+//   wlogger.verbose(`wtfnode warn: ${data}`)
+// })
+// wtfnode.setLogger("error", function(data) {
+//   wlogger.verbose(`wtfnode error: ${data}`)
+// })
+// setInterval(function() {
+//   wtfnode.dump()
+// }, 60000 * 5)
 
 /**
  * Normalize a port into a number, string, or false.

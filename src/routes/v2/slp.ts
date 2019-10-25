@@ -42,6 +42,10 @@ if (!process.env.REST_URL) process.env.REST_URL = `https://rest.bitcoin.com/v2/`
 if (!process.env.TREST_URL)
   process.env.TREST_URL = `https://trest.bitcoin.com/v2/`
 
+// Determine the Access password for a private instance of SLPDB.
+// https://gist.github.com/christroutner/fc717ca704dec3dded8b52fae387eab2
+const SLPDB_PASS = process.env.SLPDB_PASS ? process.env.SLPDB_PASS : "BITBOX"
+
 router.get("/", root)
 router.get("/list", list)
 router.get("/list/:tokenId", listSingleToken)
@@ -232,8 +236,10 @@ async function list(
     const b64: string = Buffer.from(s).toString("base64")
     const url: string = `${process.env.SLPDB_URL}q/${b64}`
 
+    const options = generateCredentials()
+
     // Get data from SLPDB.
-    const tokenRes: AxiosResponse = await axios.get(url)
+    const tokenRes: AxiosResponse = await axios.get(url, options)
 
     const formattedTokens: TokenInterface[] = []
 
@@ -305,7 +311,9 @@ async function listSingleToken(
     const b64: string = Buffer.from(s).toString("base64")
     const url: string = `${process.env.SLPDB_URL}q/${b64}`
 
-    const tokenRes: AxiosResponse = await axios.get(url)
+    const options = generateCredentials()
+
+    const tokenRes: AxiosResponse = await axios.get(url,options)
 
     let token
     res.status(200)
@@ -385,7 +393,9 @@ async function listBulkToken(
     const b64: string = Buffer.from(s).toString("base64")
     const url: string = `${process.env.SLPDB_URL}q/${b64}`
 
-    const tokenRes: AxiosResponse = await axios.get(url)
+    const options = generateCredentials()
+
+    const tokenRes: AxiosResponse = await axios.get(url,options)
 
     const formattedTokens: any[] = []
     const txids: string[] = []
@@ -454,7 +464,9 @@ async function lookupToken(tokenId: string): Promise<any> {
     const b64: string = Buffer.from(s).toString("base64")
     const url: string = `${process.env.SLPDB_URL}q/${b64}`
 
-    const tokenRes: AxiosResponse = await axios.get(url)
+    const options = generateCredentials()
+
+    const tokenRes: AxiosResponse = await axios.get(url, options)
 
     const formattedTokens: any[] = []
 
@@ -541,7 +553,9 @@ async function balancesForAddressSingle(
     const b64: string = Buffer.from(s).toString("base64")
     const url: string = `${process.env.SLPDB_URL}q/${b64}`
 
-    const tokenRes: AxiosResponse = await axios.get(url)
+    const options = generateCredentials()
+
+    const tokenRes: AxiosResponse = await axios.get(url, options)
 
     const tokenIds: string[] = []
     if (tokenRes.data.a.length > 0) {
@@ -709,7 +723,9 @@ async function balancesForAddressBulk(
           const b64: string = Buffer.from(s).toString("base64")
           const url: string = `${process.env.SLPDB_URL}q/${b64}`
 
-          const tokenRes: AxiosResponse<any> = await axios.get(url)
+          const options = generateCredentials()
+
+          const tokenRes: AxiosResponse<any> = await axios.get(url, options)
 
           const tokenIds: string[] = []
 
@@ -837,8 +853,10 @@ async function balancesForTokenSingle(
     const b64: string = Buffer.from(s).toString("base64")
     const url: string = `${process.env.SLPDB_URL}q/${b64}`
 
+    const options = generateCredentials()
+
     // Get data from SLPDB.
-    const tokenRes: AxiosResponse = await axios.get(url)
+    const tokenRes: AxiosResponse = await axios.get(url, options)
     const resBalances: BalancesForToken[] = tokenRes.data.a.map(
       (addy: any): any => {
         delete addy.satoshis_balance
@@ -931,8 +949,10 @@ async function balancesForTokenBulk(
           const b64: string = Buffer.from(s).toString("base64")
           const url: string = `${process.env.SLPDB_URL}q/${b64}`
 
+          const options = generateCredentials()
+
           // Get data from SLPDB.
-          const tokenRes: AxiosResponse = await axios.get(url)
+          const tokenRes: AxiosResponse = await axios.get(url, options)
 
           const resBalances = tokenRes.data.a.map((addy: any): any => {
             delete addy.satoshis_balance
@@ -1036,8 +1056,10 @@ async function balancesForAddressByTokenIDSingle(
     const b64: string = Buffer.from(s).toString("base64")
     const url: string = `${process.env.SLPDB_URL}q/${b64}`
 
+    const options = generateCredentials()
+
     // Get data from SLPDB.
-    const tokenRes: AxiosResponse<any> = await axios.get(url)
+    const tokenRes: AxiosResponse<any> = await axios.get(url, options)
     let resVal: BalanceForAddressByTokenId = {
       cashAddress: utils.toCashAddress(slpAddr),
       legacyAddress: utils.toLegacyAddress(slpAddr),
@@ -1155,8 +1177,10 @@ async function balancesForAddressByTokenIDBulk(
         const b64: string = Buffer.from(s).toString("base64")
         const url: string = `${process.env.SLPDB_URL}q/${b64}`
 
+        const options = generateCredentials()
+
         // Get data from SLPDB.
-        const tokenRes: AxiosResponse<any> = await axios.get(url)
+        const tokenRes: AxiosResponse<any> = await axios.get(url, options)
 
         let resVal: BalanceForAddressByTokenId = {
           cashAddress: utils.toCashAddress(slpAddr),
@@ -1349,8 +1373,10 @@ async function validateBulk(
     const b64 = Buffer.from(s).toString("base64")
     const url = `${process.env.SLPDB_URL}q/${b64}`
 
+    const options = generateCredentials()
+
     // Get data from SLPDB.
-    const tokenRes = await axios.get(url)
+    const tokenRes = await axios.get(url, options)
 
     const formattedTokens: any[] = []
 
@@ -1424,12 +1450,14 @@ async function validateSingle(
       }
     }
 
+    const options = generateCredentials()
+
     const s = JSON.stringify(query)
     const b64 = Buffer.from(s).toString("base64")
     const url = `${process.env.SLPDB_URL}q/${b64}`
 
     // Get data from SLPDB.
-    const tokenRes = await axios.get(url)
+    const tokenRes = await axios.get(url, options)
 
     let result: any = {
       txid: txid,
@@ -1508,8 +1536,10 @@ async function burnTotalSingle(
     const b64: string = Buffer.from(s).toString("base64")
     const url: string = `${process.env.SLPDB_URL}q/${b64}`
 
+    const options = generateCredentials()
+
     // Get data from SLPDB.
-    const tokenRes: AxiosResponse = await axios.get(url)
+    const tokenRes: AxiosResponse = await axios.get(url, options)
 
     const burnTotal: BurnTotalResult = {
       transactionId: txid,
@@ -1599,8 +1629,10 @@ async function burnTotalBulk(
       const b64: string = Buffer.from(s).toString("base64")
       const url: string = `${process.env.SLPDB_URL}q/${b64}`
 
+      const options = generateCredentials()
+
       // Get data from SLPDB.
-      const tokenRes = await axios.get(url)
+      const tokenRes = await axios.get(url, options)
       const burnTotal: BurnTotalResult = {
         transactionId: txids[0],
         inputTotal: 0,
@@ -1921,8 +1953,10 @@ async function txDetails(
     const b64 = Buffer.from(s).toString("base64")
     const url = `${process.env.SLPDB_URL}q/${b64}`
 
+    const options = generateCredentials()
+
     // Get token data from SLPDB
-    const tokenRes = await axios.get(url)
+    const tokenRes = await axios.get(url, options)
     // console.log(`tokenRes: ${util.inspect(tokenRes)}`)
 
     // Format the returned data to an object.
@@ -2143,7 +2177,9 @@ async function tokenStatsSingle(
     const b64: string = Buffer.from(s).toString("base64")
     const url: string = `${process.env.SLPDB_URL}q/${b64}`
 
-    const tokenRes: AxiosResponse<any> = await axios.get(url)
+    const options = generateCredentials()
+
+    const tokenRes: AxiosResponse<any> = await axios.get(url, options)
 
     const formattedTokens: any[] = []
 
@@ -2229,7 +2265,9 @@ async function tokenStatsBulk(
         const b64: string = Buffer.from(s).toString("base64")
         const url: string = `${process.env.SLPDB_URL}q/${b64}`
 
-        const tokenRes: AxiosResponse<any> = await axios.get(url)
+        const options = generateCredentials()
+
+        const tokenRes: AxiosResponse<any> = await axios.get(url, options)
 
         const formattedTokens: any[] = []
 
@@ -2310,8 +2348,10 @@ async function txsTokenIdAddressSingle(
     const b64: string = Buffer.from(s).toString("base64")
     const url: string = `${process.env.SLPDB_URL}q/${b64}`
 
+    const options = generateCredentials()
+
     // Get data from SLPDB.
-    const tokenRes: AxiosResponse = await axios.get(url)
+    const tokenRes: AxiosResponse = await axios.get(url, options)
 
     return res.json(tokenRes.data.c)
   } catch (err) {
@@ -2411,8 +2451,10 @@ async function txsTokenIdAddressBulk(
         const b64: string = Buffer.from(s).toString("base64")
         const url: string = `${process.env.SLPDB_URL}q/${b64}`
 
+        const options = generateCredentials()
+
         // Get data from SLPDB.
-        const tokenRes: AxiosResponse = await axios.get(url)
+        const tokenRes: AxiosResponse = await axios.get(url, options)
 
         return tokenRes.data.c
       } catch (err) {
@@ -2437,6 +2479,23 @@ async function txsTokenIdAddressBulk(
       error: `Error in /transactions/:tokenId/:address: ${err.message}`
     })
   }
+}
+
+function generateCredentials() {
+  // Generate the Basic Authentication header for a private instance of SLPDB.
+  const username = "BITBOX"
+  const password = SLPDB_PASS
+  const combined = `${username}:${password}`
+  var base64Credential = Buffer.from(combined).toString('base64')
+  var readyCredential = 'Basic '+base64Credential;
+
+  const options = {
+    headers: {
+      authorization: readyCredential
+    }
+  }
+
+  return options
 }
 
 module.exports = {

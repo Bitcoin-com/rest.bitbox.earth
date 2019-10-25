@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var wtfnode = require("wtfnode"); // Debugging the event loop
+// const wtfnode = require("wtfnode") // Debugging the event loop
 // const util = require("util")
 var express = require("express");
 var req_logging_1 = require("./middleware/req-logging");
@@ -126,18 +126,18 @@ server.on("listening", onListening);
 // the handling of timeout errors. Is 10 seconds too agressive?
 server.setTimeout(30 * 1000);
 // Dump details about the event loop to debug a possible memory leak
-wtfnode.setLogger("info", function (data) {
-    wlogger.verbose("wtfnode info: " + data);
-});
-wtfnode.setLogger("warn", function (data) {
-    wlogger.verbose("wtfnode warn: " + data);
-});
-wtfnode.setLogger("error", function (data) {
-    wlogger.verbose("wtfnode error: " + data);
-});
-setInterval(function () {
-    wtfnode.dump();
-}, 60000 * 5);
+// wtfnode.setLogger("info", function(data) {
+//   wlogger.verbose(`wtfnode info: ${data}`)
+// })
+// wtfnode.setLogger("warn", function(data) {
+//   wlogger.verbose(`wtfnode warn: ${data}`)
+// })
+// wtfnode.setLogger("error", function(data) {
+//   wlogger.verbose(`wtfnode error: ${data}`)
+// })
+// setInterval(function() {
+//   wtfnode.dump()
+// }, 60000 * 5)
 /**
  * Normalize a port into a number, string, or false.
  */

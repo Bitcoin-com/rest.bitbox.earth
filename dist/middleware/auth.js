@@ -8,7 +8,6 @@
   If the header is found and validated, the req.locals.proLimit Boolean value
   is set and passed to the route-ratelimits.ts middleware.
 */
-"use strict";
 var passport = require("passport");
 var BasicStrategy = require("passport-http").BasicStrategy;
 var AnonymousStrategy = require("passport-anonymous");

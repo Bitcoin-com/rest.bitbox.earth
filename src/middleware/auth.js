@@ -9,8 +9,6 @@
   is set and passed to the route-ratelimits.ts middleware.
 */
 
-"use strict"
-
 const passport = require("passport")
 const BasicStrategy = require("passport-http").BasicStrategy
 const AnonymousStrategy = require("passport-anonymous")
