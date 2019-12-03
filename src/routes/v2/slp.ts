@@ -2103,7 +2103,9 @@ async function formatToRestObject(slpDBFormat: any) {
 
     return obj
   } catch (err) {
-    wlogger.error(`Error in slp.ts/formatToRestObject().`, err)
+    // This catch statement is regularly triggered as part of this functions
+    // normal behavior. Do not log errors.
+    // wlogger.error(`Error in slp.ts/formatToRestObject().`, err)
 
     return false
   }
