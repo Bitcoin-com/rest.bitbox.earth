@@ -68,16 +68,11 @@ const mockSingleTokenError = {
 }
 
 const mockSingleAddress = {
-  a: [
+  g: [
     {
-      _id: "5c93ed62a19119333d1595bc",
-      tokenDetails: {
-        tokenIdHex:
-          "6b081fcd1f78b187be1464313dac8ff257251b727a42b613552a4040870aeb29"
-      },
-      address: "slptest:pz0qcslrqn7hr44hsszwl4lw5r6udkg6zqv7sq3kk7",
-      satoshis_balance: 546,
-      token_balance: "4616984"
+      _id: "6b081fcd1f78b187be1464313dac8ff257251b727a42b613552a4040870aeb29",
+      balanceString: "4616984",
+      slpAddress: "slptest:pz0qcslrqn7hr44hsszwl4lw5r6udkg6zqv7sq3kk7"
     }
   ],
   t: [
@@ -271,8 +266,7 @@ const mockTokenStats = {
 }
 
 const mockBalance = {
-  slpAddress: "simpleledger:qp9d8mn8ypryfvea2mev0ggc3wg6plpn4suuaeuss3",
-  satoshis_balance: 546,
+  _id: "simpleledger:qp9d8mn8ypryfvea2mev0ggc3wg6plpn4suuaeuss3",
   token_balance: "1000"
 }
 
