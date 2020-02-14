@@ -998,7 +998,7 @@ describe("#SLP", () => {
         nock(`${process.env.SLPDB_URL}`)
           .get(uri => uri.includes("/"))
           .reply(200, {
-            a: [mockData.mockBalance]
+            g: [mockData.mockBalance]
           })
       }
 
@@ -1037,7 +1037,7 @@ describe("#SLP", () => {
         nock(`${process.env.SLPDB_URL}`)
           .get(uri => uri.includes("/"))
           .reply(200, {
-            a: [mockData.mockBalance]
+            g: [mockData.mockBalance]
           })
       }
 
