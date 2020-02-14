@@ -495,17 +495,56 @@ async function balancesForAddressSingle(
       v: number
       q: {
         db: string[]
-        find: any
+        aggregate: any[]
         limit: number
       }
     } = {
       v: 3,
       q: {
-        db: ["a"],
-        find: {
-          address: SLP.Address.toSLPAddress(address),
-          token_balance: { $gte: 0 }
-        },
+        db: ["g"],
+        aggregate: [
+          {
+            "$match": {
+              "graphTxn.outputs": {
+                "$elemMatch": {
+                  "address": SLP.Address.toSLPAddress(address),
+                  "status": "UNSPENT",
+                  "slpAmount": { "$gte": 0 }
+                }
+              }
+            }
+          },
+          {
+            "$unwind": "$graphTxn.outputs"
+          },
+          {
+            "$match": {
+              "graphTxn.outputs.address": SLP.Address.toSLPAddress(address),
+              "graphTxn.outputs.status": "UNSPENT",
+              "graphTxn.outputs.slpAmount": { "$gte": 0 }
+            }
+          },
+          {
+            "$project": {
+              "amount": "$graphTxn.outputs.slpAmount",
+              "address": "$graphTxn.outputs.address",
+              "txid": "$graphTxn.txid",
+              "vout": "$graphTxn.outputs.vout",
+              "tokenId": "$tokenDetails.tokenIdHex"
+            }
+          },
+          {
+            "$group": {
+              "_id": "$tokenId",
+              "balanceString": {
+                "$sum": "$amount"
+              },
+              "slpAddress": {
+                "$first": "$address"
+              }
+            }
+          }
+        ],
         limit: 10000
       }
     }
@@ -519,18 +558,12 @@ async function balancesForAddressSingle(
     const tokenRes: AxiosResponse = await axios.get(url, options)
 
     const tokenIds: string[] = []
-    if (tokenRes.data.a.length > 0) {
-      tokenRes.data.a = tokenRes.data.a.map(token => {
-        token.tokenId = token.tokenDetails.tokenIdHex
+    if (tokenRes.data.g.length > 0) {
+      tokenRes.data.g = tokenRes.data.g.map(token => {
+        token.tokenId = token._id
         tokenIds.push(token.tokenId)
-        token.balance = parseFloat(token.token_balance)
-        token.balanceString = token.token_balance
-        token.slpAddress = token.address
-        delete token.tokenDetails
-        delete token.satoshis_balance
-        delete token.token_balance
+        token.balance = parseFloat(token.balanceString)
         delete token._id
-        delete token.address
         return token
       })
 
@@ -574,7 +607,7 @@ async function balancesForAddressSingle(
       })
 
       const details: BalancesForAddress[] = await Promise.all(promises)
-      tokenRes.data.a = tokenRes.data.a.map((token: any): any => {
+      tokenRes.data.g = tokenRes.data.g.map((token: any): any => {
         details.forEach((detail: any): any => {
           if (detail.t[0].tokenDetails.tokenIdHex === token.tokenId)
             token.decimalCount = detail.t[0].tokenDetails.decimals
@@ -582,7 +615,7 @@ async function balancesForAddressSingle(
         return token
       })
 
-      return res.json(tokenRes.data.a)
+      return res.json(tokenRes.data.g)
     }
     return res.json([])
   } catch (err) {
@@ -665,17 +698,56 @@ async function balancesForAddressBulk(
             v: number
             q: {
               db: string[]
-              find: any
+              aggregate: any[]
               limit: number
             }
           } = {
             v: 3,
             q: {
-              db: ["a"],
-              find: {
-                address: SLP.Address.toSLPAddress(address),
-                token_balance: { $gte: 0 }
-              },
+              db: ["g"],
+              aggregate: [
+                {
+                  "$match": {
+                    "graphTxn.outputs": {
+                      "$elemMatch": {
+                        "address": SLP.Address.toSLPAddress(address),
+                        "status": "UNSPENT",
+                        "slpAmount": { "$gte": 0 }
+                      }
+                    }
+                  }
+                },
+                {
+                  "$unwind": "$graphTxn.outputs"
+                },
+                {
+                  "$match": {
+                    "graphTxn.outputs.address": SLP.Address.toSLPAddress(address),
+                    "graphTxn.outputs.status": "UNSPENT",
+                    "graphTxn.outputs.slpAmount": { "$gte": 0 }
+                  }
+                },
+                {
+                  "$project": {
+                    "amount": "$graphTxn.outputs.slpAmount",
+                    "address": "$graphTxn.outputs.address",
+                    "txid": "$graphTxn.txid",
+                    "vout": "$graphTxn.outputs.vout",
+                    "tokenId": "$tokenDetails.tokenIdHex"
+                  }
+                },
+                {
+                  "$group": {
+                    "_id": "$tokenId",
+                    "balanceString": {
+                      "$sum": "$amount"
+                    },
+                    "slpAddress": {
+                      "$first": "$address"
+                    }
+                  }
+                }
+              ],
               limit: 10000
             }
           }
@@ -693,18 +765,12 @@ async function balancesForAddressBulk(
 
           const tokenIds: string[] = []
 
-          if (tokenRes.data.a.length > 0) {
-            tokenRes.data.a = tokenRes.data.a.map(token => {
-              token.tokenId = token.tokenDetails.tokenIdHex
+          if (tokenRes.data.g.length > 0) {
+            tokenRes.data.g = tokenRes.data.g.map(token => {
+              token.tokenId = token._id
               tokenIds.push(token.tokenId)
-              token.balance = parseFloat(token.token_balance)
-              token.balanceString = token.token_balance
-              token.slpAddress = token.address
-              delete token.tokenDetails
-              delete token.satoshis_balance
-              delete token.token_balance
+              token.balance = parseFloat(token.balanceString)
               delete token._id
-              delete token.address
               return token
             })
           }
@@ -747,7 +813,7 @@ async function balancesForAddressBulk(
             }
           })
           const details: BalancesForAddress[] = await Promise.all(promises)
-          tokenRes.data.a = tokenRes.data.a.map((token: any): any => {
+          tokenRes.data.g = tokenRes.data.g.map((token: any): any => {
             details.forEach((detail: any): any => {
               if (detail.t[0].tokenDetails.tokenIdHex === token.tokenId)
                 token.decimalCount = detail.t[0].tokenDetails.decimals
@@ -755,7 +821,7 @@ async function balancesForAddressBulk(
             return token
           })
 
-          return tokenRes.data.a
+          return tokenRes.data.g
         } catch (err) {
           throw err
         }
@@ -797,19 +863,55 @@ async function balancesForTokenSingle(
     const query: {
       v: number
       q: {
-        find: any
-        project: any
+        db: string[]
+        aggregate: any[]
         limit: number
       }
     } = {
       v: 3,
       q: {
-        find: {
-          "tokenDetails.tokenIdHex": tokenId,
-          token_balance: { $gte: 0 }
-        },
-        limit: 10000,
-        project: { address: 1, satoshis_balance: 1, token_balance: 1, _id: 0 }
+        db: ["g"],
+        aggregate: [
+          {
+            "$match": {
+              "graphTxn.outputs": {
+                "$elemMatch": {
+                  "status": "UNSPENT",
+                  "slpAmount": { "$gte": 0 }
+                }
+              },
+              "tokenDetails.tokenIdHex": tokenId
+            }
+          },
+          {
+            "$unwind": "$graphTxn.outputs"
+          },
+          {
+            "$match": {
+              "graphTxn.outputs.status": "UNSPENT",
+              "graphTxn.outputs.slpAmount": { "$gte": 0 },
+              "tokenDetails.tokenIdHex": tokenId
+            }
+          },
+          {
+            "$project": {
+              "token_balance": "$graphTxn.outputs.slpAmount",
+              "address": "$graphTxn.outputs.address",
+              "txid": "$graphTxn.txid",
+              "vout": "$graphTxn.outputs.vout",
+              "tokenId": "$tokenDetails.tokenIdHex"
+            }
+          },
+          {
+            "$group": {
+              "_id": "$address",
+              "token_balance": {
+                "$sum": "$token_balance"
+              }
+            }
+          }
+        ],
+        limit: 10000
       }
     }
 
@@ -821,14 +923,13 @@ async function balancesForTokenSingle(
 
     // Get data from SLPDB.
     const tokenRes: AxiosResponse = await axios.get(url, options)
-    const resBalances: BalancesForToken[] = tokenRes.data.a.map(
+    const resBalances: BalancesForToken[] = tokenRes.data.g.map(
       (addy: any): any => {
-        delete addy.satoshis_balance
         addy.tokenBalance = parseFloat(addy.token_balance)
         addy.tokenBalanceString = addy.token_balance
-        addy.slpAddress = addy.address
+        addy.slpAddress = addy._id
         addy.tokenId = tokenId
-        delete addy.address
+        delete addy._id
         delete addy.token_balance
         return addy
       }
@@ -889,26 +990,58 @@ async function balancesForTokenBulk(
           const query: {
             v: number
             q: {
-              find: any
-              project: any
+              db: string[]
+              aggregate: any[]
               limit: number
             }
           } = {
             v: 3,
             q: {
-              find: {
-                "tokenDetails.tokenIdHex": tokenId,
-                token_balance: { $gte: 0 }
-              },
-              limit: 10000,
-              project: {
-                address: 1,
-                satoshis_balance: 1,
-                token_balance: 1,
-                _id: 0
-              }
+              db: ["g"],
+              aggregate: [
+                {
+                  "$match": {
+                    "graphTxn.outputs": {
+                      "$elemMatch": {
+                        "status": "UNSPENT",
+                        "slpAmount": { "$gte": 0 }
+                      }
+                    },
+                    "tokenDetails.tokenIdHex": tokenId
+                  }
+                },
+                {
+                  "$unwind": "$graphTxn.outputs"
+                },
+                {
+                  "$match": {
+                    "graphTxn.outputs.status": "UNSPENT",
+                    "graphTxn.outputs.slpAmount": { "$gte": 0 },
+                    "tokenDetails.tokenIdHex": tokenId
+                  }
+                },
+                {
+                  "$project": {
+                    "token_balance": "$graphTxn.outputs.slpAmount",
+                    "address": "$graphTxn.outputs.address",
+                    "txid": "$graphTxn.txid",
+                    "vout": "$graphTxn.outputs.vout",
+                    "tokenId": "$tokenDetails.tokenIdHex"
+                  }
+                },
+                {
+                  "$group": {
+                    "_id": "$address",
+                    "token_balance": {
+                      "$sum": "$token_balance"
+                    }
+                  }
+                }
+              ],
+              limit: 10000
             }
           }
+
           const s: string = JSON.stringify(query)
           const b64: string = Buffer.from(s).toString("base64")
           const url: string = `${process.env.SLPDB_URL}q/${b64}`
@@ -918,13 +1051,12 @@ async function balancesForTokenBulk(
           // Get data from SLPDB.
           const tokenRes: AxiosResponse = await axios.get(url, options)
 
-          const resBalances = tokenRes.data.a.map((addy: any): any => {
-            delete addy.satoshis_balance
+          const resBalances = tokenRes.data.g.map((addy: any): any => {
             addy.tokenBalance = parseFloat(addy.token_balance)
             addy.tokenBalanceString = addy.token_balance
-            addy.slpAddress = addy.address
+            addy.slpAddress = addy._id
             addy.tokenId = tokenId
-            delete addy.address
+            delete addy._id
             delete addy.token_balance
             return addy
           })
@@ -1001,18 +1133,57 @@ async function balancesForAddressByTokenIDSingle(
       v: number
       q: {
         db: string[]
-        find: any
+        aggregate: any[]
         limit: number
       }
     } = {
       v: 3,
       q: {
-        db: ["a"],
-        find: {
-          address: slpAddr,
-          token_balance: { $gte: 0 }
-        },
-        limit: 10
+        db: ["g"],
+        aggregate: [
+          {
+            "$match": {
+              "graphTxn.outputs": {
+                "$elemMatch": {
+                  "address": slpAddr,
+                  "status": "UNSPENT",
+                  "slpAmount": { "$gte": 0 }
+                }
+              }
+            }
+          },
+          {
+            "$unwind": "$graphTxn.outputs"
+          },
+          {
+            "$match": {
+              "graphTxn.outputs.address": slpAddr,
+              "graphTxn.outputs.status": "UNSPENT",
+              "graphTxn.outputs.slpAmount": { "$gte": 0 }
+            }
+          },
+          {
+            "$project": {
+              "amount": "$graphTxn.outputs.slpAmount",
+              "address": "$graphTxn.outputs.address",
+              "txid": "$graphTxn.txid",
+              "vout": "$graphTxn.outputs.vout",
+              "tokenId": "$tokenDetails.tokenIdHex"
+            }
+          },
+          {
+            "$group": {
+              "_id": "$tokenId",
+              "balanceString": {
+                "$sum": "$amount"
+              },
+              "slpAddress": {
+                "$first": "$address"
+              }
+            }
+          }
+        ],
+        limit: 10000
       }
     }
 
@@ -1032,16 +1203,16 @@ async function balancesForAddressByTokenIDSingle(
       balance: 0,
       balanceString: "0"
     }
-    if (tokenRes.data.a.length > 0) {
-      tokenRes.data.a.forEach((token: any): any => {
-        if (token.tokenDetails.tokenIdHex === tokenId) {
+    if (tokenRes.data.g.length > 0) {
+      tokenRes.data.g.forEach((token: any): any => {
+        if (token._id === tokenId) {
           resVal = {
             cashAddress: utils.toCashAddress(slpAddr),
             legacyAddress: utils.toLegacyAddress(slpAddr),
             slpAddress: slpAddr,
-            tokenId: token.tokenDetails.tokenIdHex,
-            balance: parseFloat(token.token_balance),
-            balanceString: token.token_balance
+            tokenId: token._id,
+            balance: parseFloat(token.balanceString),
+            balanceString: token.balanceString
           }
         }
       })
@@ -1116,24 +1287,62 @@ async function balancesForAddressByTokenIDBulk(
       try {
         // Convert input to an simpleledger: address.
         const slpAddr: string = utils.toSlpAddress(data.address)
-        // const slpAddr: string = data.address
 
         const query: {
           v: number
           q: {
             db: string[]
-            find: any
+            aggregate: any[]
             limit: number
           }
         } = {
           v: 3,
           q: {
-            db: ["a"],
-            find: {
-              address: slpAddr,
-              token_balance: { $gte: 0 }
-            },
-            limit: 10
+            db: ["g"],
+            aggregate: [
+              {
+                "$match": {
+                  "graphTxn.outputs": {
+                    "$elemMatch": {
+                      "address": slpAddr,
+                      "status": "UNSPENT",
+                      "slpAmount": { "$gte": 0 }
+                    }
+                  }
+                }
+              },
+              {
+                "$unwind": "$graphTxn.outputs"
+              },
+              {
+                "$match": {
+                  "graphTxn.outputs.address": slpAddr,
+                  "graphTxn.outputs.status": "UNSPENT",
+                  "graphTxn.outputs.slpAmount": { "$gte": 0 }
+                }
+              },
+              {
+                "$project": {
+                  "amount": "$graphTxn.outputs.slpAmount",
+                  "address": "$graphTxn.outputs.address",
+                  "txid": "$graphTxn.txid",
+                  "vout": "$graphTxn.outputs.vout",
+                  "tokenId": "$tokenDetails.tokenIdHex"
+                }
+              },
+              {
+                "$group": {
+                  "_id": "$tokenId",
+                  "balanceString": {
+                    "$sum": "$amount"
+                  },
+                  "slpAddress": {
+                    "$first": "$address"
+                  }
+                }
+              }
+            ],
+            limit: 10000
           }
         }
 
@@ -1157,17 +1366,17 @@ async function balancesForAddressByTokenIDBulk(
           balance: 0,
           balanceString: "0"
         }
-        if (tokenRes.data.a.length > 0) {
-          tokenRes.data.a.forEach(
+        if (tokenRes.data.g.length > 0) {
+          tokenRes.data.g.forEach(
             async (token: any): Promise<any> => {
-              if (token.tokenDetails.tokenIdHex === data.tokenId) {
+              if (token._id === data.tokenId) {
                 resVal = {
                   cashAddress: utils.toCashAddress(data.address),
                   legacyAddress: utils.toLegacyAddress(data.address),
                   slpAddress: data.address,
-                  tokenId: token.tokenDetails.tokenIdHex,
-                  balance: parseFloat(token.token_balance),
-                  balanceString: token.token_balance
+                  tokenId: token._id,
+                  balance: parseFloat(token.balanceString),
+                  balanceString: token.balanceString
                 }
               }
             }
@@ -2369,7 +2578,6 @@ async function txsTokenIdAddressBulk(
       try {
         // Convert input to an simpleledger: address.
         const slpAddr: string = utils.toSlpAddress(data.address)
-        // const slpAddr: string = data.address
 
         const query: {
           v: number
